@@ -1,9 +1,9 @@
 // components/Layout.js
-import NavbarIndividual from '@/components/NavbarIndividual';
-import NavbarFoodBank from '@/components/NavbarFoodbank';
-import NavbarDonor from '@/components/NavbarDonor';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
+import NavbarIndividual from '../components/NavbarIndividual.js';
+import NavbarFoodBank from '../components/NavbarFoodbank.js';
+import NavbarDonor from '../components/NavbarDonor.js';
+import Footer from '../components/Footer.js';
+import Navbar from '../components/Navbar.js';
 
 const Layout = ({ children, userRole }) => {
   let NavbarComponent;
