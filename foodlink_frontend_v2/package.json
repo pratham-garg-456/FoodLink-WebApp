@@ -1,6 +1,7 @@
 {
   "name": "foodlink_frontend_v2",
-  "version": "0.1.0",
+  "version": "0.0.1",
+  "description": "Foodlink frontend",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,15 +10,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "15.1.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "15.1.5"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "eslint": "^9",
+    "@eslint/eslintrc": "^3",
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
     "eslint-config-next": "15.1.5",
-    "@eslint/eslintrc": "^3"
-  }
+    "eslint-plugin-react": "^7.37.4",
+    "globals": "^15.14.0",
+    "postcss": "^8",
+    "prettier": "3.4.2",
+    "tailwindcss": "^3.4.1"
+  },
+  "license": "UNLICENSED"
 }
