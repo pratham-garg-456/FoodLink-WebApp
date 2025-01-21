@@ -1,21 +1,14 @@
+// pages/_app.js
+import Layout from './layout';
 import '../styles/globals.css';
-import Footer from '../components/footer';
-import Navbar from '../components/navbar';
 
 function MyApp({ Component, pageProps }) {
+  const userRole = ''; // This should come from your authentication logic
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar at the top */}
-      <Navbar />
-
-      {/* Main content, which grows to fill available space */}
-      <main className="flex-grow">
-        <Component {...pageProps} />
-      </main>
-
-      {/* Footer at the bottom */}
-      <Footer />
-    </div>
+    <Layout userRole={userRole}>
+      <Component {...pageProps} />
+    </Layout>
   );
 }
 
