@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full flex p-6 pl-10 pr-4 gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
+      className={`fixed w-full flex p-8 md:p-4 md:px-6 md gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >
@@ -98,9 +98,9 @@ const Navbar = () => {
         >
           &times;
         </a>
-        <div className="p-2 md:flex-row md:p-6 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col">
+        <div className="p-2 md:flex-row md:p-0 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col text-sm md:text-base gap-4">
           <div></div>
-          <div className="flex flex-col items-center md:flex-row">
+          <div className="flex flex-col items-center md:flex-row ">
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
@@ -139,7 +139,7 @@ const Navbar = () => {
 
             <Link
               href="/login"
-              className="bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 transition md:bg-black md:hover:bg-gray-800 md:text-white"
+              className="bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 md:hover:bg-gray-800 transition md:bg-black md:text-white"
             >
               Login/Register
             </Link>

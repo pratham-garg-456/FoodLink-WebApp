@@ -25,7 +25,7 @@ const Layout = ({ children, userRole }) => {
       {NavbarComponent && <NavbarComponent />}
 
       {/* Main content */}
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow pt-20 flex justify-center items-center">{children}</main>
 
       {/* Footer */}
       <Footer />
