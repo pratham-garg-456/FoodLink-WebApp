@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full flex p-6 pl-10 pr-4 gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
+      className={`fixed w-full flex p-6 pl-10 pr-4 gap-4 md:gap-0 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >
@@ -84,7 +84,7 @@ const Navbar = () => {
       {/* Sidebar */}
 
       <div
-        className={`md:relative fixed top-0 right-0 bg-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
+        className={`md:relative fixed  bg-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
           isNavOpen ? 'w-2/5' : 'w-0 bg-transparent '
         }`}
       >
@@ -98,7 +98,7 @@ const Navbar = () => {
         >
           &times;
         </a>
-        <div className="p-2 md:flex-row md:p-6 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col">
+        <div className="p-2 md:flex-row md:p-0 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col">
           <div></div>
           <div className="flex flex-col items-center md:flex-row">
             <div>
