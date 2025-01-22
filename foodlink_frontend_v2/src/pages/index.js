@@ -7,12 +7,12 @@ export default function Home() {
       <div className="flex flex-col items-center  ">
         <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row md:justify-end md:w-[80vw] md:gap-2 ">
           {/* Left section */}
-          <div className="order-last md:order-first md:w-4/6 pr-4">
+          <div className="order-last md:order-first md:w-4/6 md:pr-4">
             <h1 className="text-2xl md:text-5xl text-center mt-5 font-bold text-gray-900 md:text-left mb-7">
               Find, support, and donate to local food banks
             </h1>
 
-            <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+            <div className="flex flex-wrap justify-center gap-2 md:justify-start ">
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Register
               </button>
