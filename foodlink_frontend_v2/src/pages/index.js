@@ -5,14 +5,14 @@ export default function Home() {
   return (
     <>
       <div className="flex flex-col items-center  ">
-        <div className="flex flex-col justify-center items-center w-[70vw]">
+        <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row md:justify-end md:w-[80vw] md:gap-2 ">
           {/* Left section */}
-          <div className="w-full md:w-1/2 space-y-6 order-last">
-            <h1 className="text-2xl md:text-5xl text-center mt-5 font-bold text-gray-900">
+          <div className="order-last md:order-first md:w-4/6 pr-4">
+            <h1 className="text-2xl md:text-5xl text-center mt-5 font-bold text-gray-900 md:text-left mb-7">
               Find, support, and donate to local food banks
             </h1>
 
-            <div className="flex flex-wrap justify-center gap-2 ">
+            <div className="flex flex-wrap justify-center gap-2 md:justify-start">
               <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 Register
               </button>
@@ -24,7 +24,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="mt-8 text-l text-gray-800 flex flex-col items-center">
+            <div className="mt-8 text-md text-gray-800 flex flex-col items-center md:justify-start md:items-start md:flex-row md:gap-4">
               <p>
                 <strong>2.5k</strong> donations
               </p>
@@ -38,14 +38,14 @@ export default function Home() {
           </div>
 
           {/* Right section */}
-          <div className="w-full md:w-1/2 flex flex-col justify-center items-center">
+          <div className="md:w-2/6 flex flex-col justify-center items-center">
             <Image
               src={foodbank} // Make sure to add your image in the public folder
               alt="Food Bank"
-              className="rounded-full object-cover shadow-lg w-32 h-32 "
+              className="rounded-full object-cover shadow-lg w-32 h-32 md:w-64 md:h-64"
             />
             <div className="mt-6 text-center text-gray-600">
-              <p className="text-md w-[70vw] font-semibold">
+              <p className="text-md font-semibold md">
                 Connecting communities with food and resources
               </p>
             </div>
