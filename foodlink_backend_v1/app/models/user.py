@@ -10,4 +10,5 @@ class User(Document):
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
     
-    
+    class Settings:
+        collection = "users"
