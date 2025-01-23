@@ -21,7 +21,7 @@ async def add_available_services(service_data: dict = {}):
     is_defined = await Service.find_one(Service.title == service_data.get("title"))
     
     if is_defined:
-        raise HTTPException(status_code=401, detail=f"{service_data.get("title")} defined already!")
+        raise HTTPException(status_code=401, detail=f"{service_data["title"]} defined already!")
     
     # Creating a new service in the db    
     try:
