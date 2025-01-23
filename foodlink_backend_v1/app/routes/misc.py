@@ -15,13 +15,13 @@ async def add_available_services(service_data: dict = {}):
     # Validate it
     for key in required_keys:
         if not service_data.get(key):
-            raise HTTPException(status_code=400, detail=f"{key} is required and cannot be empty")
+            raise HTTPException(status_code=400, detail=f'{key} is required and cannot be empty')
 
     # Check if the service is defined already
     is_defined = await Service.find_one(Service.title == service_data.get("title"))
     
     if is_defined:
-        raise HTTPException(status_code=401, detail=f"{service_data["title"]} defined already!")
+        raise HTTPException(status_code=401, detail=f"{service_data['title']} defined already!")
     
     # Creating a new service in the db    
     try:
@@ -31,7 +31,7 @@ async def add_available_services(service_data: dict = {}):
         service_dict = new_service.model_dump()
         service_dict["id"] = str(service_dict["id"])
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occured while creating new service in db: {e}")
+        raise HTTPException(status_code=400, detail=f'An error occured while creating new service in db: {e}')
     
     return {"status": "success", "service": service_dict}
 
