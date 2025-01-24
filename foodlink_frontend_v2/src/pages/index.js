@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import foodbank from '../../public/images/food-bank.jpg';
+import router from 'next/router';
 
 export default function Home() {
   return (
@@ -13,13 +14,13 @@ export default function Home() {
             </h1>
 
             <div className="flex flex-wrap justify-center gap-2 md:justify-start ">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onClick={() => router.push('/register')}>
                 Register
               </button>
               <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                 Donate Now
               </button>
-              <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+              <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700" onClick={() => router.push('/findBank')}>
                 Find Food Bank
               </button>
             </div>
