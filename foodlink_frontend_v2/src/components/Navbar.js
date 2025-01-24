@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 const Navbar = () => {
@@ -6,6 +7,9 @@ const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [svgColor, setSvgColor] = useState('#000');
+  const navRef = useRef(null); // Ref for the navbar
+
+  const router = useRouter(); // Initialize the router
 
   const openNav = () => {
     setIsNavOpen(true);
@@ -15,6 +19,21 @@ const Navbar = () => {
     setIsNavOpen(false);
     setSvgColor('#000');
   };
+
+  // Close navbar if clicked outside
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        exitNav();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
 
   // Handle scroll to show/hide navbar
   useEffect(() => {
@@ -31,6 +50,31 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  const getButton = () => {
+    const buttonStyle =
+      'text-center bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 md:hover:bg-gray-800 transition ease-in-out md:bg-black md:text-white';
+
+    if (router.pathname === '/login') {
+      return (
+        <Link href="/register" className={buttonStyle}>
+          Register
+        </Link>
+      );
+    } else if (router.pathname === '/register') {
+      return (
+        <Link href="/login" className={buttonStyle}>
+          Login
+        </Link>
+      );
+    } else {
+      return (
+        <Link href="/login" className={buttonStyle}>
+          Login/Register
+        </Link>
+      );
+    }
+  };
 
   return (
     <nav
@@ -84,6 +128,7 @@ const Navbar = () => {
       {/* Sidebar */}
 
       <div
+        ref={navRef} // Attach ref to the sidebar
         className={`md:relative fixed top-0 right-0 bg-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
           isNavOpen ? 'w-2/5' : 'w-0 bg-transparent '
         }`}
@@ -112,7 +157,7 @@ const Navbar = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/projects"
+                href="/about"
               >
                 ABOUT US
               </Link>
@@ -120,7 +165,7 @@ const Navbar = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/experience"
+                href="/services"
               >
                 SERVICES
               </Link>
@@ -128,21 +173,15 @@ const Navbar = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/achievement"
+                href="/contact"
               >
                 CONTACT
               </Link>
             </div>
           </div>
-          <div className="my-4">
-            {/* Login/Register Button */}
-
-            <Link
-              href="/login"
-              className="bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 md:hover:bg-gray-800 transition md:bg-black md:text-white"
-            >
-              Login/Register
-            </Link>
+          <div className="my-4 flex justify-center w-36">
+            {/* Dynamic Login/Register Button */}
+            {getButton()}
           </div>
         </div>
       </div>
