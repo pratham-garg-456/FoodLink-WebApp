@@ -8,17 +8,27 @@ const Footer = () => {
         {/* Follow Us Section */}
         <div className="flex items-center gap-4 mb-2 md:mb-0">
           <span className="font-bold text-md">Follow Us:</span>
-          <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+          <Link
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook"
+          >
             <FaFacebook className="text-xl hover:text-blue-600 transition-colors" />
           </Link>
-          <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+          <Link
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
             <FaInstagram className="text-xl hover:text-pink-600 transition-colors" />
           </Link>
         </div>
 
         {/* Rights Reserved */}
         <div className="text-center md:text-right text-sm">
-          <p>2024 FoodLink All rights reserved</p>
+          <p>&copy; {new Date().getFullYear()} FoodLink. All rights reserved.</p>
         </div>
       </div>
     </footer>
