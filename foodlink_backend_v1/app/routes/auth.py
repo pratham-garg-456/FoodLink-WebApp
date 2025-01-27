@@ -26,7 +26,7 @@ async def signup(user_data: dict = {}):
     user = await get_user_by_email_from_db(email=user_data["email"])
     
     if user:
-        raise HTTPException(status_code=400, status=f"{user_data['email']} already registered")
+        raise HTTPException(status_code=400, detail=f"{user_data['email']} already registered")
     
     # Hash the input password
     try:
