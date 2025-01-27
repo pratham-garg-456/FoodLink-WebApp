@@ -24,6 +24,7 @@ const Contact = () => {
       try {
         const response = await axios.post('/api/contact', formData);
         console.log(response.data); // handle response as needed
+        navigate('/thankyou'); // Navigate to Thank You page on successful submission
         alert('Form submitted successfully!');
       } catch (error) {
         console.error('Submission error:', error);
