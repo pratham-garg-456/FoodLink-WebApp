@@ -7,11 +7,12 @@ const LoginPage = () => {
   const [error, setError] = useState('');
 
   const handleLogin = async (event) => {
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     event.preventDefault();
     setError(''); // Clear any previous error
     try {
       const response = await axios.post(
-        `https://foodlink-backend-v1.onrender.com/api/v1/foodlink/auth/signin`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/signin`,
         {
           email,
           password,
