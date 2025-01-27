@@ -11,6 +11,7 @@ const RegisterPage = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleRegister = async (event) => {
+    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     event.preventDefault();
     setError('');
     setSuccessMessage('');
@@ -22,7 +23,7 @@ const RegisterPage = () => {
 
     try {
       const response = await axios.post(
-        `https://foodlink-backend-v1.onrender.com/api/v1/foodlink/auth/register`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/register`,
         {
           name,
           role,
