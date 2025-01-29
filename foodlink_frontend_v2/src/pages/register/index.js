@@ -11,7 +11,6 @@ const RegisterPage = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleRegister = async (event) => {
-    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     event.preventDefault();
     setError('');
     setSuccessMessage('');

@@ -7,7 +7,6 @@ const LoginPage = () => {
   const [error, setError] = useState('');
 
   const handleLogin = async (event) => {
-    console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
     event.preventDefault();
     setError(''); // Clear any previous error
     try {

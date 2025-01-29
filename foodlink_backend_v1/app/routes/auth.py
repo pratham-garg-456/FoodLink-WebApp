@@ -11,8 +11,13 @@ async def signup(user_data: dict = {}):
     :param user_data: A user information contains name, role, email, and password
     :return A successful message indicates that the user is stored in the db
     """
-    if not user_data["name"] and user_data["role"] and user_data["email"] and user_data["password"] and user_data["confirm_password"]:
-        raise HTTPException(status_code=400, detail="Name, role, email, and password are required!")
+    
+    # Define a required body
+    required_keys = ["name", "role", "email", "password", "confirm_password"]
+    # Validate each key in the body
+    for key in required_keys:
+        if not user_data.get(key):
+            raise HTTPException(status_code=400, detail=f"{key} is required and cannot be empty")
     
     if not user_data["confirm_password"] == user_data["password"]:
         raise HTTPException(status_code=401, detail="Password does not match!")
@@ -21,7 +26,7 @@ async def signup(user_data: dict = {}):
     user = await get_user_by_email_from_db(email=user_data["email"])
     
     if user:
-        raise HTTPException(status_code=400, status=f"{user_data['email']} already registered")
+        raise HTTPException(status_code=400, detail=f"{user_data['email']} already registered")
     
     # Hash the input password
     try:
@@ -41,9 +46,12 @@ async def signin(user_data: dict = {}):
     :param user_data: A user information contains email and plain password
     :return A successful message indicates that user is authenticated
     """
-    
-    if not user_data["email"] and user_data["password"]:
-        raise HTTPException(status_code=400, detail="Email and Password are required!")
+   # Define a required body
+    required_keys = ["email", "password"]
+    # Validate each key in the body
+    for key in required_keys:
+        if not user_data.get(key):
+            raise HTTPException(status_code=400, detail=f"{key} is required and cannot be empty")
     
     # Fetch the stored user in the db
     user = await get_user_by_email_from_db(email=user_data["email"])
