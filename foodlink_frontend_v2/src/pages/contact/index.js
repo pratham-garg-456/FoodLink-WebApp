@@ -10,6 +10,31 @@ const Contact = () => {
     message: '',
   });
 
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    let newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must be 10 digits';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,18 +45,19 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.name && formData.email && formData.phone && formData.subject) {
+    if (validateForm()) {
       try {
-        const response = await axios.post('/api/contact', formData);
-        console.log(response.data); // handle response as needed
-        navigate('/thankyou'); // Navigate to Thank You page on successful submission
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/contact`,
+          formData,
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        console.log(response.data);
         alert('Form submitted successfully!');
       } catch (error) {
         console.error('Submission error:', error);
         alert('Error submitting the form.');
       }
-    } else {
-      alert('Please fill in all required fields.');
     }
   };
 
@@ -45,32 +71,34 @@ const Contact = () => {
               type="text"
               name="name"
               placeholder="Name:"
-              required
               value={formData.name}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+
             <input
               type="email"
               name="email"
               placeholder="Email:"
-              required
               value={formData.email}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+
             <input
               type="tel"
               name="phone"
               placeholder="Phone:"
-              required
               value={formData.phone}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
             />
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+
             <select
               name="subject"
-              required
               value={formData.subject}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded"
@@ -102,27 +130,6 @@ const Contact = () => {
           </p>
           <p>
             <strong>Address:</strong> 123 Food Link Ave, City, State, ZIP Code
-          </p>
-          <h3 className="text-xl font-bold mt-4">Donations</h3>
-          <p>
-            <strong>Email:</strong> donations@foodlink.com
-          </p>
-          <p>
-            <strong>Phone:</strong> 123-456-7891
-          </p>
-          <h3 className="text-xl font-bold mt-4">Volunteer Services</h3>
-          <p>
-            <strong>Email:</strong> volunteer@foodlink.com
-          </p>
-          <p>
-            <strong>Phone:</strong> 123-456-7892
-          </p>
-          <h3 className="text-xl font-bold mt-4">Technical Support</h3>
-          <p>
-            <strong>Email:</strong> support@foodlink.com
-          </p>
-          <p>
-            <strong>Phone:</strong> 123-456-7893
           </p>
         </div>
         <div className="picture-space">
