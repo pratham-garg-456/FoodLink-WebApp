@@ -1,3 +1,12 @@
+- Update thankyou page
+- Merge pull request #90 from pratham-garg-456/add-contact-services
+- add images on services page
+- update service page to call APIs
+- Merge branch 'add-contact-services' of https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025 into add-contact-services
+- integrate backend api with contact form
+- Merge branch 'main' of https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025 into add-contact-services
+- Merge pull request #95 from pratham-garg-456/update-backend-docs-v1
+- update backend feature and fix env
 - Merge branch 'main' of https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025
 - add feature for submitting question
 - Merge pull request #93 from pratham-garg-456/put-backend-url-in-dotenv
@@ -6,9 +15,12 @@
 - Update README.md
 - Merge pull request #91 from pratham-garg-456/87-enhanncement-UI-Login-and-register
 - enhance UI of login and register
+- Initial Commit - Thank you Page
 - Merge pull request #88 from pratham-garg-456/add-map-directions
 - Merge pull request #89 from pratham-garg-456/70-feature-about-page
 - add about page
+-  Initial Commit - Contact Page
+- Intial Commit - services page added
 - Update directions/comments
 - Merge branch 'main' of https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025 into add-Map
 - Mapbox integration with Directions API
