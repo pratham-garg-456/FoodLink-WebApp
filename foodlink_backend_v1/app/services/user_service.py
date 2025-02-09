@@ -27,13 +27,13 @@ async def create_user_in_db(name: str, role: str, email: str, password: str):
     
     try:
         new_user = User(name=name, role=role, email=email, password=password)
-        
+    
         await new_user.insert()
         user_dict = new_user.model_dump()
         user_dict["id"] = str(user_dict["id"])
         return user_dict
     except Exception as e:
-         raise HTTPException(
+        raise HTTPException(
             status_code=400,
             detail=f"An error occured while creating new user in db: {e}",
         )
