@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException
-from app.services.user_service import get_user_by_email_from_db, create_user_in_db
+from fastapi import APIRouter, HTTPException, Depends
+from app.services.user_service import (
+    get_user_by_email_from_db,
+    create_user_in_db,
+    get_user_by_id,
+)
 from app.utils.jwt_handler import (
     get_password_hash,
     verify_password,
     create_backend_token,
+    jwt_required,
 )
 
 router = APIRouter()
@@ -90,3 +95,23 @@ async def signin(user_data: dict = {}):
         "issued_at": backend_token["iat"],
         "expires_in": backend_token["exp"],
     }
+
+
+@router.get("/profile")
+async def get_your_profile(payload: dict = Depends(jwt_required)):
+    """
+    Validate the given token
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return success message and information of user which is extracted from token
+    """
+
+    # Get user id from payload
+    user_id = payload.get("sub")
+
+    # Retrieve user information from DB
+    user = await get_user_by_id(id=user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found!")
+
+    return {"status": "success", "user": user}

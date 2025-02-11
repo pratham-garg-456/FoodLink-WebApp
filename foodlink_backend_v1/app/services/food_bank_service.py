@@ -5,26 +5,6 @@ from fastapi import HTTPException
 from beanie import PydanticObjectId
 
 
-async def get_foodbank_by_id(foodbank_id: str):
-    """
-    Retrieve a foodbank information using its ID
-    :param foodbank_id: A unique ID for foodbank
-    """
-
-    foodbank = await User.get(PydanticObjectId(foodbank_id))
-
-    if not foodbank:
-        return None
-
-    foodbank_dict = foodbank.model_dump()
-    foodbank_dict["id"] = str(foodbank_dict["id"])
-
-    if not foodbank_dict["role"] == "foodbank":
-        return None
-
-    return foodbank_dict
-
-
 async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
     """
     Add an inventory for specific food name and quantity

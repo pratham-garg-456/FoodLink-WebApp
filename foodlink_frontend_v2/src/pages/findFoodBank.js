@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import FoodBankList from '../../components/FoodBankList';
-import Map from '../../components/Map';
+import FoodBankList from '../components/FoodBankList';
+import Map from '../components/Map';
 import mapboxgl from 'mapbox-gl';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ'; 

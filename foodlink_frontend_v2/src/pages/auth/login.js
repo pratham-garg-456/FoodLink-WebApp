@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import { useRouter } from 'next/router';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter()
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -17,14 +18,22 @@ const LoginPage = () => {
           password,
         }
       );
-      console.log('Login successful:', response.data);
+      console.log(response)
+      const data = await response.data;
+      const token = data.token;
+
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
       // Redirect to another page or show success message here
+      router.push("/dashboard")
     } catch (error) {
       // Extract error message from the response
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message); // Display server-provided error message
+      if (error.response) {
+        setError(error.response.data.detail); // Display server-provided error message
       } else {
         setError('An unexpected error occurred. Please try again.'); // Fallback error
+        console.log(error)
       }
     }
   };
@@ -72,7 +81,7 @@ const LoginPage = () => {
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">
           Don't have an account?{' '}
-          <a href="/register" className="text-black underline">
+          <a href="/auth/register" className="text-black underline">
             Sign up
           </a>
         </p>
