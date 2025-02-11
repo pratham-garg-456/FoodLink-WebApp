@@ -55,21 +55,21 @@ const Navbar = () => {
     const buttonStyle =
       'text-center bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 md:hover:bg-gray-800 transition ease-in-out md:bg-black md:text-white';
 
-    if (router.pathname === '/login') {
+    if (router.pathname === '/auth/login') {
       return (
-        <Link href="/register" className={buttonStyle}>
+        <Link href="/auth/register" className={buttonStyle}>
           Register
         </Link>
       );
-    } else if (router.pathname === '/register') {
+    } else if (router.pathname === '/auth/register') {
       return (
-        <Link href="/login" className={buttonStyle}>
+        <Link href="/auth/login" className={buttonStyle}>
           Login
         </Link>
       );
     } else {
       return (
-        <Link href="/login" className={buttonStyle}>
+        <Link href="/auth/login" className={buttonStyle}>
           Login/Register
         </Link>
       );
