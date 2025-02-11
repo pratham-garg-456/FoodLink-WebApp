@@ -14,13 +14,13 @@ export default function Home() {
             </h1>
 
             <div className="flex flex-wrap justify-center gap-2 md:justify-start ">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onClick={() => router.push('/register')}>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onClick={() => router.push('/auth/register')}>
                 Register
               </button>
               <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
                 Donate Now
               </button>
-              <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700" onClick={() => router.push('/findBank')}>
+              <button className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700" onClick={() => router.push('/findFoodBank')}>
                 Find Food Bank
               </button>
             </div>
