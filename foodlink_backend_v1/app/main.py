@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db import init_db
 from app.config import settings
 from contextlib import asynccontextmanager
-from app.routes import auth, misc, food_bank
+from app.routes import auth, misc, food_bank, volunteer
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -36,6 +36,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/foodlink/auth", tags=["Authentication"])
 app.include_router(misc.router, prefix="/api/v1/foodlink/misc", tags=["Misc"])
 app.include_router(food_bank.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"])
+app.include_router(volunteer.router, prefix="/api/v1/foodlink/volunteer", tags=["Volunteer"])
 
 # Root endpoint for health checks or basic info
 @app.get("/")
