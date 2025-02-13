@@ -98,14 +98,14 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         # Check if the quantity of the food in the main inventory is 0 (out of stock)
         if main_quantity == 0:
             raise HTTPException(
-                status_code=400, detail=f"{food["food_name"]} is out of stock!"
+                status_code=400, detail=f"{food['food_name']} is out of stock!"
             )
 
         # Check if the given event inventory is greater than the main inventory
         if event_quantity > main_quantity:
             raise HTTPException(
                 status_code=400,
-                detail=f"The required quantity for {ev_inventory["food_name"]} is greater than the quantity in the main inventory!",
+                detail=f"The required quantity for {ev_inventory['food_name']} is greater than the quantity in the main inventory!",
             )
 
         # Update the main inventory before creating an event inventory
