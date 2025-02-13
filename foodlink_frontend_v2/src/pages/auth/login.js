@@ -18,7 +18,6 @@ const LoginPage = () => {
           password,
         }
       );
-      console.log(response)
       const data = await response.data;
       const token = data.token;
 
