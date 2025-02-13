@@ -52,7 +52,6 @@ async def update_inventory_in_db(inventory_id: str, quantity: int):
 
 
 async def get_inventory_in_db(foodbank_id: str):
-async def get_inventory_in_db(foodbank_id: str):
     """
     Retrieve the list of inventory for a specific foodbank in db
     :param foodbank_id: The ID of the food bank
