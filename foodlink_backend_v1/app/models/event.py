@@ -9,14 +9,14 @@ class EventInventory(BaseModel):
 
 class Event(Document):
     foodbank_id: str
-    name: str
+    event_name: str
     description: Optional[str]
     date: datetime
     start_time: datetime
     end_time: datetime
     location: str
     food_services: Optional[list[str]]
-    event_inventory: EventInventory
+    event_inventory: list[EventInventory]
     
     class Settings:
         collection = "events"

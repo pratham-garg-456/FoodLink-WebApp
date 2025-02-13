@@ -1,6 +1,7 @@
-from app.models.user import User
-from app.models.event import Event
+from app.models.event import Event, EventInventory
 from app.models.inventory import Inventory
+from app.models.application import Application
+
 from fastapi import HTTPException
 from beanie import PydanticObjectId
 
@@ -53,7 +54,7 @@ async def update_inventory_in_db(inventory_id: str, quantity: int):
         )
 
 
-async def get_inventory_in_db():
+async def get_inventory_in_db(foodbank_id: str):
     """
     Retrieve the list of inventory in db
     """
@@ -61,7 +62,7 @@ async def get_inventory_in_db():
     inventory_list = []
 
     try:
-        inventory = await Inventory.find().to_list()
+        inventory = await Inventory.find(Inventory.foodbank_id == foodbank_id).to_list()
         for inv in inventory:
             inv = inv.model_dump()
             inv["id"] = str(inv["id"])
@@ -72,4 +73,106 @@ async def get_inventory_in_db():
         raise HTTPException(
             status_code=400,
             detail=f"An error occured while retrieving a list of inventory in db: {e}",
+        )
+
+
+async def create_an_event_in_db(foodbank_id: str, event_data: dict):
+    """
+    Create an event for upcoming events
+    :param event_data: A detailed event including name, optional description, date, start_time, end_time, location, list of food services, and event inventory
+    """
+    event_inventory_list = []
+    for ev_inventory in event_data["event_inventory"]:
+        # Retrieve a food item in the main inventory first
+        food = await Inventory.find_one(
+            Inventory.food_name == ev_inventory["food_name"]
+        )
+
+        food = food.model_dump()
+        food["id"] = str(food["id"])
+
+        # Define variables for food quantity
+        main_quantity = food["quantity"]
+        event_quantity = ev_inventory["quantity"]
+
+        # Check if the quantity of the food in the main inventory is 0 (out of stock)
+        if main_quantity == 0:
+            raise HTTPException(
+                status_code=400, detail=f"{food["food_name"]} is out of stock!"
+            )
+
+        # Check if the given event inventory is greater than the main inventory
+        if event_quantity > main_quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"The required quantity for {ev_inventory["food_name"]} is greater than the quantity in the main inventory!",
+            )
+
+        # Update the main inventory before creating an event inventory
+        await update_inventory_in_db(
+            inventory_id=food["id"], quantity=(main_quantity - event_quantity)
+        )
+
+        # Create an event inventory in db
+        event_inventory = EventInventory(
+            food_name=ev_inventory["food_name"],
+            quantity=ev_inventory["quantity"],
+        )
+        event_inventory_list.append(event_inventory)
+
+    # Create an Event in DB
+    try:
+        event = Event(
+            foodbank_id=foodbank_id,
+            event_name=event_data["event_name"],
+            description=event_data["description"],
+            date=event_data["date"],
+            start_time=event_data["start_time"],
+            end_time=event_data["end_time"],
+            location=event_data["location"],
+            food_services=event_data["food_services"],
+            event_inventory=event_inventory_list,
+        )
+
+        await event.insert()
+        event = event.model_dump()
+        event["id"] = str(event["id"])
+
+        return event
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occured while creating an event in db: {e}",
+        )
+
+
+async def get_list_volunteer_in_db(event_id: str):
+    """
+    Retrieve a list of volunteer application for a specific event
+    :param event_id: An event ID, the application is stored including the event ID
+    """
+
+    application_list = []
+
+    event = await Event.get(PydanticObjectId(event_id))
+
+    if not event:
+        raise HTTPException(
+            status_code=404, detail="Event ID is not valid or not found"
+        )
+    try:
+        applications = await Application.find(
+            Application.event_id == event_id
+        ).to_list()
+
+        for application in applications:
+            application = application.model_dump()
+            application["id"] = str(application["id"])
+            application_list.append(application)
+
+        return application_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occured while fetching the list of application in DB: {e}",
         )

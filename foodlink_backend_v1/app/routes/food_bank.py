@@ -3,6 +3,8 @@ from app.services.food_bank_service import (
     add_inventory_in_db,
     update_inventory_in_db,
     get_inventory_in_db,
+    create_an_event_in_db,
+    get_list_volunteer_in_db
 )
 from app.utils.jwt_handler import jwt_required
 
@@ -14,19 +16,18 @@ async def create_an_event(payload: dict = Depends(jwt_required), event_data: dic
     """
     Allow food bank admin to create an event
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
-    :param service_data: A detailed event including name, optional description, date, start_time, end_time, location, list of food services, and event inventory
+    :param event_data: A detailed event including name, optional description, date, start_time, end_time, location, list of food services, and event inventory
     :return A created event is stored in the db
     """
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "admin":
+    if payload.get("role") != "foodbank":
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can create an event"
         )
 
     # Required key in the body
     required_key = [
-        "foodbank_id",
-        "name",
+        "event_name",
         "date",
         "start_time",
         "end_time",
@@ -42,6 +43,18 @@ async def create_an_event(payload: dict = Depends(jwt_required), event_data: dic
                 status_code=400, detail=f"{key} is required and cannot be empty"
             )
 
+    # Add a new event in db
+    event = await create_an_event_in_db(
+        foodbank_id=payload.get("sub"), event_data=event_data
+    )
+
+    return {"status": "success", "event": event}
+
+
+@router.get("/event")
+async def get_list_of_event(payload: dict = Depends(jwt_required)):
+    pass
+
 
 @router.post("/inventory")
 async def add_inventory(
@@ -56,7 +69,7 @@ async def add_inventory(
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can create an event"
+            status_code=401, detail="Only FoodBank admin can add new food in the main inventory"
         )
 
     # Required key in the body
@@ -96,7 +109,7 @@ async def update_inventory(
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can create an event"
+            status_code=401, detail="Only FoodBank admin can update the inventory"
         )
 
     # Required key in the body
@@ -133,9 +146,36 @@ async def get_inventory(payload: dict = Depends(jwt_required)):
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can create an event"
+            status_code=401, detail="Only FoodBank admin can retrieve the inventory list"
         )
 
-    inventory_list = await get_inventory_in_db()
+    inventory_list = await get_inventory_in_db(foodbank_id=payload.get("sub"))
 
     return {"status": "success", "inventory": inventory_list}
+
+
+@router.get("/volunteers/{event_id}")
+async def get_list_volunteer_application(
+    event_id: str, payload: dict = Depends(jwt_required)
+):
+    """
+    Allow food bank admin to retrieve the list of volunteer application for specific event
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param event_id: An event ID, the application is stored including the event ID
+    """
+
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can retrieve the list of volunteer application"
+        )
+
+    # Retrieve the list of volunteer application
+    volunteers = await get_list_volunteer_in_db(event_id=event_id)
+    
+    if len(volunteers) == 0:
+        raise HTTPException(
+            status_code=404, detail=f"The list of volunteer applications is Empty"
+        )
+        
+    return {"status": "success", "volunteers": volunteers}
