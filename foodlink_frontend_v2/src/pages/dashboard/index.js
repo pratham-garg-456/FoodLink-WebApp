@@ -11,12 +11,13 @@ const Dashboard = () => {
     const token = localStorage.getItem('accessToken');
 
     if (!token) {
-      router.push('/login');
+      router.push('/auth/login');
       return;
     }
 
     try {
       const decodedToken = jwtDecode(token);
+      console.log('Decoded token:', decodedToken);
       setUserRole(decodedToken.role);
       if (userRole == 'foodbank') {
         router.push('/dashboard/foodbank');

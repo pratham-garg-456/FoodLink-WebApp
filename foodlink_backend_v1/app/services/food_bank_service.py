@@ -5,7 +5,6 @@ from app.models.application import Application
 from fastapi import HTTPException
 from beanie import PydanticObjectId
 
-
 async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
     """
     Add an inventory for specific food name and quantity
@@ -13,7 +12,6 @@ async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
     :param food_name: The name of the food that they want to store
     :param quantity: The quantity of the food that they want to store in DB
     """
-
     try:
         new_food = Inventory(
             foodbank_id=foodbank_id, food_name=food_name, quantity=quantity
@@ -26,9 +24,8 @@ async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating a new food in db: {e}",
+            detail=f"An error occurred while creating a new food in db: {e}",
         )
-
 
 async def update_inventory_in_db(inventory_id: str, quantity: int):
     """
@@ -50,19 +47,21 @@ async def update_inventory_in_db(inventory_id: str, quantity: int):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while updating a food in db: {e}",
+            detail=f"An error occurred while updating a food in db: {e}",
         )
 
 
 async def get_inventory_in_db(foodbank_id: str):
+async def get_inventory_in_db(foodbank_id: str):
     """
-    Retrieve the list of inventory in db
+    Retrieve the list of inventory for a specific foodbank in db
+    :param foodbank_id: The ID of the food bank
     """
-
     inventory_list = []
 
     try:
         inventory = await Inventory.find(Inventory.foodbank_id == foodbank_id).to_list()
+        inventory = await Inventory.find({"foodbank_id": foodbank_id}).to_list()
         for inv in inventory:
             inv = inv.model_dump()
             inv["id"] = str(inv["id"])
@@ -72,7 +71,7 @@ async def get_inventory_in_db(foodbank_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while retrieving a list of inventory in db: {e}",
+            detail=f"An error occurred while retrieving a list of inventory in db: {e}",
         )
 
 
@@ -175,4 +174,22 @@ async def get_list_volunteer_in_db(event_id: str):
         raise HTTPException(
             status_code=400,
             detail=f"An error occured while fetching the list of application in DB: {e}",
+        )
+
+async def delete_inventory_in_db(inventory_id: str):
+    """
+    Delete an inventory item from the db
+    :param inventory_id: The ID of the inventory item to delete
+    """
+    food = await Inventory.get(PydanticObjectId(inventory_id))
+
+    if not food:
+        raise HTTPException(status_code=404, detail="Invalid Inventory ID")
+
+    try:
+        await food.delete()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while deleting a food in db: {e}",
         )

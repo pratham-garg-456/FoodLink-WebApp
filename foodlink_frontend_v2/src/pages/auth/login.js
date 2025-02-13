@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -23,16 +24,15 @@ const LoginPage = () => {
 
       if (token) {
         localStorage.setItem('accessToken', token);
+            router.push('/dashboard');
       }
-      // Redirect to another page or show success message here
-      router.push("/dashboard")
     } catch (error) {
       // Extract error message from the response
       if (error.response) {
         setError(error.response.data.detail); // Display server-provided error message
       } else {
         setError('An unexpected error occurred. Please try again.'); // Fallback error
-        console.log(error)
+        console.log(error);
       }
     }
   };
