@@ -4,7 +4,8 @@ from app.services.food_bank_service import (
     update_inventory_in_db,
     get_inventory_in_db,
     create_an_event_in_db,
-    get_list_volunteer_in_db
+    get_list_volunteer_in_db,
+    delete_inventory_in_db,
 )
 from app.utils.jwt_handler import jwt_required
 
@@ -57,17 +58,21 @@ async def get_list_of_event(payload: dict = Depends(jwt_required)):
 
 
 @router.post("/inventory")
+@router.post("/{foodbank_id}/inventory")
 async def add_inventory(
-    payload: dict = Depends(jwt_required), inventory_data: dict = {}
+    foodbank_id: str,
+    payload: dict = Depends(jwt_required),
+    inventory_data: dict = {}
 ):
     """
     Allow food bank admin to add inventory
+    :param foodbank_id: The ID of the food bank
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :param inventory_data: Inventory details including food_name and quantity
     :return: A created inventory item is stored in the db
     """
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
+    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can add new food in the main inventory"
         )
@@ -91,23 +96,23 @@ async def add_inventory(
 
     return {"status": "success", "inventory": new_inventory}
 
-
-@router.put("/inventory/{inventory_id}")
+@router.put("/{foodbank_id}/inventory/{inventory_id}")
 async def update_inventory(
+    foodbank_id: str,
     inventory_id: str,
     payload: dict = Depends(jwt_required),
-    updated_inventory: dict = {},
+    updated_inventory: dict = {}
 ):
     """
     Allow food bank admin to update inventory
-    :param inventory_id: A unique number to identify the correct
+    :param foodbank_id: The ID of the food bank
+    :param inventory_id: A unique number to identify the correct inventory item
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :param updated_inventory: the updated quantity
     :return: An updated inventory item is stored in the db
     """
-
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
+    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can update the inventory"
         )
@@ -134,17 +139,16 @@ async def update_inventory(
 
     return {"status": "success", "inventory": updated_food}
 
-
-@router.get("/inventory")
-async def get_inventory(payload: dict = Depends(jwt_required)):
+@router.get("/{foodbank_id}/inventory")
+async def get_inventory(foodbank_id: str, payload: dict = Depends(jwt_required)):
     """
     Allow food bank admin to retrieve inventory
+    :param foodbank_id: The ID of the food bank
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :return: A list inventory item is stored in the db
     """
-
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
+    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can retrieve the inventory list"
         )
@@ -179,3 +183,25 @@ async def get_list_volunteer_application(
         )
         
     return {"status": "success", "volunteers": volunteers}
+@router.delete("/{foodbank_id}/inventory/{inventory_id}")
+async def delete_inventory(
+    foodbank_id: str,
+    inventory_id: str,
+    payload: dict = Depends(jwt_required)
+):
+    """
+    Allow food bank admin to delete inventory
+    :param foodbank_id: The ID of the food bank
+    :param inventory_id: The ID of the inventory item to delete
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return: A success message
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can delete inventory"
+        )
+
+    await delete_inventory_in_db(inventory_id)
+
+    return {"status": "success", "message": "Inventory item deleted successfully"}
