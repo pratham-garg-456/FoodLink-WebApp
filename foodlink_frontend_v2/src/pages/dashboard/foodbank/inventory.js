@@ -11,6 +11,7 @@ const Inventory = ({ userRole }) => {
   const [editItem, setEditItem] = useState(null);
   const [error, setError] = useState({});
   const [apiError, setApiError] = useState('');
+  const [foodbankId, setFoodbankId] = useState(null);
 
   useEffect(() => {
     const checkToken = async () => {
