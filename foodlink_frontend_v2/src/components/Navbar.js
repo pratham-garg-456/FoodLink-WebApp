@@ -25,7 +25,11 @@ const Navbar = () => {
       window.removeEventListener('storage', fetchUser);
     };
   }, []);
+  // Check if the current route is '/foodbank'
+  const isFoodbankRoute = router.pathname.startsWith('/dashboard/foodbank');
 
-  return <nav>{userType === 'foodbank' ? <NavbarFoodbank /> : <HomeNavbar />}</nav>;
+  return (
+    <nav>{userType === 'foodbank' && isFoodbankRoute ? <NavbarFoodbank /> : <HomeNavbar />}</nav>
+  );
 };
 export default Navbar;
