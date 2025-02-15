@@ -4,44 +4,14 @@ import NavbarFoodBank from '../components/NavbarFoodbank.js';
 import NavbarDonor from '../components/NavbarDonor.js';
 import Footer from '../components/Footer.js';
 import Navbar from '../components/Navbar.js';
-import {jwtDecode} from 'jwt-decode';
+import { useRouter } from 'next/router';
+import { jwtDecode } from 'jwt-decode';
 
 const Layout = ({ children }) => {
-  const [userRole, setUserRole] = useState('');
-
-  useEffect(() => {
-    // Check if the user is authenticated
-    const token = localStorage.getItem('accessToken');
-
-    // Decode the token to get the user role
-    try {
-      const decodedToken = jwtDecode(token);
-      setUserRole(decodedToken.role);
-    } catch (error) {
-      console.error('Invalid token: ', error);
-      window.location.href = '/auth/login';
-    }
-  }, []);
-
-  // Determine which Navbar to use based on the user role
-  let NavbarComponent;
-  if (userRole === 'individual') {
-    NavbarComponent = NavbarIndividual;
-  } else if (userRole === 'foodbank') {
-    NavbarComponent = NavbarFoodBank;
-  } else if (userRole === 'donor') {
-    NavbarComponent = NavbarDonor;
-  } else {
-    NavbarComponent = Navbar;
-  }
-
-  console.log('userRole:', userRole);
-  console.log('NavbarComponent:', NavbarComponent);
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Conditionally render the appropriate navbar */}
-      {NavbarComponent && <NavbarComponent />}
+      <Navbar />
 
       {/* Main content */}
       <main className="flex-grow pt-20 flex justify-center items-center">{children}</main>
