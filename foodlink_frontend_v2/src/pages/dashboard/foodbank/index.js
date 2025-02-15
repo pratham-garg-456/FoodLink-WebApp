@@ -1,35 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { jwtDecode } from 'jwt-decode';
-import Layout from '../../layout';
-import validateToken from '@/utils/validateToken';
+import validateToken from '../../../utils/validateToken';
 
 const FoodbankDashboard = ({ userRole }) => {
   const router = useRouter();
   const [userId, setUserId] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
-
-    async function checkToken() {
-      const result = await validateToken(token);
-      if (result.error) {
-        console.error('Token validation failed:', result.error);
-        // Handle the error
-        router.push('/login');
-      } else {
-        console.log('Token is valid:', result);
-        // Proceed with valid token
-        const decodedToken = jwtDecode(token);
-        setUserId(decodedToken.sub.slice(0, 5)); // Display first 5 digits of user ID
+    const checkToken = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/auth/login');
+        return;
       }
-    }
+
+      const decodedToken = await validateToken(token);
+      setUserId(decodedToken.user.id.slice(0, 5)); // Display first 5 digits of user ID
+      if (decodedToken.error) {
+        console.error('Invalid token: ', decodedToken.error);
+        router.push('/auth/login');
+        return;
+      }
+    };
     checkToken();
-  }, []);
+  }, [router]);
 
   return (
     <div className="container mx-auto p-4 text-center">

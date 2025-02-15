@@ -9,6 +9,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Retrieve current access-token in the local storage
     const token = localStorage.getItem('accessToken');
+    console.log('Access token:', token);
 
     if (!token) {
       router.push('/auth/login');
