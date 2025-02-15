@@ -26,12 +26,8 @@ const FoodbankDashboard = ({ userRole }) => {
     checkToken();
   }, [router]);
 
-  const handleGetApplication = () => {
-    router.push('/dashboard/foodbank/getApplication'); // Change this to your target page
-  };
-
-  const handleGetApproveApplication = () => {
-    router.push('/dashboard/foodbank/getApproveApplication');
+  const handleManageVolunteer = () => {
+    router.push('/dashboard/foodbank/manageVolunteer'); // Navigate to Manage Volunteer page
   };
 
   return (
@@ -60,16 +56,10 @@ const FoodbankDashboard = ({ userRole }) => {
           Manage Appointments
         </button>
         <button
-          onClick={handleGetApplication}
+          onClick={handleManageVolunteer}
           className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
         >
-          fetch application
-        </button>
-        <button
-          onClick={handleGetApproveApplication}
-          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-        >
-          fetch application
+          Manage Volunteer
         </button>
       </div>
     </div>
