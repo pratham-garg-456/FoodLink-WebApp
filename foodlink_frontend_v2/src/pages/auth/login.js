@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogin = async (event) => {
     event.preventDefault();
     setError(''); // Clear any previous error
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/signin`,
-        {
-          email,
-          password,
-        }
-      );
-      const data = await response.data;
-      const token = data.token;
 
-      if (token) {
-        localStorage.setItem('accessToken', token);
+    try {
+      // Call the Next.js API route that handles authentication
+      const response = await axios.post('/api/auth', { email, password });
+
+      if (response.data.token) {
+        // ✅ Store token in localStorage
+        localStorage.setItem('accessToken', response.data.token);
+        localStorage.setItem('userRole', response.data.role);
+        // Dispatch a custom event to notify other components
+        window.dispatchEvent(new Event('storage'));
+        router.push('/dashboard'); // Redirect user to dashboard
+      } else {
+        setError('Authentication failed.');
       }
-      // Redirect to another page or show success message here
-      router.push("/dashboard")
     } catch (error) {
       // Extract error message from the response
       if (error.response) {
-        setError(error.response.data.detail); // Display server-provided error message
+        setError(error.response.data.message);
       } else {
-        setError('An unexpected error occurred. Please try again.'); // Fallback error
-        console.log(error)
+        setError('An unexpected error occurred. Please try again.');
+        console.error(error);
       }
     }
   };

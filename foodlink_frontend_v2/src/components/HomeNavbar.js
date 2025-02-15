@@ -1,31 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { jwtDecode } from 'jwt-decode';
 
-const NavbarFoodbank = () => {
+const Navbar = () => {
+  const [userType, setUserType] = useState(null); // Store user type
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [svgColor, setSvgColor] = useState('#000');
-  const [foodbankName, setFoodbankName] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navRef = useRef(null); // Ref for the navbar
-  const dropdownRef = useRef(null); // Ref for the dropdown
 
   const router = useRouter(); // Initialize the router
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setFoodbankName(decodedToken.name || decodedToken.sub.slice(0, 5)); // Use food bank name or first 5 digits of ID
-      } catch (error) {
-        console.error('Invalid token: ', error);
-      }
-    }
-  }, []);
 
   const openNav = () => {
     setIsNavOpen(true);
@@ -36,24 +21,11 @@ const NavbarFoodbank = () => {
     setSvgColor('#000');
   };
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem('accessToken');
-    router.push('/auth/login');
-    window.location.reload(); // Force page reload
-  };
-
   // Close navbar if clicked outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (navRef.current && !navRef.current.contains(event.target)) {
         exitNav();
-      }
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
       }
     };
 
@@ -79,6 +51,31 @@ const NavbarFoodbank = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  const getButton = () => {
+    const buttonStyle =
+      'text-center bg-white text-black px-3 py-2 rounded-lg hover:bg-gray-200 md:hover:bg-gray-800 transition ease-in-out md:bg-black md:text-white';
+
+    if (router.pathname === '/auth/login') {
+      return (
+        <Link href="/auth/register" className={buttonStyle}>
+          Register
+        </Link>
+      );
+    } else if (router.pathname === '/auth/register') {
+      return (
+        <Link href="/auth/login" className={buttonStyle}>
+          Login
+        </Link>
+      );
+    } else {
+      return (
+        <Link href="/auth/login" className={buttonStyle}>
+          Login/Register
+        </Link>
+      );
+    }
+  };
 
   return (
     <nav
@@ -130,6 +127,7 @@ const NavbarFoodbank = () => {
       </div>
 
       {/* Sidebar */}
+
       <div
         ref={navRef} // Attach ref to the sidebar
         className={`md:relative fixed top-0 right-0 bg-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
@@ -152,65 +150,43 @@ const NavbarFoodbank = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/dashboard/foodbank/appointments"
+                href="/"
               >
-                Manage Appointments
+                HOME
               </Link>
             </div>
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/dashboard/foodbank/events"
+                href="/about"
               >
-                Manage Events
+                ABOUT US
               </Link>
             </div>
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/dashboard/foodbank/donations"
+                href="/services"
               >
-                Track Donations
+                SERVICES
               </Link>
             </div>
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/dashboard/foodbank/volunteers"
+                href="/contact"
               >
-                Manage Volunteers
+                CONTACT
               </Link>
             </div>
           </div>
-          <div className="my-4 flex justify-center w-36 relative">
-            {/* Display food bank name or first 5 digits of ID */}
-            <span
-              className="text-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer"
-              onClick={toggleDropdown}
-            >
-              {foodbankName}
-            </span>
-            {dropdownOpen && (
-              <div
-                ref={dropdownRef}
-                className="absolute top-full mt-2 w-full bg-white text-black rounded-lg shadow-lg z-10"
-              >
-                <Link href="/profile" className="block px-4 py-2 hover:bg-gray-200">
-                  Profile
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-                >
-                  Sign Out
-                </button>
-              </div>
-            )}
+          <div className="my-4 flex justify-center w-36">
+            {/* Dynamic Login/Register Button */}
+            {getButton()}
           </div>
         </div>
       </div>
     </nav>
   );
 };
-
-export default NavbarFoodbank;
+export default Navbar;
