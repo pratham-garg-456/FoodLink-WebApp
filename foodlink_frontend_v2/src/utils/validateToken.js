@@ -14,8 +14,10 @@ const validateToken = async (token) => {
     return response.data;
   } catch (error) {
     if (error.response) {
+      localStorage.removeItem('accessToken');
       return { error: error.response.data.detail };
     } else {
+      localStorage.removeItem('accessToken');
       return { error: `An error occurred ${error}` };
     }
   }

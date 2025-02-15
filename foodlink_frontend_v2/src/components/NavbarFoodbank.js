@@ -9,7 +9,9 @@ const NavbarFoodbank = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [svgColor, setSvgColor] = useState('#000');
   const [foodbankName, setFoodbankName] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navRef = useRef(null); // Ref for the navbar
+  const dropdownRef = useRef(null); // Ref for the dropdown
 
   const router = useRouter(); // Initialize the router
 
@@ -34,11 +36,24 @@ const NavbarFoodbank = () => {
     setSvgColor('#000');
   };
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem('accessToken');
+    router.push('/auth/login');
+    window.location.reload(); // Force page reload
+  };
+
   // Close navbar if clicked outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (navRef.current && !navRef.current.contains(event.target)) {
         exitNav();
+      }
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
       }
     };
 
@@ -167,11 +182,30 @@ const NavbarFoodbank = () => {
               </Link>
             </div>
           </div>
-          <div className="my-4 flex justify-center w-36">
+          <div className="my-4 flex justify-center w-36 relative">
             {/* Display food bank name or first 5 digits of ID */}
-            <span className="text-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white">
+            <span
+              className="text-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer"
+              onClick={toggleDropdown}
+            >
               {foodbankName}
             </span>
+            {dropdownOpen && (
+              <div
+                ref={dropdownRef}
+                className="absolute top-full mt-2 w-full bg-white text-black rounded-lg shadow-lg z-10"
+              >
+                <Link href="/profile" className="block px-4 py-2 hover:bg-gray-200">
+                  Profile
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
