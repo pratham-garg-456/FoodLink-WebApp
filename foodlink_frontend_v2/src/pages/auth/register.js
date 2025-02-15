@@ -21,6 +21,8 @@ const RegisterPage = () => {
     }
 
     try {
+      console.log('Payload being sent:', { name, role, email, password, confirmPassword });
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/register`,
         {
@@ -31,6 +33,7 @@ const RegisterPage = () => {
           confirm_password: confirmPassword,
         }
       );
+      console.log('Response received:', response.data);
       setSuccessMessage('Registration successful! Please log in.');
       console.log('Registration successful:', response.data);
       // Clear form fields
