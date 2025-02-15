@@ -6,7 +6,13 @@ from app.services.food_bank_service import (
     create_an_event_in_db,
     get_list_volunteer_in_db,
     delete_inventory_in_db,
+    get_list_appointments_in_db,
+    update_application_status_in_db,
+    update_appointment_status_in_db,
+    get_list_of_events,
 )
+
+from app.services.user_service import get_user_by_id
 from app.utils.jwt_handler import jwt_required
 
 router = APIRouter()
@@ -52,29 +58,47 @@ async def create_an_event(payload: dict = Depends(jwt_required), event_data: dic
     return {"status": "success", "event": event}
 
 
-@router.get("/event")
+@router.get("/events")
 async def get_list_of_event(payload: dict = Depends(jwt_required)):
-    pass
+    """
+    Allow foodbank admin to retrieve the list of events
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return a list of events
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the list of events",
+        )
+
+    # Retrieve events from db
+    events = await get_list_of_events(foodbank_id=payload.get("sub"))
+
+    if len(events) == 0:
+        raise HTTPException(
+            status_code=404,
+            detail="There are no events here!",
+        )
+
+    return {"status": "success", "events": events}
 
 
 @router.post("/inventory")
-@router.post("/{foodbank_id}/inventory")
 async def add_inventory(
-    foodbank_id: str,
-    payload: dict = Depends(jwt_required),
-    inventory_data: dict = {}
+    payload: dict = Depends(jwt_required), inventory_data: dict = {}
 ):
     """
     Allow food bank admin to add inventory
-    :param foodbank_id: The ID of the food bank
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :param inventory_data: Inventory details including food_name and quantity
     :return: A created inventory item is stored in the db
     """
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
+    if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can add new food in the main inventory"
+            status_code=401,
+            detail="Only FoodBank admin can add new food in the main inventory",
         )
 
     # Required key in the body
@@ -96,23 +120,22 @@ async def add_inventory(
 
     return {"status": "success", "inventory": new_inventory}
 
-@router.put("/{foodbank_id}/inventory/{inventory_id}")
+
+@router.put("/inventory/{inventory_id}")
 async def update_inventory(
-    foodbank_id: str,
     inventory_id: str,
     payload: dict = Depends(jwt_required),
-    updated_inventory: dict = {}
+    updated_inventory: dict = {},
 ):
     """
     Allow food bank admin to update inventory
-    :param foodbank_id: The ID of the food bank
     :param inventory_id: A unique number to identify the correct inventory item
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :param updated_inventory: the updated quantity
     :return: An updated inventory item is stored in the db
     """
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
+    if payload.get("role") != "foodbank":
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can update the inventory"
         )
@@ -139,18 +162,19 @@ async def update_inventory(
 
     return {"status": "success", "inventory": updated_food}
 
-@router.get("/{foodbank_id}/inventory")
-async def get_inventory(foodbank_id: str, payload: dict = Depends(jwt_required)):
+
+@router.get("/inventory")
+async def get_inventory(payload: dict = Depends(jwt_required)):
     """
     Allow food bank admin to retrieve inventory
-    :param foodbank_id: The ID of the food bank
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :return: A list inventory item is stored in the db
     """
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
+    if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can retrieve the inventory list"
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the inventory list",
         )
 
     inventory_list = await get_inventory_in_db(foodbank_id=payload.get("sub"))
@@ -158,9 +182,29 @@ async def get_inventory(foodbank_id: str, payload: dict = Depends(jwt_required))
     return {"status": "success", "inventory": inventory_list}
 
 
+@router.delete("/inventory/{inventory_id}")
+async def delete_inventory(inventory_id: str, payload: dict = Depends(jwt_required)):
+    """
+    Allow food bank admin to delete inventory
+    :param foodbank_id: The ID of the food bank
+    :param inventory_id: The ID of the inventory item to delete
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return: A success message
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can delete inventory"
+        )
+
+    await delete_inventory_in_db(inventory_id=inventory_id)
+
+    return {"status": "success", "message": "Inventory item deleted successfully"}
+
+
 @router.get("/volunteers/{event_id}")
 async def get_list_volunteer_application(
-    event_id: str, payload: dict = Depends(jwt_required)
+    event_id: str, payload: dict = Depends(jwt_required), status: str | None = None
 ):
     """
     Allow food bank admin to retrieve the list of volunteer application for specific event
@@ -171,37 +215,167 @@ async def get_list_volunteer_application(
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can retrieve the list of volunteer application"
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the list of volunteer application",
         )
 
+    if not status == "approved" and not status == "pending":
+        raise HTTPException(
+            status_code=400, detail="Status must be either approved or pending!"
+        )
     # Retrieve the list of volunteer application
-    volunteers = await get_list_volunteer_in_db(event_id=event_id)
-    
+    volunteers = await get_list_volunteer_in_db(event_id=event_id, status=status)
+
     if len(volunteers) == 0:
         raise HTTPException(
             status_code=404, detail=f"The list of volunteer applications is Empty"
         )
-        
+
     return {"status": "success", "volunteers": volunteers}
-@router.delete("/{foodbank_id}/inventory/{inventory_id}")
-async def delete_inventory(
-    foodbank_id: str,
-    inventory_id: str,
-    payload: dict = Depends(jwt_required)
+
+
+@router.put("/volunteers/{application_id}")
+async def update_status_of_application(
+    application_id: str,
+    payload: dict = Depends(jwt_required),
+    application_data: dict = {},
 ):
     """
-    Allow food bank admin to delete inventory
-    :param foodbank_id: The ID of the food bank
-    :param inventory_id: The ID of the inventory item to delete
+    Allow food bank admin to update the status of the specific application
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
-    :return: A success message
+    :param application_id: A unique identifier for application in DB
+    :return a success message
     """
+
     # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank" or payload.get("sub") != foodbank_id:
+    if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can delete inventory"
+            status_code=401,
+            detail="Only FoodBank admin can update the status of the specific application!",
         )
 
-    await delete_inventory_in_db(inventory_id)
+    if not application_data["updated_status"]:
+        raise HTTPException(
+            status_code=400, detail="New status is required and can not be empty!"
+        )
 
-    return {"status": "success", "message": "Inventory item deleted successfully"}
+    if (
+        application_data["updated_status"] != "approved"
+        and application_data["updated_status"] != "rejected"
+    ):
+        raise HTTPException(
+            status_code=400, detail="Status must be either approved or rejected!"
+        )
+
+    # Update the status of an application in db
+    application = await update_application_status_in_db(
+        application_id=application_id, updated_status=application_data["updated_status"]
+    )
+
+    return {"status": "success", "application": application}
+
+
+@router.get("/volunteer/{volunteer_id}")
+async def get_volunteer_detailed_info(
+    volunteer_id: str, payload: dict = Depends(jwt_required)
+):
+    """
+    Allow food bank admin to retrieve the detailed information about specific volunteer
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param status:
+    :return a success message and an information of a volunteer
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the list of appointments",
+        )
+
+    # Get volunteer information from db
+    volunteer = await get_user_by_id(id=volunteer_id)
+
+    return {"status": "success", "volunteer": volunteer}
+
+
+@router.get("/appointments")
+async def get_list_of_appointments(
+    payload: dict = Depends(jwt_required), status: str | None = None
+):
+    """
+    Allow food bank admin to retrieve the list of appointments
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param status: Pending, confirmed, or rescheduled, or cancelled
+    :return a success message and a list of appointments
+    """
+
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the list of appointments",
+        )
+
+    if (
+        not status == "confirmed"
+        and not status == "pending"
+        and not status == "cancelled"
+        and not status == "rescheduled"
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Status of an appointment must be confirmed or pending or cancelled or rescheduled",
+        )
+
+    appointments = await get_list_appointments_in_db(
+        foodbank_id=payload.get("sub"), status=status
+    )
+
+    if len(appointments) == 0:
+        raise HTTPException(
+            status_code=404, detail="There are no upcoming appointments!"
+        )
+
+    return {"status": "success", "appointments": appointments}
+
+
+@router.put("/appointment/{appointment_id}")
+async def update_status_of_appointment(
+    appointment_id: str,
+    payload: dict = Depends(jwt_required),
+    appointment_data: dict = {},
+):
+    """
+    Allow food bank admin to confirm, reschedule, or cancel the appointment,
+    :param appointment_id: An ID for appointment in db
+    :param appointment_data: An updated_status for the specific appointments
+    """
+
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can update the status of the appointment",
+        )
+
+    if not appointment_data["updated_status"]:
+        raise HTTPException(
+            status_code=400, detail="New status is required and can not be empty!"
+        )
+
+    if (
+        appointment_data["updated_status"] != "confirmed"
+        and appointment_data["updated_status"] != "rescheduled"
+        and appointment_data["updated_status"] != "cancelled"
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Status must be confirmed or cancelled or rescheduled!",
+        )
+
+    # Update the appointment in db
+    appointment = await update_appointment_status_in_db(
+        appointment_id=appointment_id, updated_status=appointment_data["updated_status"]
+    )
+
+    return {"status": "success", "appointment": appointment}

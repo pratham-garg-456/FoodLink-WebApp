@@ -9,7 +9,6 @@ const Inventory = ({ userRole }) => {
   const [inventory, setInventory] = useState([]);
   const [newItem, setNewItem] = useState({ food_name: '', quantity: '' });
   const [editItem, setEditItem] = useState(null);
-  const [foodbankId, setFoodbankId] = useState('');
   const [error, setError] = useState({});
   const [apiError, setApiError] = useState('');
 
@@ -33,10 +32,10 @@ const Inventory = ({ userRole }) => {
     checkToken();
   }, [router]);
 
-  const fetchInventory = async (foodbankId) => {
+  const fetchInventory = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -65,7 +64,7 @@ const Inventory = ({ userRole }) => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
         newItem,
         {
           headers: {
@@ -89,7 +88,7 @@ const Inventory = ({ userRole }) => {
   const handleUpdateItem = async () => {
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory/${editItem.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory/${editItem.id}`,
         editItem,
         {
           headers: {
@@ -111,7 +110,7 @@ const Inventory = ({ userRole }) => {
   const handleDeleteItem = async (id) => {
     try {
       await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory/${id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
