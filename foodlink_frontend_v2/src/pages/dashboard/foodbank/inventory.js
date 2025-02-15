@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { jwtDecode } from 'jwt-decode';
 import styles from '../../../styles/inventory.module.css'; // Import the CSS module
 
 const Inventory = ({ userRole }) => {
@@ -9,31 +8,17 @@ const Inventory = ({ userRole }) => {
   const [inventory, setInventory] = useState([]);
   const [newItem, setNewItem] = useState({ food_name: '', quantity: '' });
   const [editItem, setEditItem] = useState(null);
-  const [foodbankId, setFoodbankId] = useState('');
   const [error, setError] = useState({});
   const [apiError, setApiError] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    fetchInventory();
+  }, []);
 
-    try {
-      const decodedToken = jwtDecode(token);
-      setFoodbankId(decodedToken.sub);
-      fetchInventory(decodedToken.sub);
-    } catch (error) {
-      console.error('Invalid token: ', error);
-      router.push('/auth/login');
-    }
-  }, [router]);
-
-  const fetchInventory = async (foodbankId) => {
+  const fetchInventory = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -62,7 +47,7 @@ const Inventory = ({ userRole }) => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
         newItem,
         {
           headers: {
@@ -86,7 +71,7 @@ const Inventory = ({ userRole }) => {
   const handleUpdateItem = async () => {
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory/${editItem.id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory/${editItem.id}`,
         editItem,
         {
           headers: {
@@ -108,7 +93,7 @@ const Inventory = ({ userRole }) => {
   const handleDeleteItem = async (id) => {
     try {
       await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/${foodbankId}/inventory/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory/${id}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,

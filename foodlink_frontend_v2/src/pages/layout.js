@@ -9,11 +9,12 @@ import {jwtDecode} from 'jwt-decode';
 const Layout = ({ children }) => {
   const [userRole, setUserRole] = useState('');
 
-  useEffect(() => {
-    // Check if the user is authenticated
-    const token = localStorage.getItem('accessToken');
-
+  useEffect(() => {    
     // Decode the token to get the user role
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      return
+    }
     try {
       const decodedToken = jwtDecode(token);
       setUserRole(decodedToken.role);

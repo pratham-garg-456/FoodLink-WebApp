@@ -1,9 +1,11 @@
 from app.models.event import Event, EventInventory
 from app.models.inventory import Inventory
 from app.models.application import Application
+from app.models.appointment import Appointment
 
 from fastapi import HTTPException
 from beanie import PydanticObjectId
+
 
 async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
     """
@@ -26,6 +28,7 @@ async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
             status_code=400,
             detail=f"An error occurred while creating a new food in db: {e}",
         )
+
 
 async def update_inventory_in_db(inventory_id: str, quantity: int):
     """
@@ -60,7 +63,6 @@ async def get_inventory_in_db(foodbank_id: str):
 
     try:
         inventory = await Inventory.find(Inventory.foodbank_id == foodbank_id).to_list()
-        inventory = await Inventory.find({"foodbank_id": foodbank_id}).to_list()
         for inv in inventory:
             inv = inv.model_dump()
             inv["id"] = str(inv["id"])
@@ -71,6 +73,25 @@ async def get_inventory_in_db(foodbank_id: str):
         raise HTTPException(
             status_code=400,
             detail=f"An error occurred while retrieving a list of inventory in db: {e}",
+        )
+
+
+async def delete_inventory_in_db(inventory_id: str):
+    """
+    Delete an inventory item from the db
+    :param inventory_id: The ID of the inventory item to delete
+    """
+    food = await Inventory.get(PydanticObjectId(inventory_id))
+
+    if not food:
+        raise HTTPException(status_code=404, detail="Invalid Inventory ID")
+
+    try:
+        await food.delete()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while deleting a food in db: {e}",
         )
 
 
@@ -144,7 +165,30 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         )
 
 
-async def get_list_volunteer_in_db(event_id: str):
+async def get_list_of_events(foodbank_id: str):
+    """
+    Retrieve a list of events in db
+    :param foodbank_id: A unique identifier for Foodbank admin
+    """
+
+    event_list = []
+
+    events = await Event.find(Event.foodbank_id == foodbank_id).to_list()
+
+    try:
+        for event in events:
+            event = event.model_dump()
+            event["id"] = str(event["id"])
+            event_list.append(event)
+            return event_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while fetching the list of events in db: {e}",
+        )
+
+
+async def get_list_volunteer_in_db(event_id: str, status: str):
     """
     Retrieve a list of volunteer application for a specific event
     :param event_id: An event ID, the application is stored including the event ID
@@ -160,7 +204,7 @@ async def get_list_volunteer_in_db(event_id: str):
         )
     try:
         applications = await Application.find(
-            Application.event_id == event_id
+            Application.event_id == event_id, Application.status == status
         ).to_list()
 
         for application in applications:
@@ -175,20 +219,74 @@ async def get_list_volunteer_in_db(event_id: str):
             detail=f"An error occured while fetching the list of application in DB: {e}",
         )
 
-async def delete_inventory_in_db(inventory_id: str):
-    """
-    Delete an inventory item from the db
-    :param inventory_id: The ID of the inventory item to delete
-    """
-    food = await Inventory.get(PydanticObjectId(inventory_id))
 
-    if not food:
-        raise HTTPException(status_code=404, detail="Invalid Inventory ID")
+async def update_application_status_in_db(application_id: str, updated_status: str):
+    """
+    Update the status of a specific application in db
+    :param application_id: A unique identifier for volunteer's application
+    :param updated_status: A new status of application (approved or rejected)
+    """
+
+    application = await Application.get(PydanticObjectId(application_id))
 
     try:
-        await food.delete()
+        application.status = updated_status
+        await application.save()
+        application = application.model_dump()
+        application["id"] = str(application["id"])
+
+        return application
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occurred while deleting a food in db: {e}",
+            detail=f"An error occured while updating the application in DB: {e}",
+        )
+
+
+async def get_list_appointments_in_db(foodbank_id: str, status: str):
+    """
+    Retrieve a list of appointments
+    :param foodbank_id: A unique identifier for foodbank is used for filtering out the appointments
+    """
+
+    appointment_list = []
+
+    appointments = await Appointment.find(
+        Appointment.foodbank_id == foodbank_id, Appointment.status == status
+    ).to_list()
+
+    try:
+        for appointment in appointments:
+            appointment = appointment.model_dump()
+            appointment["id"] = str(appointment["id"])
+            appointment_list.append(appointment)
+
+        return appointment_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while fetching the list of appointments: {e}",
+        )
+
+
+async def update_appointment_status_in_db(appointment_id: str, updated_status: str):
+    """
+    Update the status of a specific appointment in db
+    :param appointment_id: A unique identifier for volunteer's appointment
+    :param updated_status: A new status of appointment (approved or rejected)
+    """
+
+    appointment = await Appointment.get(PydanticObjectId(appointment_id))
+
+    try:
+        appointment.status = updated_status
+        await appointment.save()
+        appointment = appointment.model_dump()
+        appointment["id"] = str(appointment["id"])
+
+        return appointment
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occured while updating the appointment in DB: {e}",
         )
