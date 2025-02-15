@@ -26,6 +26,14 @@ const FoodbankDashboard = ({ userRole }) => {
     checkToken();
   }, [router]);
 
+  const handleGetApplication = () => {
+    router.push('/dashboard/foodbank/getApplication'); // Change this to your target page
+  };
+
+  const handleGetApproveApplication = () => {
+    router.push('/dashboard/foodbank/getApproveApplication');
+  };
+
   return (
     <div className="container mx-auto p-4 text-center">
       <h1 className="text-3xl font-bold mb-6">Welcome to the Food Bank Dashboard</h1>
@@ -50,6 +58,18 @@ const FoodbankDashboard = ({ userRole }) => {
           className="bg-purple-500 text-white p-4 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
         >
           Manage Appointments
+        </button>
+        <button
+          onClick={handleGetApplication}
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+        >
+          fetch application
+        </button>
+        <button
+          onClick={handleGetApproveApplication}
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+        >
+          fetch application
         </button>
       </div>
     </div>
