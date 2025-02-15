@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { jwtDecode } from 'jwt-decode';
 import styles from '../../../styles/inventory.module.css'; // Import the CSS module
+import validateToken from '@/utils/validateToken';
 
 const Inventory = ({ userRole }) => {
   const router = useRouter();
@@ -14,20 +14,23 @@ const Inventory = ({ userRole }) => {
   const [apiError, setApiError] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    const checkToken = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
 
-    try {
-      const decodedToken = jwtDecode(token);
-      setFoodbankId(decodedToken.sub);
-      fetchInventory(decodedToken.sub);
-    } catch (error) {
-      console.error('Invalid token: ', error);
-      router.push('/auth/login');
-    }
+      try {
+        const decodedToken = await validateToken(token);
+        setFoodbankId(decodedToken.user.id);
+        fetchInventory(decodedToken.user.id);
+      } catch (error) {
+        console.error('Invalid token: ', error);
+        router.push('/auth/login');
+      }
+    };
+    checkToken();
   }, [router]);
 
   const fetchInventory = async (foodbankId) => {

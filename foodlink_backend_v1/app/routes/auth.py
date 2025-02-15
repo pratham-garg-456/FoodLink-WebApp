@@ -115,3 +115,10 @@ async def get_your_profile(payload: dict = Depends(jwt_required)):
         raise HTTPException(status_code=404, detail="User not found!")
 
     return {"status": "success", "user": user}
+
+@router.get("signout")
+async def signout():
+    """
+    Allow users to sign out from the application
+    """
+    return {"status": "success", "message": "You have successfully signed out"}
