@@ -87,7 +87,7 @@ const NavbarFoodbank = () => {
       }`}
     >
       <div className="text-2xl font-bold text-black">
-        <Link href="/" legacyBehavior>
+        <Link href="/dashboard/foodbank" legacyBehavior>
           FoodLink
         </Link>
       </div>
