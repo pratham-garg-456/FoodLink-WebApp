@@ -61,6 +61,12 @@ const FoodbankDashboard = ({ userRole }) => {
         >
           Manage Volunteer
         </button>
+        <button
+          onClick={() => router.push('/dashboard/foodbank/donation-tracker')}
+          className="bg-yellow-500 text-white p-4 rounded-lg shadow-md hover:bg-yellow-600 transition duration-300"
+        >
+          Track Donations
+        </button>
       </div>
     </div>
   );

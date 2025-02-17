@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db import init_db
 from app.config import settings
 from contextlib import asynccontextmanager
-from app.routes import auth, misc, food_bank, volunteer, individual
+from app.routes import auth, misc, food_bank, volunteer, individual, donation
 
 
 @asynccontextmanager
@@ -46,6 +46,8 @@ app.include_router(
 app.include_router(
     individual.router, prefix="/api/v1/foodlink/individual", tags=["Individual"]
 )
+app.include_router(
+    donation.router, prefix="/api/v1/foodlink", tags=["Donor"])
 
 
 # Root endpoint for health checks or basic info
