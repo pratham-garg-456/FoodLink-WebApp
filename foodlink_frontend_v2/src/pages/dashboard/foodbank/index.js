@@ -50,7 +50,7 @@ const FoodbankDashboard = ({ userRole }) => {
           Manage Events
         </button>
         <button
-          onClick={() => router.push('/dashboard/foodbank/appointments')}
+          onClick={() => router.push('/dashboard/foodbank/manageAppointments')}
           className="bg-purple-500 text-white p-4 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
         >
           Manage Appointments
