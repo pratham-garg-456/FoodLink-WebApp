@@ -20,7 +20,7 @@
 
   # Platform-Specific Commands for activation
     ## Window
-    <venv>/bin/Activate.ps1
+    <venv>\Scripts\Activate.ps1 (powershell)
     ## mac/linux
     source venv/bin/activate
   
