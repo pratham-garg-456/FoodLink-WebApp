@@ -47,7 +47,7 @@ app.include_router(
     individual.router, prefix="/api/v1/foodlink/individual", tags=["Individual"]
 )
 app.include_router(
-    donation.router, prefix="/api/v1/foodlink", tags=["Donor"])
+    donation.router, prefix="/api/v1/foodlink/donor", tags=["Donor"])
 
 
 # Root endpoint for health checks or basic info

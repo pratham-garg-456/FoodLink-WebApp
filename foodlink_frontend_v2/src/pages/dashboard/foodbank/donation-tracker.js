@@ -13,20 +13,23 @@ const DonationTracker = () => {
       return;
     }
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donations`, {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.status === 'error') {
-          setErrorMessage(data.detail);
+        if (!data || data.status !== 'success') {
+          setErrorMessage(data.detail || 'Failed to fetch donations.');
         } else {
-          setDonations(data);
+          setDonations(data.data || []);
         }
       })
-      .catch((error) => console.error('Error fetching donations:', error));
+      .catch((error) => {
+        console.error('Error fetching donations:', error);
+        setErrorMessage('An error occurred while fetching donations.');
+      });
   }, []);
 
   return (

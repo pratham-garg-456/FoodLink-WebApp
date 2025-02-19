@@ -9,23 +9,40 @@ const DonationPage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    if (token) {
-      const decodedToken = JSON.parse(atob(token.split('.')[1]));
-      setDonorId(decodedToken.sub);
-    } else {
-      router.push('/auth/login'); // Redirect if not logged in
+
+    if (!token) {
+      router.push('/auth/login');
+      return;
     }
+
+    // Validate token with API before allowing donation
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 'success' && data.user.role === 'donor') {
+          setDonorId(data.user.id);
+        } else {
+          setMessage('Only donors can make donations.');
+        }
+      })
+      .catch(() => {
+        setMessage('Error validating user role.');
+      });
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!donorId) {
-      setMessage('You must be logged in to donate.');
+      setMessage('You must be a donor to donate.');
       return;
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donations`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`,
       {
         method: 'POST',
         headers: {
