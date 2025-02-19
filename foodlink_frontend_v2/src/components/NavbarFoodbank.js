@@ -44,7 +44,6 @@ const NavbarFoodbank = () => {
   const handleSignOut = () => {
     localStorage.removeItem('accessToken');
     router.push('/auth/login');
-    window.location.reload(); // Force page reload
   };
 
   // Close navbar if clicked outside
