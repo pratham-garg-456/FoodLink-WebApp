@@ -48,8 +48,8 @@ const DonationTracker = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Donation Tracker</h1>
+    <div className="container mx-auto p-6 w-[70vw] flex flex-col justify-start h-[70vh]">
+      <h1 className="text-2xl font-bold mb-4 flex justify-center">DONATIONS</h1>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       <table className="w-full border-collapse border border-gray-300">
         <thead>

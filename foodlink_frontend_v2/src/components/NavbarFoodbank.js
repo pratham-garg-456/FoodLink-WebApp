@@ -153,6 +153,14 @@ const NavbarFoodbank = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center`}
+                href="/dashboard/foodbank"
+              >
+                Home
+              </Link>
+            </div>
+            <div>
+              <Link
+                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center`}
                 href="/dashboard/foodbank/manageAppointments"
               >
                 Manage Appointments
@@ -180,6 +188,14 @@ const NavbarFoodbank = () => {
                 href="/dashboard/foodbank/manageVolunteer"
               >
                 Manage Volunteers
+              </Link>
+            </div>
+            <div className="">
+              <Link
+                className={` md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center `}
+                href="/dashboard/foodbank/events"
+              >
+                Manage Inventory
               </Link>
             </div>
           </div>
