@@ -10,39 +10,39 @@ const Events = () => {
     end_time: '',
     location: '',
     food_services: [],
-    event_inventory: []
+    event_inventory: [],
   });
 
   // Dummy main inventory data (replace with your fetched data as needed)
   const mainInventory = [
     {
-      id: "67a668e93b2a3667bd1d4c2f",
-      foodbank_id: "67998e82f6196c9a5c6017a1",
-      food_name: "Apple",
-      quantity: 200
+      id: '67a668e93b2a3667bd1d4c2f',
+      foodbank_id: '67998e82f6196c9a5c6017a1',
+      food_name: 'Apple',
+      quantity: 200,
     },
     {
-      id: "67a81cf8a440bb6d35f24530",
-      foodbank_id: "67a7a68b7e2bfbb24275273a",
-      food_name: "Beef Box",
-      quantity: 50
-    }
+      id: '67a81cf8a440bb6d35f24530',
+      foodbank_id: '67a7a68b7e2bfbb24275273a',
+      food_name: 'Beef Box',
+      quantity: 50,
+    },
     // ... add the rest of your items
   ];
 
   // Function to handle drag start
   const onDragStart = (e, item) => {
-    e.dataTransfer.setData("item", JSON.stringify(item));
+    e.dataTransfer.setData('item', JSON.stringify(item));
   };
 
   // When an item is dropped, add it to the event inventory with a default allocatedQuantity
   const onDrop = (e) => {
     e.preventDefault();
-    const item = JSON.parse(e.dataTransfer.getData("item"));
+    const item = JSON.parse(e.dataTransfer.getData('item'));
     const eventItem = { ...item, allocatedQuantity: 1 };
     setEventData((prev) => ({
       ...prev,
-      event_inventory: [...prev.event_inventory, eventItem]
+      event_inventory: [...prev.event_inventory, eventItem],
     }));
   };
 
@@ -69,7 +69,7 @@ const Events = () => {
       end_time: '',
       location: '',
       food_services: [],
-      event_inventory: []
+      event_inventory: [],
     });
     setShowForm(false);
   };
@@ -79,13 +79,13 @@ const Events = () => {
     e.preventDefault();
     const formattedInventory = eventData.event_inventory.map((item) => ({
       food_name: item.food_name,
-      quantity: item.allocatedQuantity || 1
+      quantity: item.allocatedQuantity || 1,
     }));
     const requestBody = {
       ...eventData,
-      event_inventory: formattedInventory
+      event_inventory: formattedInventory,
     };
-    console.log("Submitting event:", requestBody);
+    console.log('Submitting event:', requestBody);
     // Place your API call logic here...
     // Reset the form after submitting:
     handleCancel();
@@ -97,7 +97,7 @@ const Events = () => {
       {!showForm && (
         <div className="text-center">
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
             onClick={() => setShowForm(true)}
           >
             Create New Event
@@ -118,9 +118,7 @@ const Events = () => {
               name="event_name"
               placeholder="Community Feast 4"
               value={eventData.event_name}
-              onChange={(e) =>
-                setEventData({ ...eventData, event_name: e.target.value })
-              }
+              onChange={(e) => setEventData({ ...eventData, event_name: e.target.value })}
               className="border p-2 w-full rounded"
             />
           </div>
@@ -134,9 +132,7 @@ const Events = () => {
               name="description"
               placeholder="A place to share"
               value={eventData.description}
-              onChange={(e) =>
-                setEventData({ ...eventData, description: e.target.value })
-              }
+              onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
               className="border p-2 w-full rounded"
             />
           </div>
@@ -151,9 +147,7 @@ const Events = () => {
                 id="date"
                 name="date"
                 value={eventData.date}
-                onChange={(e) =>
-                  setEventData({ ...eventData, date: e.target.value })
-                }
+                onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
                 className="border p-2 w-full rounded"
               />
             </div>
@@ -167,9 +161,7 @@ const Events = () => {
                 name="location"
                 placeholder="Yonge and Finch"
                 value={eventData.location}
-                onChange={(e) =>
-                  setEventData({ ...eventData, location: e.target.value })
-                }
+                onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
                 className="border p-2 w-full rounded"
               />
             </div>
@@ -185,9 +177,7 @@ const Events = () => {
                 id="start_time"
                 name="start_time"
                 value={eventData.start_time}
-                onChange={(e) =>
-                  setEventData({ ...eventData, start_time: e.target.value })
-                }
+                onChange={(e) => setEventData({ ...eventData, start_time: e.target.value })}
                 className="border p-2 w-full rounded"
               />
             </div>
@@ -200,9 +190,7 @@ const Events = () => {
                 id="end_time"
                 name="end_time"
                 value={eventData.end_time}
-                onChange={(e) =>
-                  setEventData({ ...eventData, end_time: e.target.value })
-                }
+                onChange={(e) => setEventData({ ...eventData, end_time: e.target.value })}
                 className="border p-2 w-full rounded"
               />
             </div>
@@ -216,22 +204,19 @@ const Events = () => {
                 <input
                   type="checkbox"
                   value="Hot meals"
-                  checked={eventData.food_services.includes("Hot meals")}
+                  checked={eventData.food_services.includes('Hot meals')}
                   onChange={(e) => {
                     if (e.target.checked) {
                       setEventData({
                         ...eventData,
-                        food_services: [
-                          ...eventData.food_services,
-                          "Hot meals"
-                        ]
+                        food_services: [...eventData.food_services, 'Hot meals'],
                       });
                     } else {
                       setEventData({
                         ...eventData,
                         food_services: eventData.food_services.filter(
-                          (item) => item !== "Hot meals"
-                        )
+                          (item) => item !== 'Hot meals'
+                        ),
                       });
                     }
                   }}
@@ -243,22 +228,17 @@ const Events = () => {
                 <input
                   type="checkbox"
                   value="Snacks"
-                  checked={eventData.food_services.includes("Snacks")}
+                  checked={eventData.food_services.includes('Snacks')}
                   onChange={(e) => {
                     if (e.target.checked) {
                       setEventData({
                         ...eventData,
-                        food_services: [
-                          ...eventData.food_services,
-                          "Snacks"
-                        ]
+                        food_services: [...eventData.food_services, 'Snacks'],
                       });
                     } else {
                       setEventData({
                         ...eventData,
-                        food_services: eventData.food_services.filter(
-                          (item) => item !== "Snacks"
-                        )
+                        food_services: eventData.food_services.filter((item) => item !== 'Snacks'),
                       });
                     }
                   }}
@@ -321,8 +301,7 @@ const Events = () => {
                             max={item.quantity}
                             value={item.allocatedQuantity || 1}
                             onChange={(e) => {
-                              const newQuantity =
-                                parseInt(e.target.value, 10) || 1;
+                              const newQuantity = parseInt(e.target.value, 10) || 1;
                               setEventData((prev) => {
                                 const newInventory = [...prev.event_inventory];
                                 newInventory[index].allocatedQuantity = newQuantity;
