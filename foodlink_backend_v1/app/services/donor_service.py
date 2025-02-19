@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from beanie import PydanticObjectId
 
 
-async def create_donation_in_db(donor_id: str, amount: float):
+async def create_donation_in_db(donor_id: str, donation_data: dict):
     """
     Allow a donor to make a monetary donation.
     :param donor_id: The ID of the donor making the donation.
@@ -12,56 +12,15 @@ async def create_donation_in_db(donor_id: str, amount: float):
     :return: Donation details.
     """
 
-    # Validate donor existence
-    donor = await User.get(PydanticObjectId(donor_id))
-    if not donor:
-        raise HTTPException(status_code=400, detail="Invalid donor ID")
-
-    if donor.role != "donor":
-        raise HTTPException(status_code=403, detail="Only donors can make a donation")
-
-    if amount <= 0:
-        raise HTTPException(status_code=400, detail="Donation amount must be greater than zero")
-
     # Create and save donation
     try:
-        donation = Donation(donor_id=donor_id, amount=amount, status="pending")
-        await donation.insert()
-
-        donation_dict = donation.model_dump()
-        donation_dict["id"] = str(donation_dict["id"])
-        return donation_dict
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error recording donation: {str(e)}")
-
-
-async def get_all_donations():
-    """
-    Retrieve all donation records from the database.
-    :return: List of donations.
-    """
-    try:
-        donations = await Donation.find_all().to_list()
-        return [donation.model_dump() for donation in donations]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching donations: {str(e)}")
-
-
-async def get_donation_by_id(donation_id: str):
-    """
-    Retrieve a specific donation record.
-    :param donation_id: The ID of the donation.
-    :return: Donation details.
-    """
-    try:
-        donation = await Donation.get(PydanticObjectId(donation_id))
-        if not donation:
-            raise HTTPException(status_code=404, detail="Donation not found")
-
-        donation_dict = donation.model_dump()
-        donation_dict["id"] = str(donation_dict["id"])
-        return donation_dict
+        new_donation = Donation(donor_id=donor_id, amount=donation_data["amount"], foodbank_id=donation_data["foodbank_id"], status="confirmed")
+        await new_donation.insert()
+        new_donation = new_donation.model_dump()
+        new_donation["id"] = str(new_donation["id"])
+        return new_donation
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching donation: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"An error occurred while creating a new donation in db : {str(e)}")
+
+

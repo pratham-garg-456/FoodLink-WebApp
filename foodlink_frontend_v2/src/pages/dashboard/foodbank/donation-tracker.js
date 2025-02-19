@@ -1,36 +1,51 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import axios from 'axios';
+import validateToken from '@/utils/validateToken';
 
 const DonationTracker = () => {
   const [donations, setDonations] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
+  const [foodbankIdd, setFoodbankId] = useState([]);
+
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/auth/login');
-      return;
-    }
+    const checkToken = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
 
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data || data.status !== 'success') {
-          setErrorMessage(data.detail || 'Failed to fetch donations.');
-        } else {
-          setDonations(data.data || []);
+      try {
+        const decodedToken = await validateToken(token);
+        setFoodbankId(decodedToken.user.id);
+        fetchInventory(decodedToken.user.id);
+      } catch (error) {
+        console.error('Invalid token: ', error);
+        router.push('/auth/login');
+      }
+    };
+    checkToken();
+  }, [router]);
+
+  const fetchInventory = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/donations`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
         }
-      })
-      .catch((error) => {
-        console.error('Error fetching donations:', error);
-        setErrorMessage('An error occurred while fetching donations.');
-      });
-  }, []);
+      );
+      setDonations(response.data.donations);
+    } catch (error) {
+      console.error('Error fetching donations:', error);
+      setErrorMessage('Error fetching donations. Please try again later.');
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">

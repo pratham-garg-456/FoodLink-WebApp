@@ -12,6 +12,8 @@ from app.services.food_bank_service import (
     get_list_of_events,
     update_the_existing_event_in_db,
     delete_event_in_db,
+    get_donation_by_id,
+    get_all_donations,
 )
 
 from app.services.user_service import get_user_by_id
@@ -443,3 +445,45 @@ async def update_status_of_appointment(
     )
 
     return {"status": "success", "appointment": appointment}
+
+
+@router.get("/donations")
+async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):        
+    """
+    API Endpoint: Retrieve all donations for foodbank.
+    """
+
+    if payload.get("role") != "foodbank":
+        raise HTTPException(status_code=401, detail="Only food banks can retrieve list of donations")
+
+    donations = await get_all_donations(foodbank_id=payload.get("sub"))
+
+    return {
+        "status": "success",
+        "message": "Donations retrieved successfully",
+        "donations": donations
+    }
+
+@router.get("/donations/{donation_id}")
+async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
+    """
+    API Endpoint: Retrieve a specific donation by ID.
+    """
+     # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the donation details",
+        )
+
+
+    donation = await get_donation_by_id(donation_id=donation_id)
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation not found")
+
+    return {
+        "status": "success",
+        "message": "Donation retrieved successfully",
+        "donation": donation
+    }
+
