@@ -23,6 +23,9 @@ const Dashboard = () => {
       if (userRole == 'foodbank') {
         router.push('/dashboard/foodbank');
       }
+      // } else if (decodedToken.role === 'donor') {
+      //   router.push('/dashboard/foodbank/donations');
+      // }
     } catch (error) {
       console.error('Invalid token: ', error);
       router.push('/login');

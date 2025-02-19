@@ -2,6 +2,7 @@ from app.models.event import Event, EventInventory
 from app.models.inventory import Inventory
 from app.models.application import Application
 from app.models.appointment import Appointment
+from app.models.donation import Donation
 from fastapi import HTTPException
 from beanie import PydanticObjectId
 from app.utils.time_converter import convert_string_time_to_iso
@@ -361,3 +362,41 @@ async def update_appointment_status_in_db(appointment_id: str, updated_status: s
             status_code=400,
             detail=f"An error occured while updating the appointment in DB: {e}",
         )
+
+async def get_all_donations(foodbank_id: str):
+
+    donation_list = []
+
+    """
+    Retrieve all donation records from the database.
+    :return: List of donations.
+    """
+    try:
+        donations = await Donation.find(Donation.foodbank_id == foodbank_id).to_list()
+        for donation in donations:
+            donation = donation.model_dump()
+            donation["id"] = str(donation["id"])
+            donation_list.append(donation)
+
+        return donation_list
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
+
+
+async def get_donation_by_id(donation_id: str):
+    """
+    Retrieve a specific donation record.
+    :param donation_id: The ID of the donation.
+    :return: Donation details.
+    """
+    try:
+        donation = await Donation.get(PydanticObjectId(donation_id))
+        if not donation:
+            raise HTTPException(status_code=404, detail="Donation not found")
+
+        donation_dict = donation.model_dump()
+        donation_dict["id"] = str(donation_dict["id"])
+        return donation_dict
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching donation: {str(e)}")
