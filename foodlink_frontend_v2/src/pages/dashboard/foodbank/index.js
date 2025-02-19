@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { jwtDecode } from 'jwt-decode';
 import validateToken from '../../../utils/validateToken';
+import Image from 'next/image';
+import foodbank from '../../../../public/images/food-bank2.jpg';
 
 const FoodbankDashboard = ({ userRole }) => {
   const router = useRouter();
@@ -16,7 +18,7 @@ const FoodbankDashboard = ({ userRole }) => {
       }
 
       const decodedToken = await validateToken(token);
-      setUserId(decodedToken.user.id.slice(0, 5)); // Display first 5 digits of user ID
+      setUserId(decodedToken.user.id.slice(0, 5));
       if (decodedToken.error) {
         console.error('Invalid token: ', decodedToken.error);
         router.push('/auth/login');
@@ -26,47 +28,71 @@ const FoodbankDashboard = ({ userRole }) => {
     checkToken();
   }, [router]);
 
-  const handleManageVolunteer = () => {
-    router.push('/dashboard/foodbank/manageVolunteer'); // Navigate to Manage Volunteer page
-  };
-
   return (
-    <div className="container mx-auto p-4 text-center">
-      <h1 className="text-3xl font-bold mb-6">Welcome to the Food Bank Dashboard</h1>
-      <p className="mb-6 text-lg">
-        Your User ID: <span className="font-mono">{userId}</span>
-      </p>
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <button
-          onClick={() => router.push('/dashboard/foodbank/inventory')}
-          className="bg-blue-500 text-white p-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-300"
-        >
-          Manage Inventory
-        </button>
-        <button
-          onClick={() => router.push('/dashboard/foodbank/events')}
-          className="bg-green-500 text-white p-4 rounded-lg shadow-md hover:bg-green-600 transition duration-300"
-        >
-          Manage Events
-        </button>
-        <button
-          onClick={() => router.push('/dashboard/foodbank/appointments')}
-          className="bg-purple-500 text-white p-4 rounded-lg shadow-md hover:bg-purple-600 transition duration-300"
-        >
-          Manage Appointments
-        </button>
-        <button
-          onClick={handleManageVolunteer}
-          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-        >
-          Manage Volunteer
-        </button>
-        <button
-          onClick={() => router.push('/dashboard/foodbank/donation-tracker')}
-          className="bg-yellow-500 text-white p-4 rounded-lg shadow-md hover:bg-yellow-600 transition duration-300"
-        >
-          Track Donations
-        </button>
+    <div className="flex flex-col items-center">
+      <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row md:justify-end md:w-[80vw] md:gap-2">
+        {/* Left Section */}
+        <div className="order-last md:order-first md:w-4/6 md:pr-4">
+          <h1 className="text-2xl md:text-5xl text-center mt-5 font-bold text-gray-900 md:text-left mb-7">
+            Welcome to the Food Bank Dashboard
+          </h1>
+          <p className="text-lg text-gray-700 text-center md:text-left mb-4">
+            Your User ID: <span className="font-mono font-bold">{userId}</span>
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-2 md:justify-start">
+            <button
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              onClick={() => router.push('/dashboard/foodbank/inventory')}
+            >
+              Manage Inventory
+            </button>
+            <button
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              onClick={() => router.push('/dashboard/foodbank/events')}
+            >
+              Manage Events
+            </button>
+            <button
+              className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+              onClick={() => router.push('/dashboard/foodbank/manageAppointments')}
+            >
+              Manage Appointments
+            </button>
+            <button
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              onClick={() => router.push('/dashboard/foodbank/manageVolunteer')}
+            >
+              Manage Volunteers
+            </button>
+          </div>
+
+          <div className="mt-8 text-md text-gray-800 flex flex-col items-center md:justify-start md:items-start md:flex-row md:gap-4">
+            <p>
+              <strong>500+</strong> Appointments Scheduled
+            </p>
+            <p>
+              <strong>1,200</strong> Volunteers Engaged
+            </p>
+            <p>
+              <strong>50k+</strong> Meals Distributed
+            </p>
+          </div>
+        </div>
+
+        {/* Right Section */}
+        <div className="md:w-2/6 flex flex-col justify-center items-center">
+          <Image
+            src={foodbank}
+            alt="Food Bank"
+            className="rounded-full object-cover shadow-lg w-32 h-32 md:w-64 md:h-64"
+          />
+          <div className="mt-6 text-center text-gray-600">
+            <p className="text-md font-semibold">
+              Supporting communities through food and resources
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

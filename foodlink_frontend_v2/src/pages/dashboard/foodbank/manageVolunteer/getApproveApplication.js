@@ -18,7 +18,7 @@ export default () => {
         );
         const result = await response.json();
         const volunteerDetail = await Promise.all(
-          result?.volunteers.map(async (volunteer) => {
+          result?.volunteers?.map(async (volunteer) => {
             const volunteerResponse = await fetch(
               `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/volunteer/${volunteer.volunteer_id}`,
               {
@@ -59,9 +59,9 @@ export default () => {
               <tr key={index} className="hover:bg-gray-50">
                 <td className="border p-2 flex items-center justify-center">
                   {item.volunteerDetail.name}
-                  <button className="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-sm">
+                  {/* <button className="ml-2 bg-blue-500 text-white px-2 py-1 rounded text-sm">
                     View Detail
-                  </button>
+                  </button> */}
                 </td>
                 <td className="border p-2">{item.volunteerDetail.email}</td>
                 <td className="border p-2">{item.applied_position}</td>

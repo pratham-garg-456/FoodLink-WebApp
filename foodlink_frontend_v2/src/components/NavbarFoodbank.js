@@ -37,22 +37,23 @@ const NavbarFoodbank = () => {
   };
 
   const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
+    event.stopPropagation(); // Prevent event from bubbling up
+    setDropdownOpen((prev) => !prev);
   };
 
   const handleSignOut = () => {
     localStorage.removeItem('accessToken');
     router.push('/auth/login');
-    window.location.reload(); // Force page reload
   };
 
   // Close navbar if clicked outside
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (navRef.current && !navRef.current.contains(event.target)) {
-        exitNav();
-      }
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        event.target !== document.querySelector('#dropdown-button')
+      ) {
         setDropdownOpen(false);
       }
     };
@@ -82,11 +83,11 @@ const NavbarFoodbank = () => {
 
   return (
     <nav
-      className={`fixed w-full flex p-8 md:p-4 md:px-6 md gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
+      className={`fixed w-full flex md:mt-5 p-8 md:p-4 md:px-6 md gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center md:items-start  md:${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >
-      <div className="text-2xl font-bold text-black">
+      <div className="flex items-start text-2xl font-bold text-black">
         <Link href="/dashboard/foodbank" legacyBehavior>
           FoodLink
         </Link>
@@ -146,20 +147,20 @@ const NavbarFoodbank = () => {
         >
           &times;
         </a>
-        <div className="p-2 md:flex-row md:p-0 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col text-sm md:text-base gap-4">
+        <div className="p-2 md:items-start items-center text-center md:flex-row md:p-0 md:w-full justify-between md:oxygen-bold drop-shadow-md flex flex-col text-sm md:text-base gap-4">
           <div></div>
-          <div className="flex flex-col items-center md:flex-row ">
+          <div className="flex  md:mt-2 md:text-base flex-col items-center md:items-start md:flex-row md:oxygen-bold">
             <div>
               <Link
-                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/dashboard/foodbank/appointments"
+                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center`}
+                href="/dashboard/foodbank/manageAppointments"
               >
                 Manage Appointments
               </Link>
             </div>
-            <div>
+            <div className="">
               <Link
-                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
+                className={` md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center `}
                 href="/dashboard/foodbank/events"
               >
                 Manage Events
@@ -167,7 +168,7 @@ const NavbarFoodbank = () => {
             </div>
             <div>
               <Link
-                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
+                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center`}
                 href="/dashboard/foodbank/donations"
               >
                 Track Donations
@@ -175,32 +176,52 @@ const NavbarFoodbank = () => {
             </div>
             <div>
               <Link
-                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
+                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 text-center flex items-center`}
                 href="/dashboard/foodbank/manageVolunteer"
               >
                 Manage Volunteers
               </Link>
             </div>
           </div>
-          <div className="my-4 flex justify-center w-36 relative">
+          <div className=" flex flex-col w-28  items-center md:mb-10 justify-center">
             {/* Display food bank name or first 5 digits of ID */}
-            <span
-              className="text-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer"
+            <button
+              id="dropdown-button"
+              className=" flex items-center justify-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer w-full"
               onClick={toggleDropdown}
             >
               {foodbankName}
-            </span>
+
+              <svg
+                className="w-2.5 h-2.5 ms-2.5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 10 6"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m1 1 4 4 4-4"
+                />
+              </svg>
+            </button>
             {dropdownOpen && (
               <div
                 ref={dropdownRef}
-                className="absolute top-full mt-2 w-full bg-white text-black rounded-lg shadow-lg z-10"
+                className="flex flex-col justify-center items-center mt-2  bg-white text-black rounded-lg shadow-lg w-auto "
               >
-                <Link href="/profile" className="block px-4 py-2 hover:bg-gray-200">
+                <Link
+                  href="/profile"
+                  className="w-full px-4 py-2 hover:bg-gray-200 hover:rounded-lg hover:rounded-b-none "
+                >
                   Profile
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                  className="w-full px-4 py-2 hover:bg-gray-200 hover:rounded-lg hover:rounded-t-none"
                 >
                   Sign Out
                 </button>

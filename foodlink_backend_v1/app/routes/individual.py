@@ -18,7 +18,7 @@ async def request_an_appointment(
 
     # Validate if the request is made from an individual
 
-    if payload.get("role") != "individual" or payload.get("role") != "foodbank":
+    if payload.get("role") != "individual":
         raise HTTPException(
             status_code=401, detail="Only Individual can request an appointment!"
         )
