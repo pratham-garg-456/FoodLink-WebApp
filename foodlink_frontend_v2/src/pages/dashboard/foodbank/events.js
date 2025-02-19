@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import Notification from '@/components/Notification';
+import VolunteerModal from '@/components/VolunteerModal';
 
 const Events = () => {
   const [showForm, setShowForm] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [notification, setNotification] = useState({ message: '', type: '' });
+  const [volunteerModalEvent, setVolunteerModalEvent] = useState(null);
+
   const [eventData, setEventData] = useState({
     event_name: '',
     description: '',
@@ -13,29 +20,23 @@ const Events = () => {
     event_inventory: [],
   });
 
-  // Dummy main inventory data (replace with your fetched data as needed)
-  const mainInventory = [
-    {
-      id: '67a668e93b2a3667bd1d4c2f',
-      foodbank_id: '67998e82f6196c9a5c6017a1',
-      food_name: 'Apple',
-      quantity: 200,
-    },
-    {
-      id: '67a81cf8a440bb6d35f24530',
-      foodbank_id: '67a7a68b7e2bfbb24275273a',
-      food_name: 'Beef Box',
-      quantity: 50,
-    },
-    // ... add the rest of your items
-  ];
+  const [mainInventory, setMainInventory] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [token, setToken] = useState('');
 
-  // Function to handle drag start
+  // Ensure we get the token from localStorage on client side.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('accessToken');
+      setToken(storedToken);
+    }
+  }, []);
+
+  // Drag & Drop functions.
   const onDragStart = (e, item) => {
     e.dataTransfer.setData('item', JSON.stringify(item));
   };
 
-  // When an item is dropped, add it to the event inventory with a default allocatedQuantity
   const onDrop = (e) => {
     e.preventDefault();
     const item = JSON.parse(e.dataTransfer.getData('item'));
@@ -50,7 +51,6 @@ const Events = () => {
     e.preventDefault();
   };
 
-  // Remove an item from the event inventory (effectively "returning" it to the main inventory)
   const handleRemoveItem = (index) => {
     setEventData((prev) => {
       const newInventory = [...prev.event_inventory];
@@ -59,7 +59,6 @@ const Events = () => {
     });
   };
 
-  // Reset the form and clear any allocated items if the user cancels the process
   const handleCancel = () => {
     setEventData({
       event_name: '',
@@ -71,12 +70,14 @@ const Events = () => {
       food_services: [],
       event_inventory: [],
     });
+    setEditingEventId(null);
     setShowForm(false);
+    setNotification({ message: '', type: '' });
   };
 
-  // On form submission, prepare the request body and (here) log it out.
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setNotification({ message: '', type: '' });
     const formattedInventory = eventData.event_inventory.map((item) => ({
       food_name: item.food_name,
       quantity: item.allocatedQuantity || 1,
@@ -85,29 +86,169 @@ const Events = () => {
       ...eventData,
       event_inventory: formattedInventory,
     };
-    console.log('Submitting event:', requestBody);
-    // Place your API call logic here...
-    // Reset the form after submitting:
-    handleCancel();
+    try {
+      if (editingEventId) {
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${editingEventId}`,
+          requestBody,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setNotification({ message: 'Event updated successfully', type: 'success' });
+      } else {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event`,
+          requestBody,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setNotification({ message: 'Event created successfully', type: 'success' });
+      }
+      fetchEvents();
+      handleCancel();
+    } catch (error) {
+      if (error?.response?.data?.detail) {
+        setNotification({
+          message: error.response.data.detail,
+          type: 'error',
+        });
+      } else {
+        setNotification({
+          message: 'Failed to submit the event.',
+          type: 'error',
+        });
+      }
+    }
   };
+
+  const fetchInventoryFromDb = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setMainInventory(response?.data?.inventory ?? []);
+    } catch (e) {
+      if (error?.response?.data?.detail) {
+        setNotification({
+          message: error.response.data.detail,
+          type: 'error',
+        });
+      } else {
+        setNotification({
+          message: 'Failed to load main inventory',
+          type: 'error',
+        });
+      }
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/events`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setEvents(response?.data?.events);
+    } catch (e) {
+      setNotification({ message: 'Failed to load events.', type: 'error' });
+    }
+  };
+
+  const handleEditEvent = (event) => {
+    setEditingEventId(event.id);
+    const transformedInventory = event.event_inventory.map((item) => ({
+      ...item,
+      allocatedQuantity: item.quantity,
+    }));
+    setEventData({
+      event_name: event.event_name,
+      description: event.description,
+      date: event.date,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      location: event.location,
+      food_services: event.food_services,
+      event_inventory: transformedInventory,
+    });
+    setShowForm(true);
+    setNotification({ message: '', type: '' });
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      setNotification({ message: '', type: '' });
+      try {
+        await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${eventId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setNotification({ message: 'Event deleted successfully', type: 'success' });
+        fetchEvents();
+      } catch (error) {
+        if (error?.response?.data?.detail) {
+          setNotification({
+            message: error.response.data.detail,
+            type: 'error',
+          });
+        } else {
+          setNotification({
+            message: 'Failed to delete the event',
+            type: 'error',
+          });
+        }
+      }
+    }
+  };
+
+  const openVolunteerModal = (event) => {
+    setVolunteerModalEvent(event);
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchInventoryFromDb();
+      fetchEvents();
+    }
+  }, [token]);
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4 text-center">Manage Events</h1>
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: '', type: '' })}
+        />
+      )}
       {!showForm && (
-        <div className="text-center">
+        <div className="text-center mb-8">
           <button
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-            onClick={() => setShowForm(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={() => {
+              setEditingEventId(null);
+              setShowForm(true);
+              setNotification({ message: '', type: '' });
+            }}
           >
             Create New Event
           </button>
         </div>
       )}
-
       {showForm && (
         <form onSubmit={handleSubmit} className="mt-8 max-w-3xl mx-auto">
-          {/* Event Details */}
+          <h2 className="text-xl font-bold mb-4">
+            {editingEventId ? 'Edit Event' : 'Create New Event'}
+          </h2>
           <div className="mb-4">
             <label htmlFor="event_name" className="block font-bold mb-1">
               Event Name
@@ -122,7 +263,6 @@ const Events = () => {
               className="border p-2 w-full rounded"
             />
           </div>
-
           <div className="mb-4">
             <label htmlFor="description" className="block font-bold mb-1">
               Description
@@ -136,7 +276,6 @@ const Events = () => {
               className="border p-2 w-full rounded"
             />
           </div>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label htmlFor="date" className="block font-bold mb-1">
@@ -166,7 +305,6 @@ const Events = () => {
               />
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label htmlFor="start_time" className="block font-bold mb-1">
@@ -195,8 +333,6 @@ const Events = () => {
               />
             </div>
           </div>
-
-          {/* Food Services Selection */}
           <div className="mb-4">
             <span className="block font-bold mb-1">Food Services</span>
             <div className="flex space-x-4">
@@ -248,12 +384,9 @@ const Events = () => {
               </label>
             </div>
           </div>
-
-          {/* Drag and Drop for Event Inventory */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-2">Event Inventory</h2>
             <div className="flex space-x-4">
-              {/* Main Inventory List */}
               <div className="w-1/2 border p-4 rounded">
                 <h3 className="font-semibold mb-2">Main Inventory</h3>
                 <ul>
@@ -270,8 +403,6 @@ const Events = () => {
                   ))}
                 </ul>
               </div>
-
-              {/* Drop Zone for Allocated Items */}
               <div
                 className="w-1/2 border p-4 rounded min-h-[200px]"
                 onDrop={onDrop}
@@ -325,8 +456,6 @@ const Events = () => {
               </div>
             </div>
           </div>
-
-          {/* Form Buttons */}
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -339,10 +468,72 @@ const Events = () => {
               type="submit"
               className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
             >
-              Submit Event
+              {editingEventId ? 'Update Event' : 'Submit Event'}
             </button>
           </div>
         </form>
+      )}
+      <div className="mt-12">
+        <h2 className="text-xl font-bold mb-4 text-center">Existing Events</h2>
+        {events.length === 0 ? (
+          <p className="text-center">No events found.</p>
+        ) : (
+          <ul className="space-y-4">
+            {events.map((event) => (
+              <li key={event.id} className="border p-4 rounded flex flex-col">
+                <div className="flex justify-between items-center">
+                  <div onClick={() => handleEditEvent(event)} className="cursor-pointer">
+                    <h3 className="text-lg font-bold">{event.event_name}</h3>
+                    <p>{event.description}</p>
+                    <p>
+                      <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <strong>From:</strong> {new Date(event.start_time).toLocaleTimeString()}
+                    </p>
+                    <p>
+                      <strong>To:</strong> {new Date(event.end_time).toLocaleTimeString()}
+                    </p>
+                    <p>
+                      <strong>Location:</strong> {event.location}
+                    </p>
+                    <p>
+                      <strong>Food Services:</strong> {event.food_services.join(', ')}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openVolunteerModal(event);
+                      }}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mb-2"
+                    >
+                      Manage Volunteers
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteEvent(event.id);
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {volunteerModalEvent && (
+        <VolunteerModal
+          event={volunteerModalEvent}
+          token={token}
+          setNotification={setNotification}
+          onClose={() => setVolunteerModalEvent(null)}
+        />
       )}
     </div>
   );

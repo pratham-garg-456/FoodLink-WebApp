@@ -2,9 +2,9 @@ from app.models.event import Event, EventInventory
 from app.models.inventory import Inventory
 from app.models.application import Application
 from app.models.appointment import Appointment
-
 from fastapi import HTTPException
 from beanie import PydanticObjectId
+from app.utils.time_converter import convert_string_time_to_iso
 
 
 async def add_inventory_in_db(foodbank_id: str, food_name: str, quantity: str):
@@ -139,15 +139,24 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         )
         event_inventory_list.append(event_inventory)
 
+    # Convert the given datetime string into ISO format to store in db
+    start_time = convert_string_time_to_iso(
+        event_data["date"], event_data["start_time"]
+    )
+    event_date = convert_string_time_to_iso(
+        event_data["date"], event_data["start_time"]
+    )
+    end_time = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
+
     # Create an Event in DB
     try:
         event = Event(
             foodbank_id=foodbank_id,
             event_name=event_data["event_name"],
             description=event_data["description"],
-            date=event_data["date"],
-            start_time=event_data["start_time"],
-            end_time=event_data["end_time"],
+            date=event_date,
+            start_time=start_time,
+            end_time=end_time,
             location=event_data["location"],
             food_services=event_data["food_services"],
             event_inventory=event_inventory_list,
@@ -180,11 +189,73 @@ async def get_list_of_events(foodbank_id: str):
             event = event.model_dump()
             event["id"] = str(event["id"])
             event_list.append(event)
-            return event_list
+
+        return event_list
     except Exception as e:
         raise HTTPException(
             status_code=400,
             detail=f"An error occurred while fetching the list of events in db: {e}",
+        )
+
+
+async def update_the_existing_event_in_db(event_id: str, event_data: dict):
+    """
+    Update an exisiting event in db
+    :param event_id: An event ID
+    :param event_data: An updated event data
+    """
+
+    event = await Event.get(PydanticObjectId(event_id))
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    # Convert the date time string to ISO format
+    date = convert_string_time_to_iso(
+        date_time=event_data["date"], time_str=event_data["start_time"]
+    )
+    start_time = convert_string_time_to_iso(
+        date_time=event_data["date"], time_str=event_data["start_time"]
+    )
+    end_time = convert_string_time_to_iso(
+        date_time=event_data["date"], time_str=event_data["end_time"]
+    )
+
+    event_data["date"] = date
+    event_data["start_time"] = start_time
+    event_data["end_time"] = end_time
+    # Update the exisitng event in db
+    try:
+        for key, value in event_data.items():
+            setattr(event, key, value)
+
+        await event.save()
+        event = event.model_dump()
+        event["id"] = str(event["id"])
+
+        return event
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while updating the event in db: {e}",
+        )
+
+
+async def delete_event_in_db(event_id: str):
+    """
+    Delete the existing event based on the requested ID
+    :param event_id: An unique identifier of event
+    """
+    event = await Event.get(PydanticObjectId(event_id))
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    try:
+        await event.delete()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"An error occurred while deleting the event"
         )
 
 

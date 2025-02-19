@@ -10,6 +10,8 @@ from app.services.food_bank_service import (
     update_application_status_in_db,
     update_appointment_status_in_db,
     get_list_of_events,
+    update_the_existing_event_in_db,
+    delete_event_in_db,
 )
 
 from app.services.user_service import get_user_by_id
@@ -82,6 +84,67 @@ async def get_list_of_event(payload: dict = Depends(jwt_required)):
         )
 
     return {"status": "success", "events": events}
+
+
+@router.put("/event/{event_id}")
+async def update_an_existing_event(
+    event_id: str, payload: dict = Depends(jwt_required), updated_event: dict = {}
+):
+    """
+    Allow foodbank admin to update an existing event
+    :param event_id: A unique identifier for event to retrieve the correct event from db
+    :param payload: Decoded JWT containing user claims (validated via jwt_required)
+    :return an updated event
+    """
+
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can update an event"
+        )
+
+    # Required key in the body
+    required_key = [
+        "event_name",
+        "date",
+        "start_time",
+        "end_time",
+        "location",
+        "food_services",
+        "event_inventory",
+    ]
+
+    # Start validation those keys
+    for key in required_key:
+        if not updated_event.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    updated_event = await update_the_existing_event_in_db(
+        event_id=event_id, event_data=updated_event
+    )
+
+    return {"status": "success", "event": updated_event}
+
+
+@router.delete("/event/{event_id}")
+async def delete_event(event_id: str, payload: dict = Depends(jwt_required)):
+    """
+    Allow foodbank admin to delete an event
+    :param event_id: A unique identifier for event
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can delete an event",
+        )
+
+    await delete_event_in_db(event_id=event_id)
+
+    return {"status": "success", "detail": "The event is removed from the database!"}
 
 
 @router.post("/inventory")
@@ -170,6 +233,7 @@ async def get_inventory(payload: dict = Depends(jwt_required)):
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :return: A list inventory item is stored in the db
     """
+
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
