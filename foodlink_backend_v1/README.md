@@ -3,13 +3,17 @@
 ## Pre-requisite 
 - Install python: https://www.python.org/downloads/
   (command to check if you have python already installed: `which python3`)
-- Install pip: https://pip.pypa.io/en/stable/installation/
-  
-  Usually, pip is automatically installed if you are:
+
+Usually, pip is automatically installed if you are:
   
   - Working in a virtual environment
   - Using Python downloaded from python.org
   - Using Python that has not been modified by a redistributor to remove ensurepip
+
+ if not, then
+- Install pip: https://pip.pypa.io/en/stable/installation/
+  
+
 
 ## Setup up project locally:
 - Clone the repository 
