@@ -38,4 +38,9 @@ Usually, pip is automatically installed if you are:
   deactivate
   ```
 
+## Run the Project in Development mode 
+```sh
+fastapi dev
+```
+
   
