@@ -107,6 +107,7 @@ const Events = () => {
         setNotification({ message: 'Event created successfully', type: 'success' });
       }
       fetchEvents();
+      fetchInventoryFromDb();
       handleCancel();
     } catch (error) {
       if (error?.response?.data?.detail) {
@@ -161,6 +162,16 @@ const Events = () => {
     }
   };
 
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toISOString().split('T')[0]; // Extracts the date part in YYYY-MM-DD format
+  };
+
+  const formatTime = (isoString) => {
+    const date = new Date(isoString);
+    return date.toTimeString().split(' ')[0].slice(0, 5); // Extracts the time part in HH:mm format
+  };
+
   const handleEditEvent = (event) => {
     setEditingEventId(event.id);
     const transformedInventory = event.event_inventory.map((item) => ({
@@ -170,9 +181,9 @@ const Events = () => {
     setEventData({
       event_name: event.event_name,
       description: event.description,
-      date: event.date,
-      start_time: event.start_time,
-      end_time: event.end_time,
+      date: formatDate(event.date),
+      start_time: formatTime(event.start_time),
+      end_time: formatTime(event.end_time),
       location: event.location,
       food_services: event.food_services,
       event_inventory: transformedInventory,
