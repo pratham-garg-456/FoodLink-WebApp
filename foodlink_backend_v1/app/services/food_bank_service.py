@@ -225,6 +225,7 @@ async def update_the_existing_event_in_db(event_id: str, event_data: dict):
     event_data["date"] = date
     event_data["start_time"] = start_time
     event_data["end_time"] = end_time
+    
     # Update the exisitng event in db
     try:
         for key, value in event_data.items():

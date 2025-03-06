@@ -487,3 +487,22 @@ async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
         "donation": donation
     }
 
+
+@router.post("/job")
+async def post_a_new_job(payload: dict = Depends(jwt_required), job_data: dict = {}):
+    """
+    Allow foodbank admin to create a new job within foodbank for the volunteer
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param job_data: A dictionary contains job information
+    """
+    
+    # Validate if the request is made from Foodbank admin
+    if payload.get('role') != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can post a new job"
+        )
+        
+    
+    # Validate the job data
+    required_key : list = []
