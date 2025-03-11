@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
+
+from app.services.user_service import get_user_by_id
+from app.utils.jwt_handler import jwt_required
+from datetime import datetime
 from app.services.food_bank_service import (
     add_inventory_in_db,
-    update_inventory_in_db,
     get_inventory_in_db,
     create_an_event_in_db,
     get_list_volunteer_in_db,
-    delete_inventory_in_db,
     get_list_appointments_in_db,
     update_application_status_in_db,
     update_appointment_status_in_db,
@@ -14,12 +16,69 @@ from app.services.food_bank_service import (
     delete_event_in_db,
     get_donation_by_id,
     get_all_donations,
+    get_food_items_in_db,
+    add_a_food_item_in_db,
+    remove_inventory_in_db,
 )
 
-from app.services.user_service import get_user_by_id
-from app.utils.jwt_handler import jwt_required
 
 router = APIRouter()
+
+# Route to add a food item to the database
+@router.post("/foodItem")
+async def add_food_item(
+    payload: dict = Depends(jwt_required), food_data: dict = {}
+):
+    """
+    Allow food bank admin to add a new food item to the inventory.
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param food_data: Food details including food_name, category, and unit.
+    :return: A created food item is stored in the db.
+    """
+    # Validate if the request is made from a Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can add new food items to the inventory",
+        )
+
+    # Required keys in the body
+    required_keys = ["food_name", "category", "unit","expiration_date"]
+
+    # Validate required fields
+    for key in required_keys:
+        if not food_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+ # Add a new event in db
+    food_item = await add_a_food_item_in_db(
+        food_data=food_data
+    )
+
+    return {"status": "success", "food_item": food_item}
+
+
+# Route to get food items from the database
+@router.get("/foodItems")
+async def get_food_items(payload: dict = Depends(jwt_required)):
+    """
+    Allow food bank admin to retrieve food items from the inventory.
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return: A list of food items from the inventory.
+    """
+    # Validate if the request is made from a Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the food items from the inventory",
+        )
+
+    # Retrieve food items from the db
+    food_items = await get_food_items_in_db()
+
+    return {"status": "success", "food_items": food_items}
 
 
 @router.post("/event")
@@ -165,39 +224,46 @@ async def add_inventory(
             status_code=401,
             detail="Only FoodBank admin can add new food in the main inventory",
         )
+    # If no inventory data is provided
+    if inventory_data is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Inventory data is required",
+        )
 
     # Required key in the body
-    required_key = ["food_name", "quantity"]
+    required_key = ["stock"]
 
-    # Start validation those keys
-    for key in required_key:
-        if not inventory_data.get(key):
+ # Validate each item in the stock list
+    for item in inventory_data["stock"]:
+        if "food_name" not in item or not item["food_name"]:
             raise HTTPException(
-                status_code=400, detail=f"{key} is required and cannot be empty"
+                status_code=400, detail="Each inventory item must have a non-empty 'food_name'"
+            )
+        if "quantity" not in item or not isinstance(item["quantity"], int) or item["quantity"] <= 0:
+            raise HTTPException(
+                status_code=400, detail="Each inventory item must have a valid 'quantity' (positive integer)"
             )
 
     # Store the new food in the db
     new_inventory = await add_inventory_in_db(
         payload.get("sub"),
-        inventory_data["food_name"],
-        inventory_data["quantity"],
+        inventory_data["stock"],
     )
 
     return {"status": "success", "inventory": new_inventory}
 
-
-@router.put("/inventory/{inventory_id}")
+@router.put("/inventory")
 async def update_inventory(
-    inventory_id: str,
     payload: dict = Depends(jwt_required),
     updated_inventory: dict = {},
 ):
     """
-    Allow food bank admin to update inventory
-    :param inventory_id: A unique number to identify the correct inventory item
+    Allow food bank admin to update inventory by either adding or removing quantities.
+    :param inventory_id: A unique number to identify the correct inventory item.
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
-    :param updated_inventory: the updated quantity
-    :return: An updated inventory item is stored in the db
+    :param updated_inventory: the updated inventory data (including food_name and quantity).
+    :return: Updated inventory items stored in the db.
     """
     # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
@@ -205,25 +271,22 @@ async def update_inventory(
             status_code=401, detail="Only FoodBank admin can update the inventory"
         )
 
-    # Required key in the body
-    required_key = ["quantity"]
-
-    # Start validation those keys
-    for key in required_key:
-        if not updated_inventory.get(key):
+    # Iterate over the list of items and handle quantity changes (remove or add)
+    for food_item in updated_inventory["stock"]:
+        food_name = food_item.get("food_name")
+        quantity = food_item.get("quantity")
+        
+        # Check that food_name and quantity are provided for each item
+        if not food_name or not quantity:
             raise HTTPException(
-                status_code=400, detail=f"{key} is required and cannot be empty"
+                status_code=400, detail="Each item must contain food_name and quantity"
             )
-
-    if not inventory_id:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Inventory ID is required to retrieve the correct item",
+        
+        # Call the appropriate function to update/remove inventory
+        updated_food = await remove_inventory_in_db(
+            payload.get("sub"),
+            updated_inventory["stock"]
         )
-
-    updated_food = await update_inventory_in_db(
-        inventory_id=inventory_id, quantity=updated_inventory["quantity"]
-    )
 
     return {"status": "success", "inventory": updated_food}
 
@@ -247,25 +310,6 @@ async def get_inventory(payload: dict = Depends(jwt_required)):
 
     return {"status": "success", "inventory": inventory_list}
 
-
-@router.delete("/inventory/{inventory_id}")
-async def delete_inventory(inventory_id: str, payload: dict = Depends(jwt_required)):
-    """
-    Allow food bank admin to delete inventory
-    :param foodbank_id: The ID of the food bank
-    :param inventory_id: The ID of the inventory item to delete
-    :param payload: Decoded JWT containing user claims (validated via jwt_required).
-    :return: A success message
-    """
-    # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
-        raise HTTPException(
-            status_code=401, detail="Only FoodBank admin can delete inventory"
-        )
-
-    await delete_inventory_in_db(inventory_id=inventory_id)
-
-    return {"status": "success", "message": "Inventory item deleted successfully"}
 
 
 @router.get("/volunteers/{event_id}")
@@ -506,3 +550,4 @@ async def post_a_new_job(payload: dict = Depends(jwt_required), job_data: dict =
     
     # Validate the job data
     required_key : list = []
+
