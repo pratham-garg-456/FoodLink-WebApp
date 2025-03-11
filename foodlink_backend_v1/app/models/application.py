@@ -5,11 +5,16 @@ from typing import Literal
 
 class Application(Document):
     volunteer_id: str
-    event_id: str
-    applied_position: str
+    job_id: str
     category: str
     status: Literal["pending", "approved", "rejected"] = "pending"
     applied_at: datetime = datetime.now(timezone.utc)
 
     class Settings:
         collection = "applications"
+
+class EventApplication(Application):
+    event_id: str
+    
+    class Settings:
+        collection = "event_applications"

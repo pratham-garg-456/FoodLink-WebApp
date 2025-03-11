@@ -3,6 +3,7 @@ from app.models.inventory import Inventory
 from app.models.application import Application
 from app.models.appointment import Appointment
 from app.models.donation import Donation
+from app.models.job import Job, EventJob
 from fastapi import HTTPException
 from beanie import PydanticObjectId
 from app.utils.time_converter import convert_string_time_to_iso
@@ -225,7 +226,7 @@ async def update_the_existing_event_in_db(event_id: str, event_data: dict):
     event_data["date"] = date
     event_data["start_time"] = start_time
     event_data["end_time"] = end_time
-    
+
     # Update the exisitng event in db
     try:
         for key, value in event_data.items():
@@ -364,6 +365,7 @@ async def update_appointment_status_in_db(appointment_id: str, updated_status: s
             detail=f"An error occured while updating the appointment in DB: {e}",
         )
 
+
 async def get_all_donations(foodbank_id: str):
 
     donation_list = []
@@ -381,7 +383,10 @@ async def get_all_donations(foodbank_id: str):
 
         return donation_list
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while retrieving a list of donations in db: {str(e)}",
+        )
 
 
 async def get_donation_by_id(donation_id: str):
@@ -400,4 +405,73 @@ async def get_donation_by_id(donation_id: str):
         return donation_dict
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching donation: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching donation: {str(e)}"
+        )
+
+
+async def add_a_new_job_in_db(job_data: dict):
+    """
+    Create a new job in DB
+    :param job_data : A dictionary contains job information
+    """
+
+    # Convert the deadline time str to UTC ISO format
+    job_data["deadline"] = convert_string_time_to_iso(
+        job_data["deadline"].split(" ")[0], job_data["deadline"].split(" ")[1]
+    )
+
+    try:
+        job = Job(
+            foodbank_id=job_data["foodbank_id"],
+            title=job_data["title"],
+            description=job_data["description"],
+            location=job_data["location"],
+            category=job_data["category"],
+            deadline=job_data["deadline"],
+            status=job_data["status"],
+        )
+
+        await job.insert()
+        job = job.model_dump()
+        job["id"] = str(job["id"])
+        return job
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while creating a new job in db: {e}",
+        )
+
+
+async def add_a_new_event_job_in_db(job_data: dict):
+    """
+    Create a new event job in DB
+    :param job_data : A dictionary contains job information
+    """
+
+    # Convert the deadline time str to UTC ISO format
+    job_data["deadline"] = convert_string_time_to_iso(
+        job_data["deadline"].split(" ")[0], job_data["deadline"].split(" ")[1]
+    )
+
+    try:
+        event_job = EventJob(
+            event_id=job_data["event_id"],
+            foodbank_id=job_data["foodbank_id"],
+            title=job_data["title"],
+            description=job_data["description"],
+            location=job_data["location"],
+            category=job_data["category"],
+            deadline=job_data["deadline"],
+            status=job_data["status"],
+        )
+
+        await event_job.insert()
+        event_job = event_job.model_dump()
+        event_job["id"] = str(event_job["id"])
+        return event_job
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while creating a new event job in db: {e}",
+        )
