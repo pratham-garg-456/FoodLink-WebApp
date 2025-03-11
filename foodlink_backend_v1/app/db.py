@@ -11,6 +11,7 @@ from app.models import (
     donation,
     job,
     event_job,
+    food_item,
 )
 from app.config import settings
 
@@ -28,11 +29,12 @@ async def init_db():
             service.Service,
             contact.Contact,
             event.Event,
-            inventory.Inventory,
+            inventory.MainInventory,
             application.Application,
             appointment.Appointment,
             donation.Donation,
             job.Job,
             event_job.EventJob,
+            food_item.FoodItem,
         ],
     )
