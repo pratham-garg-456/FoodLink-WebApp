@@ -16,6 +16,7 @@ from app.services.food_bank_service import (
     get_all_donations,
     add_a_new_job_in_db,
     add_a_new_event_job_in_db,
+    list_foodbank_job_in_db
 )
 
 from app.services.user_service import get_user_by_id
@@ -603,3 +604,23 @@ async def post_a_new_event_job(
     job = await add_a_new_event_job_in_db(job_data=job_data)
 
     return {"status": "success", "job": job}
+
+
+@router.get("/jobs")
+async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
+    """
+    Allow foodbank admin to retrieve the list of jobs
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
+    
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can get the list of jobs"
+        )
+        
+    jobs = await list_foodbank_job_in_db()
+    
+    return {"status": "success", "jobs": jobs}
+    
+    

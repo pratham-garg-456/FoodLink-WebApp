@@ -13,8 +13,10 @@ class Application(Document):
     class Settings:
         collection = "applications"
 
+
 class EventApplication(Application):
     event_id: str
-    
+    category: str = "Event"
+
     class Settings:
         collection = "event_applications"
