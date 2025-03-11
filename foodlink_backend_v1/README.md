@@ -26,7 +26,7 @@ Usually, pip is automatically installed if you are:
   # Platform-Specific Commands for activation
     
     ## Window
-    <venv>\Scripts\Activate.ps1 (powershell)
+    venv\Scripts\Activate.ps1 (powershell)
   
     ## mac/linux
     source venv/bin/activate
