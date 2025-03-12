@@ -3,6 +3,9 @@ from app.utils.jwt_handler import jwt_required
 from app.services.volunteer_service import (
     add_event_application_in_db,
     retrieve_list_jobs_in_db,
+    retrieve_specific_job_in_db,
+    retrieve_applied_job_in_db,
+    delete_application
 )
 
 router = APIRouter()
@@ -62,3 +65,65 @@ async def retrieve_available_job(payload: dict = Depends(jwt_required)):
         raise HTTPException(status_code=404, detail="There are no posted jobs!")
 
     return {"status": "success", "jobs": jobs}
+
+@router.get("/job/{job_id}")
+async def retrieve_specific_job(job_id: str,payload: dict = Depends(jwt_required)):
+    """
+    Retrieve the information of the job based on the job id
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param job_id: job id for fetch the job.
+    :return the specific job
+    """
+
+    # Validate if the request is made from Volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only Volunteer get the list of the jobs"
+    )
+    job = await retrieve_specific_job_in_db(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found or is no longer available")
+    
+    return {"status": "success", "job": job}
+
+
+@router.get("/appliedJob")
+async def retrieve_applied_job(payload: dict = Depends(jwt_required)):
+    """
+    Retrieve the volunteer applied job based on volunteer id
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return the list of applied jobs
+    """
+    # Validate if the request is made from Volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only Volunteer get the list of the jobs"
+    )
+    volunteer_id = payload.get("sub")
+    applied_job = await retrieve_applied_job_in_db(volunteer_id=volunteer_id)
+    return {"status": "success", "application": applied_job}
+
+
+@router.delete("/cancelApplication/{application_id}")
+async def retrieve_applied_job(application_id: str,payload: dict = Depends(jwt_required)):
+    """
+    Update the status application to cancel 
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return the list of applied jobs
+    """
+    # Validate if the request is made from Volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only Volunteer get the list of the jobs"
+    )
+
+    volunteer_id = payload.get("sub")
+    deleted = await delete_application(volunteer_id=volunteer_id,application_id=application_id)
+    if deleted==False:
+        raise HTTPException(status_code=404, detail="Application not found or does not belong to you.")
+    else: 
+        return {"status": "success", "message": "Application has been canceled."}
+    
+
+
+
