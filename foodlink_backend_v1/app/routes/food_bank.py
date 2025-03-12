@@ -16,7 +16,11 @@ from app.services.food_bank_service import (
     get_all_donations,
     add_a_new_job_in_db,
     add_a_new_event_job_in_db,
-    list_foodbank_job_in_db
+    list_foodbank_job_in_db,
+    get_list_foodbank_application_in_db,
+    get_application_detail,
+    get_job_detail_in_db,
+    add_volunteer_activity_in_db,
 )
 
 from app.services.user_service import get_user_by_id
@@ -612,15 +616,102 @@ async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
     Allow foodbank admin to retrieve the list of jobs
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     """
-    
+
     # Validate if the request is made from Foodbank admin
     if payload.get("role") != "foodbank":
         raise HTTPException(
             status_code=401, detail="Only FoodBank admin can get the list of jobs"
         )
-        
+
     jobs = await list_foodbank_job_in_db()
-    
+
     return {"status": "success", "jobs": jobs}
-    
-    
+
+
+@router.get("/volunteer-applications")
+async def get_list_volunteer_applications(
+    payload: dict = Depends(jwt_required), status: str | None = None
+):
+    """
+    Allow foodbank admin to retrieve the list of applications for foodbank positions
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param status: to filter the list approved or pending
+    return a list of volunteer application for foodbank positions along with the status
+    """
+
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can get the list of applications for foodbank positions",
+        )
+
+    if not status == "approved" and not status == "pending":
+        raise HTTPException(
+            status_code=400, detail="Status must be either approved or pending!"
+        )
+
+    applications = await get_list_foodbank_application_in_db(
+        foodbank_id=payload.get("sub"), status=status
+    )
+
+    if len(applications) == 0:
+        raise HTTPException(status_code=404, detail="List of applications is empty")
+
+    return {"status": "success", "applications": applications}
+
+
+@router.post("/volunteer-activity/{application_id}")
+async def add_volunteer_activity(
+    application_id: str, payload: dict = Depends(jwt_required), activity_data: dict = {}
+):
+    """
+    Allow foodbank admin to add the contribution hours for each application
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param activity_data: A dictionary contain activity information
+    """
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can add the contribution hours for volunteer",
+        )
+
+    # Validate the job data
+    required_key: list = [
+        "date_worked",
+        "working_hours",
+    ]
+
+    # Start validation those keys
+    for key in required_key:
+        if not activity_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    # Retrieve the foodbank name
+    foodbank = await get_user_by_id(id=payload.get("sub"))
+    if not foodbank:
+        raise HTTPException(status_code=404, detail=f"Foodbank not found!")
+
+    # Retrieve category of the application
+    application_detail = await get_application_detail(application_id=application_id)
+    if not application_detail:
+        raise HTTPException(status_code=404, detail="Application not Found!")
+
+    # Retrieve job information
+    job_detail = await get_job_detail_in_db(job_id=application_detail["job_id"])
+    if not job_detail:
+        raise HTTPException(status_code=404, detail="Job not Found!")
+
+    # Add contribution hours for volunteer in db
+    activity = await add_volunteer_activity_in_db(
+        application_id=application_id,
+        date_worked=activity_data["date_worked"],
+        foodbank_name=foodbank["name"],
+        category=job_detail["category"],
+        working_hours=activity_data["working_hours"],
+    )
+
+    return {"status": "success", "activity": activity}
