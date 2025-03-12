@@ -29,6 +29,7 @@ async def init_db():
             service.Service,
             contact.Contact,
             event.Event,
+            event.EventInventory,
             inventory.MainInventory,
             application.Application,
             appointment.Appointment,
