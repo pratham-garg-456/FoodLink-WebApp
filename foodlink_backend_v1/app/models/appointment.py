@@ -17,7 +17,7 @@ class Appointment(Document):
     status: Literal["scheduled", "picked", "cancelled","rescheduled"] = "scheduled"
     product: list[AppointmentFoodItem]  # ✅ Fix the type if it's a list of objects
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))  # ✅ Fix timestamp issue
-    modified_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Settings: 
         collection = "appointments"
