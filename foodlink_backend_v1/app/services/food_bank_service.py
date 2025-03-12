@@ -285,9 +285,7 @@ async def get_list_volunteer_in_db(event_id: str, status: str):
     #         status_code=404, detail="Event ID is not valid or not found"
     #     )
     try:
-        applications = await EventApplication.find(
-            {"status": status, "event_id": event_id}
-        ).to_list()
+        applications = await EventApplication.find(EventApplication.event_id == event_id, EventApplication.status == status).to_list()
 
         for application in applications:
             application = application.model_dump()
