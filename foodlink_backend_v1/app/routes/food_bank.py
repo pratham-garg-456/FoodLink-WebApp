@@ -19,6 +19,7 @@ from app.services.food_bank_service import (
     get_food_items_in_db,
     add_a_food_item_in_db,
     remove_inventory_in_db,
+    reschedule_appointment_in_db,
 )
 
 
@@ -427,8 +428,8 @@ async def get_list_of_appointments(
         )
 
     if (
-        not status == "confirmed"
-        and not status == "pending"
+        not status == "picked"
+        and not status == "scheduled"
         and not status == "cancelled"
         and not status == "rescheduled"
     ):
@@ -474,13 +475,12 @@ async def update_status_of_appointment(
         )
 
     if (
-        appointment_data["updated_status"] != "confirmed"
-        and appointment_data["updated_status"] != "rescheduled"
+        appointment_data["updated_status"] != "picked"
         and appointment_data["updated_status"] != "cancelled"
     ):
         raise HTTPException(
             status_code=400,
-            detail="Status must be confirmed or cancelled or rescheduled!",
+            detail="Status must be picked or cancelled!",
         )
 
     # Update the appointment in db
@@ -489,6 +489,30 @@ async def update_status_of_appointment(
     )
 
     return {"status": "success", "appointment": appointment}
+
+@router.put("/appointment/{appointment_id}/reschedule")
+async def reschedule_appointment(
+    appointment_id: str,
+    reschedule_data: dict,
+    payload: dict = Depends(jwt_required),
+):
+    """
+    Allows the food bank admin or individual to reschedule an appointment.
+    """
+
+    # Validate if the request is made from Foodbank user or Individual
+    if payload.get("role") not in ["foodbank", "individual"]:
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin or Individuals can reschedule an appointment",
+        )
+
+    # Call the database function
+    appointment = await reschedule_appointment_in_db(
+        appointment_id=appointment_id, reschedule_data=reschedule_data
+    )
+
+    return {"status": "success", "message": "Appointment rescheduled successfully", "appointment": appointment}
 
 
 @router.get("/donations")
