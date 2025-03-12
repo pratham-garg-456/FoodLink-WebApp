@@ -1,11 +1,11 @@
 from beanie import Document
 from datetime import datetime, timezone
-from typing import Literal
+from typing import Literal, Optional
 
 
 class Application(Document):
     volunteer_id: str
-    foodbank_id: str
+    foodbank_id: Optional[str] = None
     job_id: str
     category: str = "Foodbank"
     status: Literal["pending", "approved", "rejected"] = "pending"
