@@ -11,6 +11,7 @@ from app.models import (
     donation,
     job,
     event_job,
+    volunter_activity,
     food_item,
 )
 from app.config import settings
@@ -36,6 +37,8 @@ async def init_db():
             donation.Donation,
             job.Job,
             event_job.EventJob,
+            volunter_activity.VolunteerActivity,
+            application.EventApplication
             food_item.FoodItem,
         ],
     )
