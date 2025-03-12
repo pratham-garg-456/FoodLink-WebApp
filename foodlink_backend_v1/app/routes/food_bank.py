@@ -16,6 +16,9 @@ from app.services.food_bank_service import (
     delete_event_in_db,
     get_donation_by_id,
     get_all_donations,
+    add_a_new_job_in_db,
+    add_a_new_event_job_in_db,
+    list_foodbank_job_in_db
     get_food_items_in_db,
     add_a_food_item_in_db,
     remove_inventory_in_db,
@@ -27,6 +30,8 @@ from app.services.food_bank_service import (
     get_event_inventory_from_db,
 )
 
+from app.models.event import Event
+from beanie import PydanticObjectId
 
 router = APIRouter()
 
@@ -661,34 +666,36 @@ async def reschedule_appointment(
 
 
 @router.get("/donations")
-async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):        
+async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):
     """
     API Endpoint: Retrieve all donations for foodbank.
     """
 
     if payload.get("role") != "foodbank":
-        raise HTTPException(status_code=401, detail="Only food banks can retrieve list of donations")
+        raise HTTPException(
+            status_code=401, detail="Only food banks can retrieve list of donations"
+        )
 
     donations = await get_all_donations(foodbank_id=payload.get("sub"))
 
     return {
         "status": "success",
         "message": "Donations retrieved successfully",
-        "donations": donations
+        "donations": donations,
     }
+
 
 @router.get("/donations/{donation_id}")
 async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
     """
     API Endpoint: Retrieve a specific donation by ID.
     """
-     # Validate if the request is made from Foodbank user
+    # Validate if the request is made from Foodbank user
     if payload.get("role") != "foodbank":
         raise HTTPException(
             status_code=401,
             detail="Only FoodBank admin can retrieve the donation details",
         )
-
 
     donation = await get_donation_by_id(donation_id=donation_id)
     if not donation:
@@ -697,7 +704,7 @@ async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
     return {
         "status": "success",
         "message": "Donation retrieved successfully",
-        "donation": donation
+        "donation": donation,
     }
 
 
@@ -708,15 +715,125 @@ async def post_a_new_job(payload: dict = Depends(jwt_required), job_data: dict =
     :param payload: Decoded JWT containing user claims (validated via jwt_required).
     :param job_data: A dictionary contains job information
     """
+
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can post a new job"
+        )
+
+    # Validate the job data
+    required_key: list = [
+        "foodbank_id",
+        "title",
+        "description",
+        "location",
+        "category",
+        "deadline",
+        "status",
+    ]
+
+    # Start validation those keys
+    for key in required_key:
+        if not job_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    # Validate if the foodbank ID is a valid registered foodbank
+    foodbank = await get_user_by_id(id=job_data["foodbank_id"])
+
+    if not foodbank:
+        raise HTTPException(status_code=404, detail=f"Foodbank Not Found!")
+
+    # Validate the given status if it is available or unavailable
+    if job_data["status"] != "available" and job_data["status"] != "unavailable":
+        raise HTTPException(
+            status_code=400,
+            detail="Status of a job must be either available or unavailable!",
+        )
+
+    # Add a new job in db
+    job = await add_a_new_job_in_db(job_data=job_data)
+
+    return {"status": "success", "job": job}
+
+
+@router.post("/event_job")
+async def post_a_new_event_job(
+    payload: dict = Depends(jwt_required), job_data: dict = {}
+):
+    """
+    Allow foodbank admin to create a new job for specific event
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param job_data: A dictionary contains job information
+    """
+
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can post a new job"
+        )
+
+    # Validate the job data
+    required_key: list = [
+        "foodbank_id",
+        "event_id",
+        "title",
+        "description",
+        "location",
+        "category",
+        "deadline",
+        "status",
+    ]
+
+    # Start validation those keys
+    for key in required_key:
+        if not job_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    # Validate if the foodbank ID is a valid registered foodbank
+    foodbank = await get_user_by_id(id=job_data["foodbank_id"])
+
+    if not foodbank:
+        raise HTTPException(status_code=404, detail=f"Foodbank Not Found!")
+
+    # Validate if the event ID is a valid event
+    event = await Event.get(PydanticObjectId(job_data["event_id"]))
+
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found!")
+
+    # Validate the given status if it is available or unavailable
+    if job_data["status"] != "available" and job_data["status"] != "unavailable":
+        raise HTTPException(
+            status_code=400,
+            detail="Status of a job must be either available or unavailable!",
+        )
+
+    # Add a new job in db
+    job = await add_a_new_event_job_in_db(job_data=job_data)
+
+    return {"status": "success", "job": job}
+
+
+@router.get("/jobs")
+async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
+    """
+    Allow foodbank admin to retrieve the list of jobs
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
     
     # Validate if the request is made from Foodbank admin
-    if payload.get('role') != "foodbank":
+    if payload.get("role") != "foodbank":
         raise HTTPException(
-            status_code=401,
-            detail="Only FoodBank admin can post a new job"
+            status_code=401, detail="Only FoodBank admin can get the list of jobs"
         )
         
+    jobs = await list_foodbank_job_in_db()
     
-    # Validate the job data
-    required_key : list = []
-
+    return {"status": "success", "jobs": jobs}
+    
+    
