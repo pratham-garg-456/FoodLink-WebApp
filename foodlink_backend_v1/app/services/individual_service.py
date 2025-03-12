@@ -1,20 +1,58 @@
 from app.models.appointment import Appointment
 from fastapi import HTTPException
+from app.models.inventory import MainInventory
+from datetime import datetime, timezone
 
 
 async def create_appointment_in_db(individual_id: str, appointment_data: dict):
     """
-    Add an appointment in db
-    :param appointment_data: A detailed appointment information is made by individual
+    Add an appointment in db and reserve inventory items.
+    :param individual_id: ID of the individual making the appointment
+    :param appointment_data: A detailed appointment information
     """
 
     try:
+        # Fetch food bank inventory
+        foodbank_id = appointment_data["foodbank_id"]
+        existing_inventory = await MainInventory.find_one(MainInventory.foodbank_id == foodbank_id)
+
+        if not existing_inventory:
+            raise HTTPException(status_code=404, detail="No inventory found for this food bank.")
+
+        # Check if requested items are available and update inventory
+        for item in appointment_data["product"]:
+            food_name = item["food_name"]
+            quantity_requested = item["quantity"]
+
+            food_found = False
+            for stock_item in existing_inventory.stock:
+                if stock_item.food_name == food_name:
+                    if stock_item.quantity >= quantity_requested:
+                        stock_item.quantity -= quantity_requested  # Deduct quantity (Reserve)
+                        food_found = True
+                    else:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Not enough stock for {food_name}. Available: {stock_item.quantity}, Requested: {quantity_requested}"
+                        )
+                    break
+
+            if not food_found:
+                raise HTTPException(
+                    status_code=404, detail=f"{food_name} is not available in this food bank's inventory."
+                )
+
+        # Save updated inventory
+        existing_inventory.last_updated = datetime.now(timezone.utc)
+        await existing_inventory.save()
+
+        # Create the appointment after reserving inventory
         new_appointment = Appointment(
             individual_id=individual_id,
-            foodbank_id=appointment_data["foodbank_id"],
+            foodbank_id=foodbank_id,
             start_time=appointment_data["start_time"],
             end_time=appointment_data["end_time"],
-            description=appointment_data["description"],
+            description=appointment_data.get("description", None),
             product=appointment_data["product"],
         )
 
@@ -23,8 +61,9 @@ async def create_appointment_in_db(individual_id: str, appointment_data: dict):
         new_appointment["id"] = str(new_appointment["id"])
 
         return new_appointment
+
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occurred while creating a new appointment in db: {e}",
+            detail=f"An error occurred while creating an appointment: {e}",
         )
