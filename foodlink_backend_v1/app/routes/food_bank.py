@@ -20,6 +20,7 @@ from app.services.food_bank_service import (
     add_a_food_item_in_db,
     remove_inventory_in_db,
     reschedule_appointment_in_db,
+    get_appointments_by_foodbank,
 )
 
 
@@ -407,6 +408,22 @@ async def get_volunteer_detailed_info(
     volunteer = await get_user_by_id(id=volunteer_id)
 
     return {"status": "success", "volunteer": volunteer}
+
+@router.get("/appointments")
+async def fetch_appointments_by_foodbank(
+    payload: dict = Depends(jwt_required)
+):
+    """
+    API route to get all appointments for a specific food bank.
+    Only Food Bank Admins can access this route.
+    """
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admins can access this route."
+        )
+
+    appointments = await get_appointments_by_foodbank(payload.get("sub"))
+    return {"status": "success", "appointments": appointments}
 
 
 @router.get("/appointments")
