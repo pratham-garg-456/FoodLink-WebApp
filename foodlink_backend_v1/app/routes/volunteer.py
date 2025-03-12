@@ -1,11 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
 from app.services.volunteer_service import (
+    add_foodbank_job_application_in_db,
     add_event_application_in_db,
     retrieve_list_jobs_in_db,
-    retrieve_specific_job_in_db,
-    retrieve_applied_job_in_db,
-    delete_application
 )
 
 router = APIRouter()
@@ -39,10 +37,45 @@ async def apply_available_jobs_for_event(
     new_application = await add_event_application_in_db(
         volunteer_id=payload.get("sub"),
         event_id=application_data["event_id"],
-        job_id=application_data["job_id"], 
+        job_id=application_data["job_id"],
     )
 
     return {"status": "success", "event_application": new_application}
+
+
+@router.post("/application/foodbank")
+async def apply_available_jobs_for_foodbank(
+    payload: dict = Depends(jwt_required), application_data: dict = {}
+):
+    """
+    Allow volunteer to submit the application to available positions from different foodbank
+    :param application_data: A application information
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :return A created application is stored in the db
+    """
+    # Validate if the request is made from a volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only volunteer can apply application"
+        )
+
+    required_key = ["foodbank_id", "job_id"]
+
+    # Start validation those keys
+    for key in required_key:
+        if not application_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    # create a application in db
+    new_application = await add_foodbank_job_application_in_db(
+        volunteer_id=payload.get("sub"),
+        foodbank_id=application_data["foodbank_id"],
+        job_id=application_data["job_id"],
+    )
+
+    return {"status": "success", "foodbank_application": new_application}
 
 
 @router.get("/jobs")
