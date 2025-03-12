@@ -38,7 +38,7 @@ async def init_db():
             job.Job,
             event_job.EventJob,
             volunter_activity.VolunteerActivity,
-            application.EventApplication
+            application.EventApplication,
             food_item.FoodItem,
         ],
     )
