@@ -475,3 +475,27 @@ async def add_a_new_event_job_in_db(job_data: dict):
             status_code=500,
             detail=f"An error occurred while creating a new event job in db: {e}",
         )
+
+
+async def list_foodbank_job_in_db():
+    """
+    Retrieve the list of jobs within the foodbank
+    """
+
+    job_list = []
+
+    try:
+        jobs = await Job.find().to_list()
+
+        for job in jobs:
+            # Automate process updating the job status post
+            await job.check_and_update_status()
+            job = job.model_dump()
+            job["id"] = str(job["id"])
+            job_list.append(job)
+        return job_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while fetching the list of job in db: {e}",
+        )
