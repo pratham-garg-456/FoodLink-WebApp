@@ -5,8 +5,9 @@ from typing import Literal
 
 class Application(Document):
     volunteer_id: str
+    foodbank_id: str
     job_id: str
-    category: str
+    category: str = "Foodbank"
     status: Literal["pending", "approved", "rejected"] = "pending"
     applied_at: datetime = datetime.now(timezone.utc)
 
