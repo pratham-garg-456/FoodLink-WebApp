@@ -23,6 +23,10 @@ const Dashboard = () => {
       if (userRole == 'foodbank') {
         router.push('/dashboard/foodbank');
       }
+      if (userRole == 'individual') {
+        console.log('Individual dashboard');
+        router.push('/dashboard/individual');
+      }
       // } else if (decodedToken.role === 'donor') {
       //   router.push('/dashboard/foodbank/donations');
       // }

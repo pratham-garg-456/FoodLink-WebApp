@@ -3,33 +3,60 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import NavbarFoodbank from './NavbarFoodbank';
 import HomeNavbar from './HomeNavbar';
+import NavbarIndividual from './NavbarIndividual';
+import NavbarDonor from './NavbarDonor';
+import NavbarVolunteer from './NavbarVolunteer';
 
 const Navbar = () => {
-  const [userType, setUserType] = useState(null); // Store user type
+  const [userType, setUserType] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Simulate fetching user data (Replace with actual auth logic)
-    const fetchUser = async () => {
-      const user = localStorage.getItem('userRole'); // Example: Replace with API or Context
-      console.log('User:', user);
-      if (user) {
-        setUserType(user); // Assuming 'type' is stored (e.g., 'foodbank', 'admin', 'customer')
+    // Fetch user role from localStorage
+    const fetchUser = () => {
+      const userRole = localStorage.getItem('userRole');
+      console.log('User Role:', userRole);
+      setUserType(userRole); // Directly setting the role from storage
+    };
+
+    fetchUser();
+
+    // Listen for localStorage changes (Note: Only works across tabs)
+    const handleStorageChange = (event) => {
+      if (event.key === 'userRole') {
+        fetchUser();
       }
     };
-    fetchUser();
-    // Listen for changes in localStorage (when a user logs in/out)
-    window.addEventListener('storage', fetchUser);
+    window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', fetchUser);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
-  // Check if the current route is '/foodbank'
-  const isFoodbankRoute = router.pathname.startsWith('/dashboard/foodbank');
 
-  return (
-    <nav>{userType === 'foodbank' && isFoodbankRoute ? <NavbarFoodbank /> : <HomeNavbar />}</nav>
-  );
+  // Route Matching
+  const routes = {
+    foodbank: '/dashboard/foodbank',
+    individual: '/dashboard/individual',
+    donor: '/dashboard/donor',
+    volunteer: '/dashboard/volunteer',
+  };
+
+  const navComponents = {
+    foodbank: <NavbarFoodbank />,
+    individual: <NavbarIndividual />,
+    donor: <NavbarDonor />,
+    volunteer: <NavbarVolunteer />,
+  };
+
+  const matchingNav =
+    userType && router.pathname.startsWith(routes[userType]) ? (
+      navComponents[userType]
+    ) : (
+      <HomeNavbar />
+    );
+
+  return <>{matchingNav}</>;
 };
+
 export default Navbar;
