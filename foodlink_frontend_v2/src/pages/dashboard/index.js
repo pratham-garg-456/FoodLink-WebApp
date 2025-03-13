@@ -27,6 +27,10 @@ const Dashboard = () => {
         console.log('Individual dashboard');
         router.push('/dashboard/individual');
       }
+      if (userRole == 'volunteer') {
+        console.log('volunteer dashboard');
+        router.push('/dashboard/volunteer');
+      }
       // } else if (decodedToken.role === 'donor') {
       //   router.push('/dashboard/foodbank/donations');
       // }
