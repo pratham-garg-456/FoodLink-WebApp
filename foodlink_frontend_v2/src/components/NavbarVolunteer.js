@@ -144,7 +144,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/individual"
+                href="/dashboard/volunteer"
               >
                 Home
               </Link>
@@ -152,7 +152,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/individual/appointments"
+                href="/dashboard/volunteer/appointments"
               >
                 Manage Appointments
               </Link>
@@ -168,7 +168,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/individual/Contact"
+                href="/dashboard/volunteer/contact"
               >
                 Contact Us
               </Link>

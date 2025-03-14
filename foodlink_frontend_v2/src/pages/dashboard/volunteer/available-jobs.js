@@ -9,6 +9,8 @@ const AvailableJobs = () =>{
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(5); // Assuming 5 pages for now
     const jobsPerPage = 8
+    const [volunteerIdd, setVolunteerId] = useState([]);
+    const router = useRouter();
 
     useEffect(() => {
         const checkToken = async () => {
@@ -20,19 +22,20 @@ const AvailableJobs = () =>{
       
             try {
               const decodedToken = await validateToken(token);
-              setFoodbankId(decodedToken.user.id);
-              fetchInventory(decodedToken.user.id);
+              setVolunteerId(decodedToken.user.id);
+              fetchJobs();
             } catch (error) {
               console.error('Invalid token: ', error);
               router.push('/auth/login');
             }
         };
         checkToken();
-        fetchJobs();
     }, [currentPage]);
     async function fetchJobs() {
+        // `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/jobs`
         try {
             const response = await axios.get(
+                
                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/jobs`,
                 {
                   headers: {
@@ -40,7 +43,7 @@ const AvailableJobs = () =>{
                   },
                 }
             );
-            const data = await response.json();
+            const data = await response.data;
             if (data.status === 'success') {
                 setJobs(data.jobs);
             }
@@ -55,22 +58,25 @@ const AvailableJobs = () =>{
 
     return (
         <div className="p-4">
-            <a href="#" className="text-blue-600 underline">Click here to refine your criteria and search</a>
             <table className="w-full mt-4 border border-black">
                 <thead>
                     <tr className="bg-black text-white">
                         <th className="p-2">POSITION</th>
-                        <th className="p-2">PRIMARY CATEGORY</th>
+                        <th className="p-2">CATEGORY</th>
                         <th className="p-2">FOOD BANK</th>
                         <th className="p-2">DATE POSTED</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentJobs.map((job) => (
-                        <tr key={job.id} className="border">
+                        <tr key={job.id} className="border hover:bg-gray-100" onClick={() => {
+                            localStorage.setItem('selectedJob', JSON.stringify(job));
+                            localStorage.setItem('previousPage', 'available-jobs'); 
+                            router.push(`/dashboard/volunteer/${job.id}`); 
+                        }}>
                             <td className="p-2 font-bold text-blue-700">{job.title}<br/><span className="text-sm text-gray-500">{job.location}</span></td>
                             <td className="p-2">{job.category}</td>
-                            <td className="p-2">Food Bank A</td>
+                            <td className="p-2">{job.foodbank_name}</td>
                             <td className="p-2">{new Date(job.date_posted).toISOString().split('T')[0]}</td>
                         </tr>
                     ))}

@@ -49,13 +49,13 @@ const VolunteerDashboard = ({ userRole }) => {
               </button>
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                onClick={() => router.push('/dashboard/volunteer/trainings')}
+                onClick={() => router.push('/dashboard/volunteer/applied-jobs')}
               >
                 View Applied Application
               </button>
               <button
                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
-                onClick={() => router.push('/dashboard/volunteer/opportunities')}
+                onClick={() => router.push('/dashboard/volunteer/activity')}
               >
                 View Past Activity
               </button>
