@@ -2,20 +2,23 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from app.services.user_service import get_user_by_id
 from app.utils.jwt_handler import jwt_required
-from datetime import datetime
 from app.services.food_bank_service import (
     add_inventory_in_db,
     get_inventory_in_db,
     create_an_event_in_db,
-    get_list_volunteer_in_db,
-    get_list_appointments_in_db,
-    update_application_status_in_db,
-    update_appointment_status_in_db,
     get_list_of_events,
     update_the_existing_event_in_db,
     delete_event_in_db,
-    get_donation_by_id,
+    get_list_volunteer_in_db,
+    update_application_status_in_db,
+    get_list_appointments_in_db,
+    update_appointment_status_in_db,
     get_all_donations,
+    get_donation_by_id,
+    get_donation_by_donor_id,
+    create_donation_in_db,
+    update_donation_in_db,
+    delete_donation_in_db,
     add_a_new_job_in_db,
     add_a_new_event_job_in_db,
     list_foodbank_job_in_db,
@@ -668,6 +671,9 @@ async def reschedule_appointment(
 
     return {"status": "success", "message": "Appointment rescheduled successfully", "appointment": appointment}
 
+# # # # # # #
+# DONATIONS #
+# # # # # # #
 
 @router.get("/donations")
 async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):
@@ -708,8 +714,111 @@ async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
     return {
         "status": "success",
         "message": "Donation retrieved successfully",
-        "donation": donation,
+        "donation": donation
     }
+    
+@router.get("/donations/{donor_id}")
+async def get_donations_by_donor(donor_id: str, payload: dict = Depends(jwt_required)):
+    """
+    API Endpoint: Retrieve all donations made by a specific donor.
+    """
+    # Validate if the request is made from Foodbank user
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401,
+            detail="Only FoodBank admin can retrieve the donation details",
+        )
+
+    donations = await get_all_donations(donor_id=donor_id)
+    if not donations:
+        raise HTTPException(status_code=404, detail="Donation not found")
+
+    return {
+        "status": "success",
+        "message": "Donations retrieved successfully",
+        "donations": donations
+    }
+    
+@router.post("/donations")
+async def create_donation(payload: dict = Depends(jwt_required), donation_data: dict = {}):
+    """
+    API Endpoint: Allow foodbanks to create a donation.
+    """
+
+    if payload.get("role") != "foodbank":
+        raise HTTPException(status_code=403, detail="Only foodbanks can  manually create donations")
+    
+     # Required key in the body
+    required_key = ["foodbank_id","amount"]
+
+    # Start validation those keys
+    for key in required_key:
+        if not donation_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+        
+    try:
+        donation_data["amount"] = float(donation_data["amount"])
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Amount must be a number")
+
+    if donation_data["amount"] <= 0:
+        raise HTTPException(status_code=400, detail="Donation amount must be greater than zero")
+
+    # Package the donor_id from the frontend into the donation data and parse it here. If manual donation, then donor_id is manual.
+    donation = await create_donation_in_db(donation_data["donor_id"], donation_data=donation_data)
+
+    return {
+        "status": "success",
+        "message": "Donation recorded successfully",
+        "donation": donation
+    }
+    
+@router.put("/donations/{donation_id}")
+async def update_donation(donation_id: str, payload: dict = Depends(jwt_required), donation_data: dict = {}):
+    """
+    API Endpoint: Allow foodbanks to update a donation.
+    """
+    if payload.get("role") != "foodbank":
+        raise HTTPException(status_code=403, detail="Only foodbanks can update donations")
+    
+    # Required key in the body
+    required_key = ["amount"]
+
+    # Start validation those keys
+    for key in required_key:
+        if not donation_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+        
+    if donation_data["amount"] <= 0:
+        raise HTTPException(status_code=400, detail="Donation amount must be greater than zero")
+        
+    donation = await update_donation_in_db(donation_id = donation_id, donation_data = donation_data)
+
+    return {
+        "status": "success",
+        "message": "Donation updated successfully",
+        "donation": donation
+    }
+    
+@router.delete("/donations/{donation_id}")
+async def delete_donation(donation_id: str, payload: dict = Depends(jwt_required)):
+    """
+    API Endpoint: Allow foodbanks to delete their donation.
+    """
+    if payload.get("role") != "foodbank":
+        raise HTTPException(status_code=403, detail="Only foodbanks can delete donations")
+    
+    await delete_donation_in_db(donation_id = donation_id)
+
+    return {
+        "status": "success",
+        "message": "Donation deleted successfully"
+    }
+    
 
 
 @router.post("/job")

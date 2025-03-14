@@ -947,6 +947,54 @@ async def update_application_status_in_db(application_id: str, updated_status: s
         )
 
 
+async def get_list_appointments_in_db(foodbank_id: str, status: str):
+    """
+    Retrieve a list of appointments
+    :param foodbank_id: A unique identifier for foodbank is used for filtering out the appointments
+    """
+
+    appointment_list = []
+
+    appointments = await Appointment.find(
+        Appointment.foodbank_id == foodbank_id, Appointment.status == status
+    ).to_list()
+
+    try:
+        for appointment in appointments:
+            appointment = appointment.model_dump()
+            appointment["id"] = str(appointment["id"])
+            appointment_list.append(appointment)
+
+        return appointment_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while fetching the list of appointments: {e}",
+        )
+
+
+async def update_appointment_status_in_db(appointment_id: str, updated_status: str):
+    """
+    Update the status of a specific appointment in db
+    :param appointment_id: A unique identifier for volunteer's appointment
+    :param updated_status: A new status of appointment (approved or rejected)
+    """
+
+    appointment = await Appointment.get(PydanticObjectId(appointment_id))
+
+    try:
+        appointment.status = updated_status
+        await appointment.save()
+        appointment = appointment.model_dump()
+        appointment["id"] = str(appointment["id"])
+
+        return appointment
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occured while updating the appointment in DB: {e}",
+        )
+
 async def get_all_donations(foodbank_id: str):
 
     donation_list = []
@@ -989,6 +1037,144 @@ async def get_donation_by_id(donation_id: str):
         raise HTTPException(
             status_code=500, detail=f"Error fetching donation: {str(e)}"
         )
+
+async def create_donation_in_db(donor_id: str, donation_data: dict):
+    """
+    Create a new donation record in the database.
+    :param donor_id: The ID of the donor.
+    :param donation_data: Donation details.
+    :return: Donation details.
+    """
+    try:
+        donation = Donation(
+            donor_id=donor_id,
+            amount=donation_data.get("amount"),
+            status=donation_data.get("status"),
+            foodbank_id=donation_data.get("foodbank_id"),
+        )
+
+        await donation.insert()
+        donation = donation.model_dump()
+        donation["id"] = str(donation["id"])
+        return donation
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating donation: {str(e)}")
+    
+async def update_donation_in_db(donation_id: str, donation_data: dict):
+    """
+    Update an existing donation record in the database.
+    :param donation_id: The ID of the donation.
+    :param donation_data: Donation details.
+    :return: Donation details.
+    """
+    donation = await Donation.get(PydanticObjectId(donation_id))
+
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation not found")
+
+    try:
+        for key, value in donation_data.items():
+            setattr(donation, key, value)
+
+        await donation.save()
+        donation = donation.model_dump()
+        donation["id"] = str(donation["id"])
+        return donation
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating donation: {str(e)}")
+    
+async def update_donation_status_in_db(donation_id: str, updated_status: str):
+    """
+    Update the status of a specific donation in db
+    :param donation_id: A unique identifier for donation
+    :param updated_status: A new status of donation (confirmed or failed)
+    """
+    donation = await Donation.get(PydanticObjectId(donation_id))
+
+    try:
+        donation.status = updated_status
+        await donation.save()
+        donation = donation.model_dump()
+        donation["id"] = str(donation["id"])
+
+        return donation
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occured while updating the donation in DB: {e}",
+        )
+        
+async def delete_donation_in_db(donation_id: str):
+    """
+    Delete the existing donation based on the requested ID
+    :param donation_id: An unique identifier of donation
+    """
+    donation = await Donation.get(PydanticObjectId(donation_id))
+
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation not found")
+
+    try:
+        await donation.delete()
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"An error occurred while deleting the donation"
+        )
+        
+async def get_donation_by_donor_id(donor_id: str):
+    """
+    Retrieve all donation records from the database by donor ID.
+    :return: List of donations.
+    """
+    donation_list = []
+    try:
+        donations = await Donation.find(Donation.donor_id == donor_id).to_list()
+        for donation in donations:
+            donation = donation.model_dump()
+            donation["id"] = str(donation["id"])
+            donation_list.append(donation)
+
+        return donation_list
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
+    
+# OPTIONAL
+async def get_donation_by_status(foodbank_id: str, status: str):
+    """
+    Retrieve all donation records from the database by status.
+    :return: List of donations.
+    """
+    donation_list = []
+    try:
+        donations = await Donation.find(Donation.foodbank_id == foodbank_id, Donation.status == status).to_list()
+        for donation in donations:
+            donation = donation.model_dump()
+            donation["id"] = str(donation["id"])
+            donation_list.append(donation)
+
+        return donation_list
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
+    
+# OPTIONAL
+async def get_donation_by_donor_id_and_status(donor_id: str, status: str):
+    """
+    Retrieve all donation records from the database by donor ID and status.
+    :return: List of donations.
+    """
+    donation_list = []
+    try:
+        donations = await Donation.find(Donation.donor_id == donor_id, Donation.status == status).to_list()
+        for donation in donations:
+            donation = donation.model_dump()
+            donation["id"] = str(donation["id"])
+            donation_list.append(donation)
+
+        return donation_list
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
 
 
 async def add_a_new_job_in_db(job_data: dict):
@@ -1194,3 +1380,4 @@ async def add_volunteer_activity_in_db(
             status_code=400,
             detail=f"An error occured while creating the volunteer activity in DB: {e}",
         )
+
