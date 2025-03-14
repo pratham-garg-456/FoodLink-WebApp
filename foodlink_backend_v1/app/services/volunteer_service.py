@@ -4,6 +4,7 @@ from app.models.job import Job
 from app.models.user import User
 from beanie import PydanticObjectId
 from fastapi import HTTPException
+from datetime import datetime, timezone
 
 
 async def add_event_application_in_db(volunteer_id: str, event_id: str, job_id: str):
@@ -204,3 +205,33 @@ async def delete_application(volunteer_id: str, application_id: str):
             status_code=400,
             detail=f"An error occured while deleting job in db: {e}",
         )
+
+
+async def update_metadata_in_db(id: str, experiences: str, description: str):
+    """
+    update metadata for volunteer users in db
+    :param id: A mongoDB identifier
+    :param experiences: A past experiences about volunteer
+    :param description: A brief description about volunteer
+    """
+    try:
+        volunteer = await User.get(PydanticObjectId(id))
+
+        if not volunteer:
+            raise HTTPException(status_code=404, detail="User not found!")
+
+        if volunteer.role != "volunteer":
+            raise HTTPException(status_code=400, detail="User is not a volunteer")
+
+        volunteer.experiences = experiences
+        volunteer.description = description
+        volunteer.updated_at = datetime.now(timezone.utc)
+
+        await volunteer.save()
+        volunteer = volunteer.model_dump()
+        volunteer["id"] = str(volunteer["id"])
+
+        return volunteer
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred while updating the metadata for volunteer: {e}")

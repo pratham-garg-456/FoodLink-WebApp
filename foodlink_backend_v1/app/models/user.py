@@ -11,11 +11,15 @@ class User(Document):
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
 
+    # New optional fields for volunteers only
+    experiences: Optional[str] = None
+    description: Optional[str] = None
+
     class Settings:
         collection = "users"
 
 
-class Volunteer(User):
-    # Additional fields for volunteers
-    experiences: Optional[str] = None
-    description: Optional[str] = None
+# class Volunteer(User):
+#     # Additional fields for volunteers
+#     experiences: Optional[str] = None
+#     description: Optional[str] = None
