@@ -24,7 +24,7 @@ const ViewDonations = () => {
     min_amount: '',
     max_amount: '',
   });
-  const [sortConfig, setSortConfig] = useState({ key: '', direction: '' });
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'descending' });
   const statusOptions = ['pending', 'confirmed', 'failed'];
   const [updateModalIsOpen, setUpdateModalIsOpen] = useState(false);
   const [currentDonation, setCurrentDonation] = useState({
