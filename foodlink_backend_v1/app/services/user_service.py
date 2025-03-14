@@ -8,7 +8,7 @@ async def get_user_by_id(id: str):
     Retrieve user information using ID
     :param id: A unique identifier of user from MongoDB
     """
-
+    
     user = await User.get(PydanticObjectId(id))
 
     if not user:
