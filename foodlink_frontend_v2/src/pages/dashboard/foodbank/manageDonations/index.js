@@ -53,7 +53,11 @@ const DonationTracker = () => {
           },
         }
       );
-      const donationsData = response.data.donations;
+      let donationsData = response.data.donations;
+  
+      // Sort donations by amount in descending order
+      donationsData = donationsData.sort((a, b) => b.amount - a.amount);
+  
       setDonations(donationsData.slice(0, 5)); // Display top 5 donations
       prepareChartData(donationsData);
     } catch (error) {
@@ -92,7 +96,7 @@ const DonationTracker = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 w-[70vw] flex flex-col justify-start h-[70vh]">
+    <div className="container mx-auto p-6 w-[70vw] flex flex-col justify-start h-[80vh]">
       <h1 className="text-2xl font-bold mb-4 flex justify-center">DONATIONS</h1>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       <table className="w-full border-collapse border border-gray-300">
@@ -131,7 +135,7 @@ const DonationTracker = () => {
           <Bar data={chartData} />
         </div>
       </div>
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-center mt-4">
         <button
           onClick={() => router.push('/dashboard/foodbank/manageDonations/viewDonations')}
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"

@@ -1,7 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends
-
+from fastapi import APIRouter, HTTPException, Depends, Query
 from app.services.user_service import get_user_by_id
 from app.utils.jwt_handler import jwt_required
+from app.models.event import Event
+from beanie import PydanticObjectId
+from typing import Optional, List
+from datetime import datetime
 from app.services.food_bank_service import (
     add_inventory_in_db,
     get_inventory_in_db,
@@ -14,11 +17,10 @@ from app.services.food_bank_service import (
     get_list_appointments_in_db,
     update_appointment_status_in_db,
     get_all_donations,
-    get_donation_by_id,
-    get_donation_by_donor_id,
     create_donation_in_db,
     update_donation_in_db,
     delete_donation_in_db,
+    search_donations,
     add_a_new_job_in_db,
     add_a_new_event_job_in_db,
     list_foodbank_job_in_db,
@@ -36,9 +38,6 @@ from app.services.food_bank_service import (
     transfer_event_inventory_to_main_inventory_in_db,
     get_event_inventory_from_db,
 )
-
-from app.models.event import Event
-from beanie import PydanticObjectId
 
 router = APIRouter()
 
@@ -693,51 +692,6 @@ async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):
         "message": "Donations retrieved successfully",
         "donations": donations,
     }
-
-
-@router.get("/donations/{donation_id}")
-async def get_donation(donation_id: str, payload: dict = Depends(jwt_required)):
-    """
-    API Endpoint: Retrieve a specific donation by ID.
-    """
-    # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
-        raise HTTPException(
-            status_code=401,
-            detail="Only FoodBank admin can retrieve the donation details",
-        )
-
-    donation = await get_donation_by_id(donation_id=donation_id)
-    if not donation:
-        raise HTTPException(status_code=404, detail="Donation not found")
-
-    return {
-        "status": "success",
-        "message": "Donation retrieved successfully",
-        "donation": donation
-    }
-    
-@router.get("/donations/{donor_id}")
-async def get_donations_by_donor(donor_id: str, payload: dict = Depends(jwt_required)):
-    """
-    API Endpoint: Retrieve all donations made by a specific donor.
-    """
-    # Validate if the request is made from Foodbank user
-    if payload.get("role") != "foodbank":
-        raise HTTPException(
-            status_code=401,
-            detail="Only FoodBank admin can retrieve the donation details",
-        )
-
-    donations = await get_all_donations(donor_id=donor_id)
-    if not donations:
-        raise HTTPException(status_code=404, detail="Donation not found")
-
-    return {
-        "status": "success",
-        "message": "Donations retrieved successfully",
-        "donations": donations
-    }
     
 @router.post("/donations")
 async def create_donation(payload: dict = Depends(jwt_required), donation_data: dict = {}):
@@ -819,8 +773,36 @@ async def delete_donation(donation_id: str, payload: dict = Depends(jwt_required
         "message": "Donation deleted successfully"
     }
     
+@router.get("/donations/search")
+async def search_for_donations(
+    donor_id: Optional[str] = None,
+    donation_id: Optional[str] = None,
+    start_time: Optional[datetime] = Query(None, description="Start time in ISO format"),
+    end_time: Optional[datetime] = Query(None, description="End time in ISO format"),
+    status: Optional[str] = None,
+    min_amount: Optional[float] = Query(None, description="Minimum amount"),
+    max_amount: Optional[float] = Query(None, description="Maximum amount"),
+    payload: dict = Depends(jwt_required)
+):
+    """
+    Search donations based on various criteria.
+    """
+    if payload.get("role") != "foodbank":
+        raise HTTPException(status_code=403, detail="Only foodbanks can search donations")
 
+    donations = await search_donations(
+        foodbank_id=payload.get("sub"),
+        donor_id=donor_id,
+        donation_id=donation_id,
+        start_time=start_time,
+        end_time=end_time,
+        status=status,
+        min_amount=min_amount,
+        max_amount=max_amount,
+    )
 
+    return {"status": "success", "donations": donations}    
+    
 @router.post("/job")
 async def post_a_new_job(payload: dict = Depends(jwt_required), job_data: dict = {}):
     """
