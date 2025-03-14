@@ -546,7 +546,15 @@ async def get_volunteer_detailed_info(
     # Get volunteer information from db
     volunteer = await get_user_by_id(id=volunteer_id)
 
-    return {"status": "success", "volunteer": volunteer}
+    volunteer_resp = {
+        "id": volunteer["id"],
+        "name": volunteer["name"],
+        "role": volunteer["role"],
+        "email": volunteer["email"],
+        "description": volunteer["description"],
+        "experiences": volunteer["experiences"]
+    }
+    return {"status": "success", "volunteer": volunteer_resp}
 
 @router.get("/appointments")
 async def fetch_appointments_by_foodbank(
@@ -1019,3 +1027,5 @@ async def add_volunteer_activity(
     )
 
     return {"status": "success", "activity": activity}
+
+

@@ -931,8 +931,15 @@ async def update_application_status_in_db(application_id: str, updated_status: s
     """
 
     application = await Application.get(PydanticObjectId(application_id))
-
+    if application == None:
+        application = await EventApplication.get(PydanticObjectId(application_id))
+        if application == None:
+            raise HTTPException(
+                status_code=404,
+                detail="There is no application corresponding with the given ID",
+            )
     try:
+
         application.status = updated_status
         await application.save()
         application = application.model_dump()
