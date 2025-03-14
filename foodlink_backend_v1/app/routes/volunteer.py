@@ -8,6 +8,7 @@ from app.services.volunteer_service import (
     retrieve_applied_job_in_db,
     retrieve_specific_job_in_db,
     retrieve_volunteer_activity_in_db,
+    update_metadata_in_db,
 )
 
 router = APIRouter()
@@ -193,3 +194,24 @@ async def delete_applied_job(
         )
     else:
         return {"status": "success", "message": "Application has been canceled."}
+
+
+@router.put("/metadata")
+async def create_volunteer_metadata(
+    payload: dict = Depends(jwt_required), volunteer_data: dict = {}
+):
+    """
+    Allow volunteer to add more informations about them such as past experiences and descrition
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param volunteer_data: Information of volunteer
+    """
+    # Validate if the request is made from Volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only Volunteer get the list of the jobs"
+        )
+
+    # Update the metadata for volunteer in db
+    volunteer = await update_metadata_in_db(id=payload.get("sub"), experiences=volunteer_data["experiences"], description=volunteer_data["description"])
+    
+    return {"status": "success", "volunteer": volunteer}
