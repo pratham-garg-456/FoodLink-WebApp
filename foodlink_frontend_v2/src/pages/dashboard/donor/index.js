@@ -15,10 +15,12 @@ const DonorDashboard = () => {
     const checkToken = async () => {
       const token = localStorage.getItem('accessToken');
       if (!token) {
+        console.error('No token found or error');
         router.push('/auth/login');
         return;
       }
       const decodedToken = await validateToken(token);
+      console.log('Decoded token:', decodedToken);
       if (decodedToken.error) {
         console.error('Invalid token:', decodedToken.error);
         router.push('/auth/login');
@@ -27,7 +29,8 @@ const DonorDashboard = () => {
       if (decodedToken.user?.id) {
         setUserId(decodedToken.user.id.slice(0, 5));
       }
-      if (decodedToken.role !== 'donor') {
+      if (decodedToken.user.name !== 'donor') {
+        console.error('Invalid user role:', decodedToken.role);
         router.push('/auth/login');
         return;
       }
