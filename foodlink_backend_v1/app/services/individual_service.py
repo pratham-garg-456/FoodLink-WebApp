@@ -67,3 +67,26 @@ async def create_appointment_in_db(individual_id: str, appointment_data: dict):
             status_code=400,
             detail=f"An error occurred while creating an appointment: {e}",
         )
+    
+async def get_appointments_by_individual(individual_id: str):
+    """
+    Fetch all appointments for a specific food bank.
+
+    :param foodbank_id: The ID of the food bank.
+    :return: A list of appointment objects.
+    """
+    try:
+        appointments = await Appointment.find(Appointment.individual_id == individual_id).to_list()
+
+        # Convert ObjectId to string for JSON response
+        for appointment in appointments:
+            appointment = appointment.model_dump()
+            appointment["id"] = str(appointment["id"])
+
+        return appointments
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"An error occurred while fetching appointments for individual: {str(e)}"
+        )
+

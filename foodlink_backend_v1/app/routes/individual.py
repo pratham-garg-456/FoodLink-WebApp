@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
 from app.services.individual_service import create_appointment_in_db
+from app.services.individual_service import get_appointments_by_individual
 
 router = APIRouter()
 
@@ -39,3 +40,16 @@ async def request_an_appointment(
     )
 
     return {"status": "success", "appointment": appointment}
+
+@router.get("/appointments")
+async def fetch_appointments_by_individual(
+    payload: dict = Depends(jwt_required)
+):
+    """
+    API route to get all appointments for a specific individual.
+    Only Food Bank Admins can access this route.
+    """
+
+    appointments = await get_appointments_by_individual(payload.get("sub"))
+    return {"status": "success", "appointments": appointments}
+
