@@ -55,6 +55,7 @@ async def add_foodbank_job_application_in_db(
             foodbank_id=foodbank_id,
             job_id=job_id,
         )
+
         await new_application.insert()
         new_application = new_application.model_dump()
         new_application["id"] = str(new_application["id"])
@@ -236,6 +237,9 @@ async def update_metadata_in_db(id: str, experiences: str, description: str):
         volunteer["id"] = str(volunteer["id"])
 
         return volunteer
-    
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred while updating the metadata for volunteer: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while updating the metadata for volunteer: {e}",
+        )

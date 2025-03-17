@@ -9,7 +9,7 @@ from typing import List
 
 class EventInventoryFoodItem(BaseModel):
     food_name: str
-    quantity: int
+    quantity: float
 
 class EventInventory(Document):
     stock: List[EventInventoryFoodItem]

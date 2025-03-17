@@ -3,7 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db import init_db
 from app.config import settings
 from contextlib import asynccontextmanager
-from app.routes import auth, misc, food_bank, volunteer, individual, donor
+from app.routes import auth, misc, volunteer, individual, donor
+from app.routes.foodbank import (
+    volunteer_mangement,
+    inventory,
+    events,
+    food_items,
+    appointments,
+    donations,
+    jobs,
+)
 
 
 @asynccontextmanager
@@ -38,16 +47,37 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/foodlink/auth", tags=["Authentication"])
 app.include_router(misc.router, prefix="/api/v1/foodlink/misc", tags=["Misc"])
 app.include_router(
-    food_bank.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
-)
-app.include_router(
     volunteer.router, prefix="/api/v1/foodlink/volunteer", tags=["Volunteer"]
 )
 app.include_router(
     individual.router, prefix="/api/v1/foodlink/individual", tags=["Individual"]
 )
+app.include_router(donor.router, prefix="/api/v1/foodlink/donor", tags=["Donor"])
+
+# APIs route for foodbank
 app.include_router(
-    donor.router, prefix="/api/v1/foodlink/donor", tags=["Donor"])
+    inventory.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
+
+app.include_router(events.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"])
+
+app.include_router(
+    food_items.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
+
+app.include_router(
+    appointments.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
+
+app.include_router(
+    donations.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
+
+app.include_router(jobs.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"])
+
+app.include_router(
+    volunteer_mangement.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
 
 
 # Root endpoint for health checks or basic info
