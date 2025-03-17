@@ -5,24 +5,26 @@ from beanie import PydanticObjectId
 from datetime import datetime, timezone
 from typing import List, Dict, Optional
 
-async def create_donation_in_db(donor_id: str, donation_data: dict):
+async def create_donation_in_db(donor_id: str, donation_data: dict) -> dict:
     """
     Allow a donor to make a monetary donation.
     :param donor_id: The ID of the donor making the donation.
-    :param amount: The amount of money donated.
-    :return: Donation details.
+    :param donation_data: Dict containing donation details (e.g., "amount", "foodbank_id").
+    :return: Donation details as a dict.
     """
-
-    # Create and save donation
     try:
-        new_donation = Donation(donor_id=donor_id, amount=donation_data["amount"], foodbank_id=donation_data["foodbank_id"], status="confirmed")
+        new_donation = Donation(
+            donor_id=donor_id,
+            amount=donation_data["amount"],
+            foodbank_id=donation_data["foodbank_id"],
+            status="confirmed"  # You can replace this with a dynamic value if needed.
+        )
         await new_donation.insert()
-        new_donation = new_donation.model_dump()
-        new_donation["id"] = str(new_donation["id"])
-        return new_donation
-
+        donation = new_donation.model_dump()
+        donation["id"] = str(donation["id"])
+        return donation
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred while creating a new donation in db : {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error creating donation in db: {str(e)}")
 
 async def get_donation_by_id(donation_id: str) -> dict:
     """
@@ -34,15 +36,11 @@ async def get_donation_by_id(donation_id: str) -> dict:
         donation = await Donation.get(PydanticObjectId(donation_id))
         if not donation:
             raise HTTPException(status_code=404, detail="Donation not found")
-
         donation_dict = donation.model_dump()
         donation_dict["id"] = str(donation_dict["id"])
         return donation_dict
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error fetching donation: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error fetching donation: {str(e)}")
 
 async def process_fake_payment_in_db(donation_id: str, transaction_id: str) -> dict:
     """

@@ -45,6 +45,24 @@ async def create_donation(payload: dict = Depends(jwt_required), donation_data: 
         "donation": donation
     }
 
+@router.get("/donations/{donation_id}")
+async def get_donation(
+    donation_id: str,
+    payload: dict = Depends(jwt_required)
+):
+    """
+    Retrieve a specific donation by its ID.
+    """
+    # Allow donor or foodbank admin to view donation details
+    if payload.get("role") not in ["donor", "foodbank"]:
+        raise HTTPException(status_code=403, detail="Not authorized to view donation details")
+    
+    donation = await get_donation_by_id(donation_id)
+    if not donation:
+        raise HTTPException(status_code=404, detail="Donation not found")
+    
+    return {"status": "success", "donation": donation}
+    
 @router.post("/create-fake-payment-intent")
 async def create_fake_payment_intent(
     payload: dict = Depends(jwt_required),
@@ -94,23 +112,6 @@ async def process_simulated_payment(
     updated_donation = await process_fake_payment_in_db(donation_id, transaction_id)
     return {"status": "success", "message": "Payment processed successfully", "donation": updated_donation}
 
-@router.get("/donations/{donation_id}")
-async def get_donation(
-    donation_id: str,
-    payload: dict = Depends(jwt_required)
-):
-    """
-    Retrieve a specific donation by its ID.
-    """
-    # Allow donor or foodbank admin to view donation details
-    if payload.get("role") not in ["donor", "foodbank"]:
-        raise HTTPException(status_code=403, detail="Not authorized to view donation details")
-    
-    donation = await get_donation_by_id(donation_id)
-    if not donation:
-        raise HTTPException(status_code=404, detail="Donation not found")
-    
-    return {"status": "success", "donation": donation}
 
 @router.get("/donations/user")
 async def get_donations_for_user(payload: dict = Depends(jwt_required)):
