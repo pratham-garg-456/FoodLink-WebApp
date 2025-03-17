@@ -142,9 +142,13 @@ async def retrieve_specific_job_in_db(job_id: str):
 
         if job.status != "available":
             return None
+        
+        foodbank = await User.find_one(User.id == PydanticObjectId(job.foodbank_id))
+        foodbank_name = foodbank.name if foodbank else "Unknown"
 
         job_dict = job.model_dump()
         job_dict["id"] = str(job.id)
+        job_dict["foodbank_name"] = foodbank_name
         return job_dict
 
     except Exception as e:
