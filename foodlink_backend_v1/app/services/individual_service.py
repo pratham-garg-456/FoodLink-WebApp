@@ -89,4 +89,39 @@ async def get_appointments_by_individual(individual_id: str):
         raise HTTPException(
             status_code=500, detail=f"An error occurred while fetching appointments for individual: {str(e)}"
         )
+    
+async def get_inventory_in_db(foodbank_id: str):
+    """
+    Retrieve the list of MainInventory for a specific foodbank in db.
+    :param foodbank_id: The ID of the food bank
+    :return: List of inventories for the given foodbank.
+    """
+    inventory_list = []
+
+    try:
+        # Find all MainInventory entries for the given foodbank_id
+        main_inventory = await MainInventory.find(MainInventory.foodbank_id == foodbank_id).to_list()
+
+        # If no inventory found, return a clear message
+        if not main_inventory:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No inventory found for foodbank '{foodbank_id}'."
+            )
+
+        # Process each inventory item
+        for inv in main_inventory:
+            # Convert the inventory item to a dictionary
+            inv_data = inv.model_dump()
+            inv_data["id"] = str(inv_data["id"])  # Ensure ID is a string
+            inventory_list.append(inv_data)
+
+        return inventory_list[0]  # Return the list of inventories
+
+    except Exception as e:
+        # Handle any errors that occur while retrieving the inventory
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while retrieving the inventory for foodbank '{foodbank_id}': {str(e)}"
+        )
 
