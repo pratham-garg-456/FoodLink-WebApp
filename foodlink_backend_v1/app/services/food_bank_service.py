@@ -13,6 +13,8 @@ from typing import List
 from app.models.appointment import Appointment, AppointmentFoodItem
 from app.models.event import Event, EventInventory, EventInventoryFoodItem
 from typing import List, Optional
+from app.models.user import User
+
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
@@ -239,15 +241,10 @@ async def add_a_food_item_in_db(food_data: dict):
     # Parse expiration_date if it exists, otherwise set it to None
     expiration_date = None
     if food_data.get("expiration_date"):
-        try:
-            expiration_date = datetime.strptime(
-                food_data["expiration_date"], "%Y-%m-%d"
-            )
-        except ValueError:
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid expiration date format. Please use 'YYYY-MM-DD'.",
-            )
+        expiration_date = convert_string_time_to_iso(
+            food_data["expiration_date"].split(" ")[0],
+            food_data["expiration_date"].split(" ")[1],
+        )
 
     try:
         # Create a new FoodItem instance
@@ -396,7 +393,7 @@ async def add_inventory_in_db(foodbank_id: str, inventory_data: List[dict]):
                         "foodbank_id": foodbank_id,
                         "expiration_date": expiration_date,
                         "unit": unit,
-                        "added_on": new_inventory_item["last_updated"].isoformat(),
+                        "added_on": new_inventory_item["last_updated"],
                     }
                 )
 
@@ -551,25 +548,27 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
     """
     try:
         # Convert datetime fields
-        event_data["date"] = datetime.fromisoformat(event_data["date"])
-        event_data["start_time"] = datetime.fromisoformat(event_data["start_time"])
-        event_data["end_time"] = datetime.fromisoformat(event_data["end_time"])
+        date = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
 
+        start = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
+
+        end = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
         # Create the event
         new_event = Event(
             foodbank_id=foodbank_id,
             event_name=event_data["event_name"],
             description=event_data["description"],
-            date=event_data["date"],
-            start_time=event_data["start_time"],
-            end_time=event_data["end_time"],
+            date=date,
+            start_time=start,
+            end_time=end,
             location=event_data["location"],
             status=event_data["status"],
         )
         await new_event.insert()
         new_event = new_event.model_dump()
         new_event["id"] = str(new_event["id"])
-        return {"status": "success", "event": new_event}
+
+        return new_event
 
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=f"Invalid date format: {str(ve)}")
@@ -617,9 +616,15 @@ async def update_the_existing_event_in_db(event_id: str, event_data: dict):
         raise HTTPException(status_code=404, detail="Event not found")
 
     # Convert datetime fields
-    event_data["date"] = datetime.fromisoformat(event_data["date"])
-    event_data["start_time"] = datetime.fromisoformat(event_data["start_time"])
-    event_data["end_time"] = datetime.fromisoformat(event_data["end_time"])
+    date = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
+
+    start = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
+
+    end = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
+
+    event_data["date"] = date
+    event_data["start_time"] = start
+    event_data["end_time"] = end
 
     # Update the exisitng event in db
     try:
@@ -770,7 +775,7 @@ async def add_event_inventory_to_db(
         main_inventory["id"] = str(main_inventory["id"])
         event_inventory["id"] = str(event_inventory["id"])
 
-        return {"status": "success", "event_inventory": event_inventory}
+        return event_inventory
 
     except Exception as e:
         raise HTTPException(
@@ -819,7 +824,7 @@ async def update_event_inventory_in_db(event_id: str, used_items: List[dict]):
         event_inventory = event_inventory.model_dump()
         event_inventory["id"] = str(event_inventory["id"])
 
-        return {"status": "success", "updated_inventory": event_inventory}
+        return event_inventory
 
     except Exception as e:
         raise HTTPException(
@@ -876,7 +881,7 @@ async def transfer_event_inventory_to_main_inventory_in_db(
         main_inventory["id"] = str(main_inventory["id"])
         event_inventory["id"] = str(event_inventory["id"])
 
-        return {"status": "success", "updated_main_inventory": main_inventory}
+        return main_inventory
 
     except Exception as e:
         raise HTTPException(
@@ -907,7 +912,7 @@ async def get_list_volunteer_in_db(event_id: str, status: str):
     #     )
     try:
         applications = await EventApplication.find(
-            EventApplication.event_id == event_id, EventApplication.status == status
+            {"status": status, "event_id": event_id}
         ).to_list()
 
         for application in applications:
@@ -1106,7 +1111,7 @@ async def get_donation_by_donor_id_and_status(donor_id: str, status: str):
         raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
 
 
-async def add_a_new_job_in_db(job_data: dict):
+async def add_a_new_job_in_db(foodbank_id: str, job_data: dict):
     """
     Create a new job in DB
     :param job_data : A dictionary contains job information
@@ -1119,7 +1124,7 @@ async def add_a_new_job_in_db(job_data: dict):
 
     try:
         job = Job(
-            foodbank_id=job_data["foodbank_id"],
+            foodbank_id=foodbank_id,
             title=job_data["title"],
             description=job_data["description"],
             location=job_data["location"],
@@ -1139,7 +1144,7 @@ async def add_a_new_job_in_db(job_data: dict):
         )
 
 
-async def add_a_new_event_job_in_db(job_data: dict):
+async def add_a_new_event_job_in_db(foodbank_id: str, job_data: dict):
     """
     Create a new event job in DB
     :param job_data : A dictionary contains job information
@@ -1153,7 +1158,7 @@ async def add_a_new_event_job_in_db(job_data: dict):
     try:
         event_job = EventJob(
             event_id=job_data["event_id"],
-            foodbank_id=job_data["foodbank_id"],
+            foodbank_id=foodbank_id,
             title=job_data["title"],
             description=job_data["description"],
             location=job_data["location"],
@@ -1213,6 +1218,18 @@ async def get_list_foodbank_application_in_db(foodbank_id: str, status: str):
         for application in applications:
             application = application.model_dump()
             application["id"] = str(application["id"])
+
+            # Retrieve volunteer information based on the volunteer ID
+            volunteer = await User.get(
+                PydanticObjectId(str(application["volunteer_id"]))
+            )
+            application["volunteer_name"] = volunteer.name
+
+            # Retrieve job informaation
+            job = await Job.get(PydanticObjectId(application["job_id"]))
+            application["job_name"] = job.title
+            application["job_category"] = job.category
+
             application_list.append(application)
 
         return application_list
@@ -1310,3 +1327,26 @@ async def add_volunteer_activity_in_db(
             detail=f"An error occured while creating the volunteer activity in DB: {e}",
         )
 
+
+async def list_event_job_in_db():
+    """
+    Retrieve the list of jobs within the specific events
+    """
+
+    job_list = []
+
+    try:
+        jobs = await Job.find(Job.category == "Event").to_list()
+
+        for job in jobs:
+            # Automate process updating the job status post
+            await job.check_and_update_status()
+            job = job.model_dump()
+            job["id"] = str(job["id"])
+            job_list.append(job)
+        return job_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while fetching the list of job in db: {e}",
+        )

@@ -55,6 +55,7 @@ async def add_foodbank_job_application_in_db(
             foodbank_id=foodbank_id,
             job_id=job_id,
         )
+
         await new_application.insert()
         new_application = new_application.model_dump()
         new_application["id"] = str(new_application["id"])
@@ -142,9 +143,13 @@ async def retrieve_specific_job_in_db(job_id: str):
 
         if job.status != "available":
             return None
+        
+        foodbank = await User.find_one(User.id == PydanticObjectId(job.foodbank_id))
+        foodbank_name = foodbank.name if foodbank else "Unknown"
 
         job_dict = job.model_dump()
         job_dict["id"] = str(job.id)
+        job_dict["foodbank_name"] = foodbank_name
         return job_dict
 
     except Exception as e:
@@ -232,6 +237,9 @@ async def update_metadata_in_db(id: str, experiences: str, description: str):
         volunteer["id"] = str(volunteer["id"])
 
         return volunteer
-    
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred while updating the metadata for volunteer: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while updating the metadata for volunteer: {e}",
+        )
