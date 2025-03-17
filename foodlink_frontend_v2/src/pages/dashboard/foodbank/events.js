@@ -581,15 +581,6 @@ const Events = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        openVolunteerModal(event);
-                      }}
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mb-2"
-                    >
-                      Manage Volunteers
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
                         openInventoryModal(event);
                       }}
                       className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded mb-2"
