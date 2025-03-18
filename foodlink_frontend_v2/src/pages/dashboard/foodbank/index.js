@@ -67,9 +67,9 @@ const FoodbankDashboard = ({ userRole }) => {
             </button>
             <button
               className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
-              onClick={() => router.push('/dashboard/foodbank/donation-tracker')}
+              onClick={() => router.push('/dashboard/foodbank/manageDonations')}
             >
-              Track Donations
+              Manage Donations
             </button>
             <button
               className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
