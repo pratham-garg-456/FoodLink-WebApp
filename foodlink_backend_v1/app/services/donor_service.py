@@ -1,10 +1,6 @@
 from app.models.donation import Donation
-from app.models.user import User
 from fastapi import HTTPException
-from beanie import PydanticObjectId
-from datetime import datetime, timezone
-from typing import List, Dict, Optional
-import uuid
+from typing import List
 
 async def create_donation_in_db(donor_id: str, donation_data: dict) -> dict:
     """
@@ -14,13 +10,10 @@ async def create_donation_in_db(donor_id: str, donation_data: dict) -> dict:
     :return: Donation details as a dict.
     """
     try:
-        # Generate a random foodbank_id for monetary donations
-        random_foodbank_id = str(uuid.uuid4())
-        
         new_donation = Donation(
             donor_id=donor_id,
             amount=donation_data["amount"],
-            foodbank_id=random_foodbank_id,
+            foodbank_id=donation_data["foodbank_id"],
             status="confirmed"
         )
         await new_donation.insert()
