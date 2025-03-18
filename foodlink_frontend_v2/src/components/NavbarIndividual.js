@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
+import validateToken from '@/utils/validateToken';
 
 const NavbarIndividual = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -15,16 +16,51 @@ const NavbarIndividual = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserName(decodedToken.firstName || decodedToken.sub.slice(0, 5)); // Use first name or first 5 chars of ID
-      } catch (error) {
-        console.error('Invalid token: ', error);
-      }
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/foodlink/misc/users'); // Replace with your actual API endpoint
+      if (!response.ok) throw new Error('Failed to fetch users');
+
+      const data = await response.json();
+      const users = data.users; // Extract the 'users' array from the response
+      console.log('users in navbar:', users);
+      console.log('user id in navbar:', userId);
+      const matchedUser = users.find((user) => user.id === userId);
+
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest'; // Default name if there's an error
     }
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
+
+      try {
+        const decodedToken = await validateToken(token);
+
+        if (decodedToken.error) {
+          console.error('Invalid token: ', decodedToken.error);
+          router.push('/auth/login');
+          return;
+        }
+        console.log('decoded tokemn:', decodedToken);
+        const userId = decodedToken.user.id; // Assuming 'sub' is the user ID
+        const username = await getUsername(userId);
+        setUserName(username);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        router.push('/auth/login');
+      }
+    };
+
+    fetchUserData();
   }, []);
 
   const openNav = () => {
@@ -42,7 +78,8 @@ const NavbarIndividual = () => {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('accessToken');
+    // Clear all items from localStorage
+    localStorage.clear();
     router.push('/auth/login');
   };
 
@@ -152,7 +189,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/individual/appointments"
+                href="/dashboard/individual/manageAppointments"
               >
                 Manage Appointments
               </Link>
@@ -168,7 +205,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/individual/Contact"
+                href="/dashboard/individual/contact"
               >
                 Contact Us
               </Link>

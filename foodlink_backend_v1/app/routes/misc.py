@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models.service import Service
 from app.models.contact import Contact
+from app.models.user import User
 
 router = APIRouter()
 
@@ -105,5 +106,27 @@ async def submit_question(contact_data: dict = {}):
         )
 
     return {"status": "success", "question": new_question}
+
+@router.get("/users")
+async def retrieve_list_of_users():
+    """
+    Allow us to get the list of Users in the db
+    :return a list of users which can be display to the end users
+    """
+    # Define a list of a user
+    user_list = []
+
+    # Fetch the list of services in the db
+    try:
+        users = await User.find().to_list()
+        for user in users:
+            user_dict = user.model_dump()
+            user_dict["id"] = str(user_dict["id"])
+            user_list.append(user_dict)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"List is empty or {e}")
+
+    return {"status": "success", "users": user_list}
+
 
 
