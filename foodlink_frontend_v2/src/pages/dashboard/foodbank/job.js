@@ -4,6 +4,7 @@ import axios from 'axios';
 export default function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingJobId, setEditingJobId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -24,7 +25,7 @@ export default function JobsPage() {
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/jobs`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`, // replace with your auth logic
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
         }
       );
@@ -46,18 +47,33 @@ export default function JobsPage() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/job`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`, // update with actual token logic
-          },
-        }
-      );
+      if (editingJobId) {
+        // Update existing job using PUT
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/job/${editingJobId}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+          }
+        );
+      } else {
+        // Create new job using POST
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/job`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+          }
+        );
+      }
       // Refresh job list and reset form
       fetchJobs();
       setModalOpen(false);
+      setEditingJobId(null);
       setFormData({
         title: '',
         description: '',
@@ -67,21 +83,44 @@ export default function JobsPage() {
         status: 'available',
       });
     } catch (error) {
-      console.error('Error adding new job:', error);
+      console.error('Error submitting job:', error);
     }
+  };
+
+  const convertDateFormat = (input) => {
+    if (!input) return '';
+    const deadline = formatDateToLocal(input)
+    const [datePart, timePart] = deadline.split(', ');
+    const [month, day, year] = datePart.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${timePart}`;
+  };
+  
+  
+
+  // Pre-fill the form for editing a job
+  const handleEditJob = (job) => {
+    setEditingJobId(job.id);
+    setFormData({
+      title: job.title,
+      description: job.description,
+      location: job.location,
+      category: job.category,
+      deadline: job.deadline ? convertDateFormat(job.deadline) : " ",
+      status: job.status,
+    });
+    setModalOpen(true);
   };
 
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
-
-    const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
+    const utcDate = new Date(isoString + 'Z');
     return utcDate.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false, // 24-hour format
+      hour12: false,
     });
   };
 
@@ -92,14 +131,25 @@ export default function JobsPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Jobs</h1>
           <button
-            onClick={() => setModalOpen(true)}
+            onClick={() => {
+              setModalOpen(true);
+              setEditingJobId(null);
+              setFormData({
+                title: '',
+                description: '',
+                location: '',
+                category: '',
+                deadline: '',
+                status: 'available',
+              });
+            }}
             className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
           >
             Add New Job
           </button>
         </div>
 
-        {/* Table Container */}
+        {/* Jobs Table */}
         <div className="bg-white shadow rounded-lg w-full overflow-x-auto">
           <table className="w-full table-auto divide-y divide-gray-200">
             <thead className="bg-green-600">
@@ -110,6 +160,7 @@ export default function JobsPage() {
                 <th className="px-6 py-3 text-left text-sm font-medium text-white">Category</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-white">Deadline</th>
                 <th className="px-6 py-3 text-left text-sm font-medium text-white">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-white">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -119,17 +170,20 @@ export default function JobsPage() {
                   <td className="px-6 py-4 text-sm text-gray-600 whitespace-normal break-words">
                     {job.description}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    {job.location}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    {job.category}
-                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{job.location}</td>
+                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{job.category}</td>
                   <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
                     {formatDateToLocal(job.deadline)}
                   </td>
+                  <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{job.status}</td>
                   <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                    {job.status}
+                    <button
+                      onClick={() => handleEditJob(job)}
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded mr-2"
+                    >
+                      Edit
+                    </button>
+                    {/* Additional actions (e.g. delete) can be added here */}
                   </td>
                 </tr>
               ))}
@@ -137,7 +191,7 @@ export default function JobsPage() {
           </table>
         </div>
 
-        {/* Modal for adding a new job */}
+        {/* Modal for adding/updating a job */}
         {modalOpen && (
           <div className="fixed inset-0 z-10 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative">
@@ -147,7 +201,9 @@ export default function JobsPage() {
               >
                 &times;
               </button>
-              <h2 className="text-2xl font-bold mb-4">Add New Job</h2>
+              <h2 className="text-2xl font-bold mb-4">
+                {editingJobId ? 'Update Job' : 'Add New Job'}
+              </h2>
               <form onSubmit={handleFormSubmit}>
                 {/* Title */}
                 <div className="mb-4">
@@ -162,7 +218,7 @@ export default function JobsPage() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300"
-                    placeholder="e.g. Warehouse Assistant"
+                    placeholder="e.g. Warehouse Manager"
                   />
                 </div>
                 {/* Description */}
@@ -177,7 +233,7 @@ export default function JobsPage() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300"
-                    placeholder="Responsibilities, tasks, etc."
+                    placeholder="Job responsibilities, tasks, etc."
                   ></textarea>
                 </div>
                 {/* Location */}
@@ -225,14 +281,31 @@ export default function JobsPage() {
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300"
-                    placeholder="e.g. 2025-03-20 09:09"
+                    placeholder="e.g. 2025-03-18 09:09"
                   />
+                </div>
+                {/* Status */}
+                <div className="mb-4">
+                  <label htmlFor="status" className="block text-gray-700 font-medium mb-1">
+                    Status
+                  </label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-green-300"
+                  >
+                    <option value="available">Available</option>
+                    <option value="unavailable">Unavailable</option>
+                  </select>
                 </div>
                 <button
                   type="submit"
                   className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded w-full"
                 >
-                  Submit Job
+                  {editingJobId ? 'Update Job' : 'Submit Job'}
                 </button>
               </form>
             </div>
