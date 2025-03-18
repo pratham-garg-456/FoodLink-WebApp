@@ -1,22 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import validateToken from '@/utils/validateToken';
 
-export default function ViewAppointment() {
+const ViewAppointments = () => {
   const router = useRouter();
-  const [appointments, setAppointments] = useState([]);
+  const [allAppointments, setAllAppointments] = useState([]);
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [foodbankUsernames, setFoodbankUsernames] = useState({});
+  const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('pending');
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('scheduled');
+  const [isCancelling, setIsCancelling] = useState(false); // Track cancellation state
+
+  const formatDate = (date) => {
+    const dateObj = new Date(date);
+    dateObj.setHours(dateObj.getHours() - 4);
+    return dateObj.toLocaleString('en-US');
+  };
+
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+      );
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      const matchedUser = data.users.find((user) => user.id === userId);
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest';
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchAppointments = async () => {
+      setLoading(true);
       const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-      if (!token || token === 'undefined') {
-        console.error('JWT Token is invalid or missing');
+      if (!token) {
         router.push('/auth/login');
         return;
       }
@@ -24,51 +50,33 @@ export default function ViewAppointment() {
       try {
         const decodedToken = await validateToken(token);
         if (!decodedToken) {
-          console.error('Invalid token');
           router.push('/auth/login');
           return;
         }
 
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/appointments/`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/appointments`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: statusFilter ? { status: statusFilter } : {},
           }
         );
 
         if (isMounted) {
           if (response.data.status === 'success') {
-            setAppointments(response.data.appointments || []);
-            setErrorMessage(
-              response.data.appointments.length
-                ? null
-                : `No appointments found for status: ${statusFilter}.`
-            );
+            setAllAppointments(response.data.appointments || []);
+            setErrorMessage(null);
           } else {
-            setAppointments([]);
+            setAllAppointments([]);
             setErrorMessage('No appointments found.');
           }
         }
       } catch (error) {
         if (isMounted) {
-          setAppointments([]);
-          if (error.response) {
-            const { status } = error.response;
-            if (status === 401) {
-              console.error('Unauthorized access, redirecting to login.');
-              router.push('/auth/login');
-            } else if (status === 404) {
-              setErrorMessage(`No appointments found for status: ${statusFilter || 'all'}.`);
-            } else {
-              console.error(`Error fetching appointments: ${status}`, error.response.data);
-              setErrorMessage('An error occurred while fetching appointments.');
-            }
-          } else {
-            console.error('Unexpected error:', error.message);
-            setErrorMessage('An unexpected error occurred.');
-          }
+          setAllAppointments([]);
+          setErrorMessage(error.response ? error.response.data.message : 'An error occurred.');
         }
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -76,73 +84,169 @@ export default function ViewAppointment() {
     return () => {
       isMounted = false;
     };
-  }, [router, statusFilter]);
+  }, [router]);
+
+  useEffect(() => {
+    setFilteredAppointments(
+      allAppointments.filter((appointment) => appointment.status === statusFilter)
+    );
+  }, [statusFilter, allAppointments]);
+
+  useEffect(() => {
+    const fetchFoodbankNames = async () => {
+      const usernames = {};
+      for (const appointment of filteredAppointments) {
+        const foodbankName = await getUsername(appointment.foodbank_id);
+        usernames[appointment.foodbank_id] = foodbankName;
+      }
+      setFoodbankUsernames(usernames);
+    };
+
+    if (filteredAppointments.length > 0) fetchFoodbankNames();
+  }, [filteredAppointments]);
+
+  const handleViewDetail = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedAppointment(null);
+  };
+
+  const handleCancelAppointment = async () => {
+    if (!selectedAppointment) return;
+
+    setIsCancelling(true);
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
+
+      // Make the API request to update the status
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/appointment/${selectedAppointment._id}`,
+        { updated_status: 'cancelled' },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Update local state after cancellation
+      setAllAppointments((prevAppointments) =>
+        prevAppointments.map((appt) =>
+          appt._id === selectedAppointment._id ? { ...appt, status: 'cancelled' } : appt
+        )
+      );
+
+      // Close the modal
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center w-[70vw] min-h-[80vh] md:w-[80vw] md:gap-2 pt-10 justify-start">
-      <div className=" w-full flex justify-start">
-        <Link href="/dashboard/foodbank/manageAppointments">
-          <button className="mb-4 bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded flex-start">
-            &lt;- Back to Manage Appointments{' '}
-          </button>
-        </Link>
-      </div>
-      <h1 className="text-3xl font-bold mb-4">Appointments</h1>
+    <div className="bg-white p-8 shadow-lg">
+      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+        Appointments History
+      </h1>
 
       <div className="mb-4">
-        <label className="font-semibold">Filter by Status:</label>
-        <select
-          className="ml-2 p-2 border rounded"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="cancelled">Cancelled</option>
+        <label className="mr-2">Filter by Status:</label>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="rescheduled">Rescheduled</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="scheduled">Scheduled</option>
         </select>
       </div>
-      <div className="w-full max-w-6xl bg-white rounded-lg p-6">
-        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-        {!appointments.length && !errorMessage && <p>Loading...</p>}
 
-        {appointments.length > 0 && (
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white border border-gray-300 shadow-md rounded-lg">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-3 border">ID</th>
-                  <th className="p-3 border">Description</th>
-                  <th className="p-3 border">Products</th>
-                  <th className="p-3 border">Start Time</th>
-                  <th className="p-3 border">End Time</th>
-                  <th className="p-3 border">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((appointment, index) => (
-                  <tr key={appointment.id} className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
-                    <td className="p-3 border">{appointment.id}</td>
-                    <td className="p-3 border">{appointment.description}</td>
-                    <td className="p-3 border">
-                      {appointment.product ? appointment.product.join(', ') : 'N/A'}
-                    </td>
-                    <td className="p-3 border">
-                      {new Date(appointment.start_time).toLocaleString()}
-                    </td>
-                    <td className="p-3 border">
-                      {new Date(appointment.end_time).toLocaleString()}
-                    </td>
-                    <td className="p-3 border capitalize font-semibold text-blue-600">
-                      {appointment.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {loading ? (
+        <p className="text-center text-gray-600">Loading...</p>
+      ) : errorMessage ? (
+        <p className="text-center text-red-500">{errorMessage}</p>
+      ) : filteredAppointments.length === 0 ? (
+        <p className="text-center text-gray-600">No appointments found for the selected status.</p>
+      ) : (
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">Food Bank</th>
+              <th className="py-2 px-4 border-b">Start Time</th>
+              <th className="py-2 px-4 border-b">End Time</th>
+              <th className="py-2 px-4 border-b">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAppointments.map((appointment) => (
+              <tr key={appointment._id}>
+                <td className="py-2 px-4 border-b">
+                  {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
+                </td>
+                <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
+                <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
+                <td className="py-2 px-4 border-b">
+                  <button
+                    onClick={() => handleViewDetail(appointment)}
+                    className="text-blue-500 hover:underline"
+                  >
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {isModalOpen && selectedAppointment && (
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
+            <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
+            <p>
+              <strong>Description:</strong> {selectedAppointment.description}
+            </p>
+            <p>
+              <strong>Start Time:</strong> {formatDate(selectedAppointment.start_time)}
+            </p>
+            <p>
+              <strong>End Time:</strong> {formatDate(selectedAppointment.end_time)}
+            </p>
+            <ul className="space-y-2 mt-2">
+              {selectedAppointment.product.map((item, index) => (
+                <li key={index} className="text-sm text-gray-600">
+                  {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
+                </li>
+              ))}
+            </ul>
+            <p>
+              <strong>Status:</strong> {selectedAppointment.status}
+            </p>
+            <button
+              onClick={handleCancelAppointment}
+              disabled={isCancelling}
+              className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+            >
+              {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
+            </button>
+            <button
+              onClick={closeModal}
+              className="bg-gray-500 text-white px-4 py-2 rounded mt-4 ml-2"
+            >
+              Close
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default ViewAppointments;
