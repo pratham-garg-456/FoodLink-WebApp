@@ -147,9 +147,7 @@ export default function ManageVolunteers() {
   return (
     <div className="min-h-screen w-3/4 mt-10">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Manage Volunteer Applications
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">Manage Volunteer Applications</h1>
 
         {/* Filter Buttons */}
         <div className="flex space-x-4 mb-6">
@@ -157,7 +155,7 @@ export default function ManageVolunteers() {
             onClick={() => setFilterStatus('pending')}
             className={`py-2 px-4 rounded ${
               filterStatus === 'pending'
-                ? 'bg-green-600 text-white'
+                ? 'bg-yellow-400 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -184,28 +182,53 @@ export default function ManageVolunteers() {
               </div>
             ) : (
               <table className="w-full table-auto divide-y divide-gray-200">
-                <thead className="bg-green-600">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Volunteer Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Job Title
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Job Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Category
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                      Applied At
-                    </th>
-                  </tr>
-                </thead>
+                {filterStatus === 'pending' ? (
+                  <>
+                    <thead className="bg-yellow-400">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Volunteer Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Job Title
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Job Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          Applied At
+                        </th>
+                      </tr>
+                    </thead>
+                  </>
+                ) : (
+                  <thead className="bg-green-600">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                        Volunteer Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                        Job Title
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                        Job Category
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                        Category
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">Status</th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                        Applied At
+                      </th>
+                    </tr>
+                  </thead>
+                )}
                 <tbody className="bg-white divide-y divide-gray-200">
                   {applications.map((app) => (
                     <tr
@@ -257,20 +280,16 @@ export default function ManageVolunteers() {
             ) : (
               <div className="space-y-2">
                 <p>
-                  <span className="font-semibold">Name:</span>{' '}
-                  {volunteerDetails.name}
+                  <span className="font-semibold">Name:</span> {volunteerDetails.name}
                 </p>
                 <p>
-                  <span className="font-semibold">Email:</span>{' '}
-                  {volunteerDetails.email}
+                  <span className="font-semibold">Email:</span> {volunteerDetails.email}
                 </p>
                 <p>
-                  <span className="font-semibold">Description:</span>{' '}
-                  {volunteerDetails.description}
+                  <span className="font-semibold">Description:</span> {volunteerDetails.description}
                 </p>
                 <p>
-                  <span className="font-semibold">Experiences:</span>{' '}
-                  {volunteerDetails.experiences}
+                  <span className="font-semibold">Experiences:</span> {volunteerDetails.experiences}
                 </p>
               </div>
             )}
@@ -279,9 +298,7 @@ export default function ManageVolunteers() {
             <div className="mt-6 space-x-4">
               {selectedApplication.status !== 'approved' && (
                 <button
-                  onClick={() =>
-                    updateApplicationStatus(selectedApplication.id, 'approved')
-                  }
+                  onClick={() => updateApplicationStatus(selectedApplication.id, 'approved')}
                   disabled={updatingStatus}
                   className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
                 >
@@ -290,9 +307,7 @@ export default function ManageVolunteers() {
               )}
               {selectedApplication.status !== 'rejected' && (
                 <button
-                  onClick={() =>
-                    updateApplicationStatus(selectedApplication.id, 'rejected')
-                  }
+                  onClick={() => updateApplicationStatus(selectedApplication.id, 'rejected')}
                   disabled={updatingStatus}
                   className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
                 >
@@ -304,14 +319,10 @@ export default function ManageVolunteers() {
             {/* Volunteer Activity Hours (only for approved applications) */}
             {selectedApplication.status === 'approved' && (
               <div className="mt-8">
-                <h3 className="text-xl font-bold mb-4">
-                  Add Volunteer Activity Hours
-                </h3>
+                <h3 className="text-xl font-bold mb-4">Add Volunteer Activity Hours</h3>
                 <form onSubmit={submitVolunteerActivity} className="space-y-4">
                   <div>
-                    <label className="block mb-1 font-semibold">
-                      Date Worked
-                    </label>
+                    <label className="block mb-1 font-semibold">Date Worked</label>
                     <input
                       type="date"
                       value={activityForm.date_worked}
@@ -327,9 +338,7 @@ export default function ManageVolunteers() {
                   </div>
                   <div className="flex space-x-4">
                     <div className="flex-1">
-                      <label className="block mb-1 font-semibold">
-                        Start Time
-                      </label>
+                      <label className="block mb-1 font-semibold">Start Time</label>
                       <input
                         type="time"
                         value={activityForm.start}
@@ -344,9 +353,7 @@ export default function ManageVolunteers() {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="block mb-1 font-semibold">
-                        End Time
-                      </label>
+                      <label className="block mb-1 font-semibold">End Time</label>
                       <input
                         type="time"
                         value={activityForm.end}
@@ -361,17 +368,13 @@ export default function ManageVolunteers() {
                       />
                     </div>
                   </div>
-                  {activityMessage && (
-                    <p className="text-sm text-green-600">{activityMessage}</p>
-                  )}
+                  {activityMessage && <p className="text-sm text-green-600">{activityMessage}</p>}
                   <button
                     type="submit"
                     disabled={submittingActivity}
                     className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
                   >
-                    {submittingActivity
-                      ? 'Submitting...'
-                      : 'Submit Activity Hours'}
+                    {submittingActivity ? 'Submitting...' : 'Submit Activity Hours'}
                   </button>
                 </form>
               </div>
