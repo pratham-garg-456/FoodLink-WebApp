@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import NavbarFoodbank from './NavbarFoodbank';
 import HomeNavbar from './HomeNavbar';
 import NavbarIndividual from './NavbarIndividual';
@@ -11,17 +10,16 @@ const Navbar = () => {
   const [userType, setUserType] = useState(null);
   const router = useRouter();
 
-  useEffect(() => {
-    // Fetch user role from localStorage
-    const fetchUser = () => {
-      const userRole = localStorage.getItem('userRole');
-      console.log('User Role:', userRole);
-      setUserType(userRole); // Directly setting the role from storage
-    };
+  const fetchUser = () => {
+    const userRole = localStorage.getItem('userRole');
+    console.log('User Role:', userRole);
+    setUserType(userRole);
+  };
 
+  useEffect(() => {
     fetchUser();
 
-    // Listen for localStorage changes (Note: Only works across tabs)
+    // Listen for localStorage changes (only across tabs)
     const handleStorageChange = (event) => {
       if (event.key === 'userRole') {
         fetchUser();
@@ -29,10 +27,17 @@ const Navbar = () => {
     };
     window.addEventListener('storage', handleStorageChange);
 
+    // Listen for route changes to update navbar
+    const handleRouteChange = () => {
+      fetchUser();
+    };
+    router.events.on('routeChangeComplete', handleRouteChange);
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      router.events.off('routeChangeComplete', handleRouteChange);
     };
-  }, []);
+  }, [router]);
 
   // Route Matching
   const routes = {
