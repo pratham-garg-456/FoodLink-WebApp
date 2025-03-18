@@ -553,6 +553,7 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         start = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
 
         end = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
+        
         # Create the event
         new_event = Event(
             foodbank_id=foodbank_id,
