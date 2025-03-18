@@ -3,7 +3,8 @@ import FoodBankList from '../components/FoodBankList';
 import Map from '../components/Map';
 import mapboxgl from 'mapbox-gl';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ'; 
+mapboxgl.accessToken =
+  'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
 const FindBankPage = ({ foodBanks }) => {
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
@@ -33,7 +34,7 @@ const FindBankPage = ({ foodBanks }) => {
       if (data.routes && data.routes[0]) {
         const route = data.routes[0].geometry; // GeoJSON geometry of the route
         const steps = data.routes[0].legs[0].steps; // Navigation steps
-        setDirections({ steps, route }); 
+        setDirections({ steps, route });
       } else {
         alert('No directions found.');
       }
@@ -84,9 +85,24 @@ const FindBankPage = ({ foodBanks }) => {
 
 export async function getServerSideProps() {
   const foodBanks = [
-    { name: 'Daily Bread Food Bank', address: '191 New Toronto St, Toronto, ON M8V 2E7', lat: 43.635417, lng: -79.535421 },
-    { name: 'North York Harvest Food Bank', address: '116 Industry St, Toronto, ON M6M 4L8', lat: 43.763619, lng: -79.481751 },
-    { name: 'Scarborough Centre for Healthy Communities', address: '629 Markham Rd, Toronto, ON M1H 2A4', lat: 43.7805, lng: -79.2273 },
+    {
+      name: 'Daily Bread Food Bank',
+      address: '191 New Toronto St, Toronto, ON M8V 2E7',
+      lat: 43.635417,
+      lng: -79.535421,
+    },
+    {
+      name: 'North York Harvest Food Bank',
+      address: '116 Industry St, Toronto, ON M6M 4L8',
+      lat: 43.763619,
+      lng: -79.481751,
+    },
+    {
+      name: 'Scarborough Centre for Healthy Communities',
+      address: '629 Markham Rd, Toronto, ON M1H 2A4',
+      lat: 43.7805,
+      lng: -79.2273,
+    },
   ];
 
   return {

@@ -48,7 +48,10 @@ const AvailableJobs = () => {
                 await Promise.all(
                     data.application.map(async (app) => {
                         try {
+                        
+                            
                             const jobResponse = await axios.get(
+                                // ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/job/${app.job_id}
                                 `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/job/${app.job_id}`,
                                 {
                                     headers: {
@@ -56,6 +59,7 @@ const AvailableJobs = () => {
                                     },
                                 }
                             );
+                            
                             jobsData[app.job_id] = jobResponse.data.job; // ✅ Store only job data
                         } catch (error) {
                             console.error(`Error fetching job details for job ID ${app.job_id}:`, error);

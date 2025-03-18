@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import FoodBankList from '@/components/FoodBankList';
 import Map from '@/components/Map';
+import mapboxgl from 'mapbox-gl';
 
-const FindBankPage = ({ foodBanks }) => {
+mapboxgl.accessToken =
+  'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
+
+export default function FindDropOffLocation({ foodBanks }) {
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
   const [directions, setDirections] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -20,7 +24,7 @@ const FindBankPage = ({ foodBanks }) => {
 
     const userCoords = userLocation;
     const foodBankCoords = [foodBank.lng, foodBank.lat];
-    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`;
+    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
     try {
       const response = await fetch(directionsUrl);
@@ -39,7 +43,7 @@ const FindBankPage = ({ foodBanks }) => {
     }
   };
 
-  // Fetch the user's location on component mount
+  // Get user location on mount
   useEffect(() => {
     if (!userLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -49,16 +53,16 @@ const FindBankPage = ({ foodBanks }) => {
         },
         (error) => {
           console.error('Error fetching location:', error);
-          alert('Could not fetch your location.');
+          alert('Could not fetch user location.');
         }
       );
     }
   }, [userLocation]);
 
   return (
-    <div className="flex flex-col md:flex-row h-[85vh] w-full">
-      {/* Food Bank List Panel */}
-      <div className="md:w-1/3 p-4 bg-gray-50 overflow-y-auto border-r border-gray-200">
+    <div style={{ display: 'flex', height: '85vh', width: '95%' }}>
+      {/* Left Panel: Food Bank List */}
+      <div style={{ width: '30%', padding: '1rem', backgroundColor: '#f7f7f7', overflowY: 'auto' }}>
         <FoodBankList
           foodBanks={foodBanks}
           onSelect={handleSelectFoodBank}
@@ -66,8 +70,8 @@ const FindBankPage = ({ foodBanks }) => {
         />
       </div>
 
-      {/* Map Panel */}
-      <div className="flex-1">
+      {/* Right Panel: Map */}
+      <div style={{ flex: 1 }}>
         <Map
           foodBanks={foodBanks}
           selectedFoodBank={selectedFoodBank}
@@ -78,10 +82,9 @@ const FindBankPage = ({ foodBanks }) => {
       </div>
     </div>
   );
-};
+}
 
 export async function getServerSideProps() {
-  // Replace or extend the foodBanks list as needed.
   const foodBanks = [
     {
       name: 'Daily Bread Food Bank',
@@ -109,5 +112,3 @@ export async function getServerSideProps() {
     },
   };
 }
-
-export default FindBankPage;
