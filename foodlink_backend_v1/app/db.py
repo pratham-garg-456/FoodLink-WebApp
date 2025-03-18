@@ -10,7 +10,6 @@ from app.models import (
     appointment,
     donation,
     job,
-    event_job,
     volunter_activity,
     food_item,
 )
@@ -36,9 +35,7 @@ async def init_db():
             appointment.Appointment,
             donation.Donation,
             job.Job,
-            event_job.EventJob,
             volunter_activity.VolunteerActivity,
-            application.EventApplication,
             food_item.FoodItem,
         ],
     )
