@@ -30,7 +30,8 @@ export default function DonatePage() {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`,
         {
-          amount, // Only sending "amount" now
+          // foodbank_id: "67c899e513c7049112e61d73",
+          amount: amount, // Only sending "amount" now
         },
         {
           headers: { Authorization: `Bearer ${token}` },

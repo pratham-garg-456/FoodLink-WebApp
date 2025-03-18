@@ -12,13 +12,10 @@
   "dependencies": {
     "@next/env": "^15.1.6",
     "@react-google-maps/api": "^2.20.5",
-<<<<<<< Updated upstream
     "axios": "^1.7.9",
     "chart.js": "^4.4.8",
-=======
     "@stripe/stripe-js": "^6.1.0",
     "axios": "^1.8.3",
->>>>>>> Stashed changes
     "cookie": "^1.0.2",
     "dotenv": "^16.4.7",
     "js-cookie": "^3.0.5",
@@ -32,11 +29,8 @@
     "react-icons": "^5.4.0",
     "react-leaflet": "^5.0.0",
     "react-map-gl": "^7.1.8",
-<<<<<<< Updated upstream
-    "react-modal": "^3.16.3"
-=======
+    "react-modal": "^3.16.3",
     "stripe": "^17.7.0"
->>>>>>> Stashed changes
   },
   "devDependencies": {
     "eslint": "^9.18.0",
