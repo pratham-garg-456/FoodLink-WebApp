@@ -61,7 +61,7 @@ const FoodBankInventory = () => {
       setError(null);
       try {
         const response = await fetch(
-          `http://localhost:8000/api/v1/foodlink/individual/inventory/${foodBank}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/individual/inventory/${foodBank}`,
           {
             method: 'GET',
             headers: {

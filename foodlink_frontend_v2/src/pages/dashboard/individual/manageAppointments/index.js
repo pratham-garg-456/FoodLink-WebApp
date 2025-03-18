@@ -49,7 +49,7 @@ const IndividualDashboard = () => {
       }
 
       const response = await fetch(
-        'http://localhost:8000/api/v1/foodlink/individual/appointments',
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/individual/appointments`,
         {
           method: 'GET',
           headers: {

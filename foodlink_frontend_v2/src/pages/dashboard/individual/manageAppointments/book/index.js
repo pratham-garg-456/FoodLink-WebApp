@@ -47,7 +47,9 @@ const BookAppointment = () => {
     const fetchFoodbanks = async () => {
       // updated from fetchFoodBanks to fetchFoodbanks
       try {
-        const response = await fetch('http://localhost:8000/api/v1/foodlink/misc/users');
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+        );
         const data = await response.json();
         const filteredFoodbanks = data.users.filter((user) => user.role === 'foodbank'); // updated from foodBanks to foodbanks
         setFoodbanks(filteredFoodbanks); // updated from setFoodBanks to setFoodbanks
@@ -62,7 +64,7 @@ const BookAppointment = () => {
         if (!token) return;
 
         const response = await fetch(
-          'http://localhost:8000/api/v1/foodlink/individual/appointments',
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/individual/appointments`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
