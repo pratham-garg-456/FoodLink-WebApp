@@ -324,6 +324,7 @@ const Events = () => {
         );
         setNotification({ message: 'Event updated successfully', type: 'success' });
       } else {
+      
         await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event`,
           requestBody,
@@ -395,10 +396,6 @@ const Events = () => {
         });
       }
     }
-  };
-
-  const openVolunteerModal = (event) => {
-    setVolunteerModalEvent(event);
   };
 
   const openInventoryModal = (event) => {
