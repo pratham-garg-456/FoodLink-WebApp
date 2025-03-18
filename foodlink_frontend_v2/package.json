@@ -12,7 +12,6 @@
   "dependencies": {
     "@next/env": "^15.1.6",
     "@react-google-maps/api": "^2.20.5",
-    "axios": "^1.7.9",
     "chart.js": "^4.4.8",
     "@stripe/stripe-js": "^6.1.0",
     "axios": "^1.8.3",
