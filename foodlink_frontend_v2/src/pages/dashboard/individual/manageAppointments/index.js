@@ -9,13 +9,8 @@ const IndividualDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const formatDate = (date) => {
-    // Create a Date object from the input UTC date
     const dateObj = new Date(date);
-
-    // Adjust the time by subtracting 4 hours to convert from UTC to your local time (UTC-4)
     dateObj.setHours(dateObj.getHours() - 4);
-
-    // Use toLocaleString to format the date in your local time zone
     return dateObj.toLocaleString('en-US');
   };
 
@@ -64,7 +59,13 @@ const IndividualDashboard = () => {
       }
 
       const data = await response.json();
-      setAppointments(data.appointments);
+
+      // Filter appointments to only include 'Scheduled' or 'Rescheduled' ones
+      const filteredAppointments = data.appointments.filter(
+        (appointment) => appointment.status === 'scheduled' || appointment.status === 'rescheduled'
+      );
+
+      setAppointments(filteredAppointments);
     } catch (err) {
       setError(err.message);
     } finally {

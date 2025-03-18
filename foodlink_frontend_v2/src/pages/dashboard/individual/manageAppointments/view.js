@@ -9,13 +9,8 @@ const ViewAppointments = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // To manage modal visibility
 
   const formatDate = (date) => {
-    // Create a Date object from the input UTC date
     const dateObj = new Date(date);
-
-    // Adjust the time by subtracting 4 hours to convert from UTC to your local time (UTC-4)
     dateObj.setHours(dateObj.getHours() - 4);
-
-    // Use toLocaleString to format the date in your local time zone
     return dateObj.toLocaleString('en-US');
   };
 
@@ -23,28 +18,22 @@ const ViewAppointments = () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
-      ); // Replace with your actual API endpoint
+      );
       if (!response.ok) throw new Error('Failed to fetch users');
 
       const data = await response.json();
-      const users = data.users; // Extract the 'users' array from the response
-      console.log('users in Index individual:', users);
-      const matchedUser = users.find((user) => user.id === userId);
+      const matchedUser = data.users.find((user) => user.id === userId);
       return matchedUser ? matchedUser.name : userId.slice(0, 5);
     } catch (error) {
       console.error('Error fetching users:', error);
-      return 'Guest'; // Default name if there's an error
+      return 'Guest';
     }
   };
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        console.log('Fetching appointments...');
-
-        const token = localStorage.getItem('accessToken'); // Get token from localStorage
-        console.log('Retrieved token:', token);
-
+        const token = localStorage.getItem('accessToken');
         if (!token) {
           setError('Unauthorized. Please log in.');
           setLoading(false);
@@ -62,22 +51,16 @@ const ViewAppointments = () => {
           }
         );
 
-        console.log('Response status:', response.status);
-
-        if (!response.ok) {
+        if (!response.ok)
           throw new Error(`Failed to fetch appointments. Status: ${response.status}`);
-        }
 
         const data = await response.json();
-        console.log('Fetched appointments:', data);
-
-        setAppointments(data.appointments); // Assuming data is an array of appointments
+        setAppointments(data.appointments);
+        console.log('Appoinymeny adata:', data.appointments);
       } catch (err) {
-        console.error('Error fetching appointments:', err.message);
         setError(err.message);
       } finally {
         setLoading(false);
-        console.log('Finished fetching appointments.');
       }
     };
 
@@ -110,7 +93,7 @@ const ViewAppointments = () => {
   };
 
   return (
-    <div className="bg-white p-8 shadow-lg ">
+    <div className="bg-white p-8 shadow-lg">
       <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
         Appointments History
       </h1>
@@ -126,6 +109,7 @@ const ViewAppointments = () => {
               <th className="py-2 px-4 border-b text-left">Food Bank</th>
               <th className="py-2 px-4 border-b text-left">Start Time</th>
               <th className="py-2 px-4 border-b text-left">End Time</th>
+              <th className="py-2 px-4 border-b text-left">Status</th>
               <th className="py-2 px-4 border-b text-left">Actions</th>
             </tr>
           </thead>
@@ -137,6 +121,7 @@ const ViewAppointments = () => {
                 </td>
                 <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
                 <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
+                <td className="py-2 px-4 border-b">{appointment.status}</td>
                 <td className="py-2 px-4 border-b">
                   <button
                     onClick={() => handleViewDetail(appointment)}
