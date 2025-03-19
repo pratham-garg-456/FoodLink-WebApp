@@ -20,7 +20,6 @@ const IndividualDashboard = () => {
 
       const data = await response.json();
       const users = data.users; // Extract the 'users' array from the response
-      console.log('users in Index individual:', users);
       const matchedUser = users.find((user) => user.id === userId);
       return matchedUser ? matchedUser.name : userId.slice(0, 5);
     } catch (error) {
@@ -59,7 +58,7 @@ const IndividualDashboard = () => {
           router.push('/auth/login');
           return;
         }
-        const userId = decodedToken.user.id; // Assuming 'sub' is the user ID
+        const userId = decodedToken.user.id;
         setUserId(userId);
         const username = await getUsername(userId);
         setUserName(username);
@@ -92,7 +91,12 @@ const IndividualDashboard = () => {
       }
 
       const data = await response.json();
-      setAppointments(data.appointments);
+      // Filter appointments to only include 'Scheduled' or 'Rescheduled' ones
+      const filteredAppointments = data.appointments.filter(
+        (appointment) => appointment.status === 'scheduled' || appointment.status === 'rescheduled'
+      );
+      console.log('filetered appoint,smmt:', filteredAppointments);
+      setAppointments(filteredAppointments);
     } catch (err) {
       setError(err.message);
     } finally {

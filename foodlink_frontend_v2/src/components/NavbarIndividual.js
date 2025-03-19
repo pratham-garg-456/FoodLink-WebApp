@@ -23,8 +23,6 @@ const NavbarIndividual = () => {
 
       const data = await response.json();
       const users = data.users; // Extract the 'users' array from the response
-      console.log('users in navbar:', users);
-      console.log('user id in navbar:', userId);
       const matchedUser = users.find((user) => user.id === userId);
 
       return matchedUser ? matchedUser.name : userId.slice(0, 5);
@@ -50,7 +48,6 @@ const NavbarIndividual = () => {
           router.push('/auth/login');
           return;
         }
-        console.log('decoded tokemn:', decodedToken);
         const userId = decodedToken.user.id; // Assuming 'sub' is the user ID
         const username = await getUsername(userId);
         setUserName(username);

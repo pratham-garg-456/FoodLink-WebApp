@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
+import validateToken from '@/utils/validateToken';
 
 const NavbarFoodbank = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [svgColor, setSvgColor] = useState('#000');
+  const [foodbankId, setFoodbankId] = useState('');
   const [foodbankName, setFoodbankName] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navRef = useRef(null); // Ref for the navbar
@@ -15,16 +17,43 @@ const NavbarFoodbank = () => {
 
   const router = useRouter(); // Initialize the router
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setFoodbankName(decodedToken.name || decodedToken.sub.slice(0, 5)); // Use food bank name or first 5 digits of ID
-      } catch (error) {
-        console.error('Invalid token: ', error);
-      }
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/foodlink/misc/users'); // Replace with your actual API endpoint
+      if (!response.ok) throw new Error('Failed to fetch users');
+
+      const data = await response.json();
+      const users = data.users; // Extract the 'users' array from the response
+      const matchedUser = users.find((user) => user.id === userId);
+
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest'; // Default name if there's an error
     }
+  };
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        try {
+          const decodedToken = await validateToken(token);
+          if (!decodedToken) {
+            router.push('/auth/login');
+            return;
+          }
+
+          const userId = decodedToken.user.id; // Assuming 'sub' is the user ID
+          const username = await getUsername(userId);
+          setFoodbankId(userId.slice(0, 5));
+          setFoodbankName(username);
+        } catch (error) {
+          console.error('Invalid token: ', error);
+        }
+      }
+    };
+    fetchUserName();
   }, []);
 
   const openNav = () => {
@@ -42,7 +71,7 @@ const NavbarFoodbank = () => {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.clear();
     router.push('/auth/login');
   };
 
@@ -206,7 +235,7 @@ const NavbarFoodbank = () => {
               className=" flex items-center justify-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer w-full"
               onClick={toggleDropdown}
             >
-              {foodbankName}
+              {foodbankId}
 
               <svg
                 className="w-2.5 h-2.5 ms-2.5"

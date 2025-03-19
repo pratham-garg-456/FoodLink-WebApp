@@ -56,7 +56,6 @@ const ViewAppointments = () => {
 
         const data = await response.json();
         setAppointments(data.appointments);
-        console.log('Appoinymeny adata:', data.appointments);
       } catch (err) {
         setError(err.message);
       } finally {

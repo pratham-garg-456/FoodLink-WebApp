@@ -8,6 +8,7 @@ const ViewAppointments = () => {
   const [allAppointments, setAllAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [foodbankUsernames, setFoodbankUsernames] = useState({});
+  const [individualUsernames, setIndividualUsernames] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -93,16 +94,16 @@ const ViewAppointments = () => {
   }, [statusFilter, allAppointments]);
 
   useEffect(() => {
-    const fetchFoodbankNames = async () => {
+    const fetchIndividualNames = async () => {
       const usernames = {};
       for (const appointment of filteredAppointments) {
-        const foodbankName = await getUsername(appointment.foodbank_id);
-        usernames[appointment.foodbank_id] = foodbankName;
+        const individualUsername = await getUsername(appointment.individual_id);
+        usernames[appointment.individual_id] = individualUsername;
       }
-      setFoodbankUsernames(usernames);
+      setIndividualUsernames(usernames);
     };
 
-    if (filteredAppointments.length > 0) fetchFoodbankNames();
+    if (filteredAppointments.length > 0) fetchIndividualNames();
   }, [filteredAppointments]);
 
   const handleViewDetail = (appointment) => {
@@ -176,7 +177,7 @@ const ViewAppointments = () => {
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Food Bank</th>
+              <th className="py-2 px-4 border-b">Name</th>
               <th className="py-2 px-4 border-b">Start Time</th>
               <th className="py-2 px-4 border-b">End Time</th>
               <th className="py-2 px-4 border-b">Actions</th>
@@ -186,7 +187,7 @@ const ViewAppointments = () => {
             {filteredAppointments.map((appointment) => (
               <tr key={appointment._id}>
                 <td className="py-2 px-4 border-b">
-                  {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
+                  {individualUsernames[appointment.individual_id] || appointment.individual_id}
                 </td>
                 <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
                 <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
