@@ -18,7 +18,9 @@ const NavbarIndividual = () => {
 
   const getUsername = async (userId) => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/foodlink/misc/users'); // Replace with your actual API endpoint
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+      ); // Replace with your actual API endpoint
       if (!response.ok) throw new Error('Failed to fetch users');
 
       const data = await response.json();
