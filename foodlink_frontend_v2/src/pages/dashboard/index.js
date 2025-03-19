@@ -31,9 +31,10 @@ const Dashboard = () => {
         console.log('volunteer dashboard');
         router.push('/dashboard/volunteer');
       }
-      // } else if (decodedToken.role === 'donor') {
-      //   router.push('/dashboard/foodbank/donations');
-      // }
+      if (userRole == 'donor') {
+        console.log('donor dashboard');
+        router.push('/dashboard/donor');
+      }
     } catch (error) {
       console.error('Invalid token: ', error);
       router.push('/login');

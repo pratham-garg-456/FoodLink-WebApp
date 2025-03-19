@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import FoodBankList from '../components/FoodBankList';
-import Map from '../components/Map';
+import FoodBankList from '@/components/FoodBankList';
+import Map from '@/components/Map';
 import mapboxgl from 'mapbox-gl';
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
-const FindBankPage = ({ foodBanks }) => {
+export default function FindDropOffLocation({ foodBanks }) {
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
   const [directions, setDirections] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -24,7 +24,6 @@ const FindBankPage = ({ foodBanks }) => {
 
     const userCoords = userLocation;
     const foodBankCoords = [foodBank.lng, foodBank.lat];
-
     const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
     try {
@@ -44,8 +43,8 @@ const FindBankPage = ({ foodBanks }) => {
     }
   };
 
+  // Get user location on mount
   useEffect(() => {
-    // Fetch the user's location on component mount
     if (!userLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -53,7 +52,7 @@ const FindBankPage = ({ foodBanks }) => {
           setUserLocation(userCoords);
         },
         (error) => {
-          console.error('Error fetching location: ', error);
+          console.error('Error fetching location:', error);
           alert('Could not fetch user location.');
         }
       );
@@ -62,6 +61,7 @@ const FindBankPage = ({ foodBanks }) => {
 
   return (
     <div style={{ display: 'flex', height: '85vh', width: '95%' }}>
+      {/* Left Panel: Food Bank List */}
       <div style={{ width: '30%', padding: '1rem', backgroundColor: '#f7f7f7', overflowY: 'auto' }}>
         <FoodBankList
           foodBanks={foodBanks}
@@ -70,6 +70,7 @@ const FindBankPage = ({ foodBanks }) => {
         />
       </div>
 
+      {/* Right Panel: Map */}
       <div style={{ flex: 1 }}>
         <Map
           foodBanks={foodBanks}
@@ -81,7 +82,7 @@ const FindBankPage = ({ foodBanks }) => {
       </div>
     </div>
   );
-};
+}
 
 export async function getServerSideProps() {
   const foodBanks = [
@@ -111,5 +112,3 @@ export async function getServerSideProps() {
     },
   };
 }
-
-export default FindBankPage;

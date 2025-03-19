@@ -95,7 +95,6 @@ const IndividualDashboard = () => {
       const filteredAppointments = data.appointments.filter(
         (appointment) => appointment.status === 'scheduled' || appointment.status === 'rescheduled'
       );
-      console.log('filetered appoint,smmt:', filteredAppointments);
       setAppointments(filteredAppointments);
     } catch (err) {
       setError(err.message);
