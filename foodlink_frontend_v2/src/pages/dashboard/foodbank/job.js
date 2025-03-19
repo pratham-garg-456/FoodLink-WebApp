@@ -114,6 +114,7 @@ export default function JobsPage() {
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
     const utcDate = new Date(isoString + 'Z');
+    utcDate.setHours(utcDate.getHours() + 4)
     return utcDate.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',

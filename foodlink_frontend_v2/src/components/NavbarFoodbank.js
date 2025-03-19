@@ -193,7 +193,7 @@ const NavbarFoodbank = () => {
             <div className="">
               <Link
                 className={` md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center `}
-                href="/dashboard/foodbank/events"
+                href="/dashboard/foodbank/inventory"
               >
                 Manage Inventory
               </Link>
