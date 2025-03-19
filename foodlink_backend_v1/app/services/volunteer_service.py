@@ -81,10 +81,11 @@ async def retrieve_volunteer_activity_in_db(volunteer_id):
         if not application_ids:
             return []
         for app_id in application_ids:
-            activity = await VolunteerActivity.find_one(
+            activities = await VolunteerActivity.find(
                 VolunteerActivity.application_id == app_id
-            )
-            if activity:
+            ).to_list()
+
+            for activity in activities:
                 activity_dict = activity.model_dump() | {"id": str(activity.id)}
                 volunteer_activity_list.append(activity_dict)
 
@@ -143,7 +144,7 @@ async def retrieve_specific_job_in_db(job_id: str):
 
         if job.status != "available":
             return None
-        
+
         foodbank = await User.find_one(User.id == PydanticObjectId(job.foodbank_id))
         foodbank_name = foodbank.name if foodbank else "Unknown"
 

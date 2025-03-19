@@ -361,6 +361,7 @@ const Events = () => {
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
+    date.setHours(date.getHours() + 4)
     return date.toTimeString().split(' ')[0].slice(0, 5);
   };
 
@@ -561,11 +562,11 @@ const Events = () => {
                     </p>
                     <p>
                       <strong>From:</strong>{' '}
-                      {new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(event.start_time)}
                     </p>
                     <p>
                       <strong>To:</strong>{' '}
-                      {new Date(event.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(event.end_time)}
                     </p>
                     <p>
                       <strong>Location:</strong> {event.location}

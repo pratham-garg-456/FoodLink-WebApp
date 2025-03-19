@@ -134,6 +134,7 @@ export default function ManageVolunteers() {
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
     const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
+    utcDate.setHours(utcDate.getHours() + 4)
     return utcDate.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',
