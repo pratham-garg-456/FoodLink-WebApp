@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("/donations")
 async def create_donation(
-    payload: dict = Depends(jwt_required), donation_data: dict = Body(...)
+    payload: dict = Depends(jwt_required), donation_data: dict = {}
 ):
     """
     API Endpoint: Allow only donors to make a monetary donation.
@@ -20,7 +20,6 @@ async def create_donation(
     if payload.get("role") != "donor":
         raise HTTPException(status_code=401, detail="Only donors can make donations")
 
-    # Only require "amount" now
     required_key = ["amount", "foodbank_id"]
 
     # Validate required keys

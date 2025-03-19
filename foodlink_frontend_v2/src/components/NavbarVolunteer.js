@@ -42,7 +42,7 @@ const NavbarIndividual = () => {
   };
 
   const handleSignOut = () => {
-    localStorage.removeItem('accessToken');
+    localStorage.clear();
     router.push('/auth/login');
   };
 

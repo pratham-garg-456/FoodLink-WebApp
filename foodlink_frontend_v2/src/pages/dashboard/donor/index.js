@@ -7,6 +7,24 @@ import donorImage from '../../../../public/images/donation-portal.jpg';
 const DonorDashboard = () => {
   const router = useRouter();
   const [userId, setUserId] = useState('');
+  const [donorUsernames, setDonorUsernames] = useState('');
+
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+      ); // Replace with your actual API endpoint
+      if (!response.ok) throw new Error('Failed to fetch users');
+
+      const data = await response.json();
+      const users = data.users; // Extract the 'users' array from the response
+      const matchedUser = users.find((user) => user.id === userId);
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest'; // Default name if there's an error
+    }
+  };
 
   useEffect(() => {
     const checkToken = async () => {
@@ -15,21 +33,23 @@ const DonorDashboard = () => {
         router.push('/auth/login');
         return;
       }
-      const decodedToken = await validateToken(token);
-      if (decodedToken.error) {
-        console.error('Invalid token:', decodedToken.error);
-        router.push('/auth/login');
-        return;
-      }
-      if (decodedToken.user?.id) {
+      try {
+        const decodedToken = await validateToken(token);
+        if (decodedToken.error) {
+          console.error('Invalid token:', decodedToken.error);
+          router.push('/auth/login');
+          return;
+        }
+        const userId = decodedToken.user.id;
         setUserId(decodedToken.user.id.slice(0, 5));
-      }
-      if (decodedToken.user.name !== 'donor') {
-        console.error('Invalid user role:', decodedToken.role);
+        const username = await getUsername(userId);
+        setDonorUsernames(username);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
         router.push('/auth/login');
-        return;
       }
     };
+
     checkToken();
   }, [router]);
 
@@ -39,7 +59,7 @@ const DonorDashboard = () => {
         {/* Left Section */}
         <div className="order-last md:order-first md:w-4/6 md:pr-4">
           <h1 className="text-2xl md:text-5xl text-center mt-5 font-bold text-gray-900 md:text-left mb-7">
-            Welcome to the Donor Dashboard
+            Welcome to the Donor Dashboard, {donorUsernames}
           </h1>
           <p className="text-lg text-gray-700 text-center md:text-left mb-4">
             Your Donor ID: <span className="font-mono font-bold">{userId}</span>

@@ -5,13 +5,15 @@ from app.services.food_bank_service import (
     add_a_new_job_in_db,
     add_a_new_event_job_in_db,
     list_foodbank_job_in_db,
-    list_event_job_in_db
+    list_event_job_in_db,
+    update_existing_job_info_in_db,
 )
 
 from app.models.event import Event
 from beanie import PydanticObjectId
 
 router = APIRouter()
+
 
 @router.post("/job")
 async def post_a_new_job(payload: dict = Depends(jwt_required), job_data: dict = {}):
@@ -117,7 +119,9 @@ async def post_a_new_event_job(
         )
 
     # Add a new job in db
-    job = await add_a_new_event_job_in_db(foodbank_id=payload.get("sub"),job_data=job_data)
+    job = await add_a_new_event_job_in_db(
+        foodbank_id=payload.get("sub"), job_data=job_data
+    )
 
     return {"status": "success", "job": job}
 
@@ -139,6 +143,7 @@ async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
 
     return {"status": "success", "jobs": jobs}
 
+
 @router.get("/event-jobs")
 async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
     """
@@ -155,3 +160,54 @@ async def get_list_of_jobs(payload: dict = Depends(jwt_required)):
     jobs = await list_event_job_in_db()
 
     return {"status": "success", "jobs": jobs}
+
+
+@router.put("/job/{job_id}")
+async def update_job_information(
+    job_id: str | None, payload: dict = Depends(jwt_required), job_data: dict = {}
+):
+    """
+    Allow foodbank admin to update the existing job information.
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param job_id: Used to identify the specific job
+    """
+
+    # Validate if the request is made from Foodbank admin
+    if payload.get("role") != "foodbank":
+        raise HTTPException(
+            status_code=401, detail="Only FoodBank admin can update the existing job"
+        )
+
+    # Validate the job data
+    required_key: list = [
+        "title",
+        "description",
+        "location",
+        "category",
+        "deadline",
+        "status",
+    ]
+
+    # Start validation those keys
+    for key in required_key:
+        if not job_data.get(key):
+            raise HTTPException(
+                status_code=400, detail=f"{key} is required and cannot be empty"
+            )
+
+    # Validate if the foodbank ID is a valid registered foodbank
+    foodbank = await get_user_by_id(id=payload.get("sub"))
+
+    if not foodbank:
+        raise HTTPException(status_code=404, detail=f"Foodbank Not Found!")
+
+    # Validate the given status if it is available or unavailable
+    if job_data["status"] != "available" and job_data["status"] != "unavailable":
+        raise HTTPException(
+            status_code=400,
+            detail="Status of a job must be either available or unavailable!",
+        )
+
+    updated_job = await update_existing_job_info_in_db(job_id=job_id, job_data=job_data)
+    
+    return {"status": "success", "job": updated_job}

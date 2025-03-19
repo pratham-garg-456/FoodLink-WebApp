@@ -1,21 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Image from 'next/image';
+import { useAtom } from 'jotai';
 import donateNow from '../../../../public/images/Donatenow.jpg';
+import { selectedFoodbankAtom } from '../../../../store';
 
 export default function DonatePage() {
   const router = useRouter();
   const [amount, setAmount] = useState(50);
-  const [giftFrequency, setGiftFrequency] = useState('One Time');
+
   const [errorMessage, setErrorMessage] = useState('');
+  const [foodbanks, setFoodbanks] = useState([]);
+  const [selectedFoodbank, setSelectedFoodbank] = useAtom(selectedFoodbankAtom);
+
+  // Dummy Card Details State
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+
+  useEffect(() => {
+    const fetchFoodbanks = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+        );
+        const data = await response.json();
+        const filteredFoodbanks = data.users.filter((user) => user.role === 'foodbank');
+        setFoodbanks(filteredFoodbanks);
+      } catch (error) {
+        console.error('Error fetching foodbanks:', error);
+      }
+    };
+    fetchFoodbanks();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
+    // Validate Inputs
     if (amount <= 0) {
       setErrorMessage('Donation amount must be greater than zero.');
+      return;
+    }
+    if (!selectedFoodbank) {
+      setErrorMessage('Please select a food bank.');
+      return;
+    }
+    if (!/^\d{16}$/.test(cardNumber)) {
+      setErrorMessage('Invalid card number. Enter a 16-digit number.');
+      return;
+    }
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate)) {
+      setErrorMessage('Invalid expiry date. Format: MM/YY.');
+      return;
+    }
+    if (!/^\d{3}$/.test(cvv)) {
+      setErrorMessage('Invalid CVV. Enter a 3-digit number.');
       return;
     }
 
@@ -26,12 +68,14 @@ export default function DonatePage() {
         return;
       }
 
-      // POST to your create_donation endpoint
+      console.log('selected foodbank:', selectedFoodbank);
+
+      // POST donation details
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`,
         {
-          // foodbank_id: "67c899e513c7049112e61d73",
-          amount: amount, // Only sending "amount" now
+          foodbank_id: selectedFoodbank,
+          amount: amount,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -39,7 +83,7 @@ export default function DonatePage() {
       );
 
       if (response.data.status === 'success') {
-        router.push('/dashboard/donor/payment');
+        router.push('/dashboard/donor/paymentSuccess');
       }
     } catch (error) {
       console.error('Error creating donation:', error);
@@ -54,8 +98,8 @@ export default function DonatePage() {
       className="bg-white flex items-center justify-center p-8"
       style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}
     >
-      <div className="flex flex-col md:flex-row w-[60vw] h-[60vh] bg-white shadow-md rounded">
-        {/* Left Column*/}
+      <div className="flex flex-col md:flex-row w-[60vw] h-[75vh] bg-white shadow-md rounded">
+        {/* Left Column */}
         <div className="w-full md:w-1/2 relative">
           <Image
             src={donateNow}
@@ -73,6 +117,23 @@ export default function DonatePage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label className="block text-gray-600">Food Bank</label>
+              <select
+                value={selectedFoodbank}
+                onChange={(e) => setSelectedFoodbank(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select a Food Bank</option>
+                {foodbanks.map((foodbank) => (
+                  <option key={foodbank.id} value={foodbank.id}>
+                    {foodbank.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block font-semibold mb-1">Donation Amount ($)</label>
               <input
                 type="number"
@@ -84,21 +145,39 @@ export default function DonatePage() {
               />
             </div>
 
+            {/* Card Details Section */}
             <div>
-              <label className="block font-semibold mb-1">Gift Frequency</label>
-              <div className="flex gap-4 mt-2">
-                {['One Time', 'Monthly', 'Annually'].map((freq) => (
-                  <label key={freq} className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      name="frequency"
-                      value={freq}
-                      checked={giftFrequency === freq}
-                      onChange={(e) => setGiftFrequency(e.target.value)}
-                    />
-                    {freq}
-                  </label>
-                ))}
+              <label className="block font-semibold mb-1">Card Number</label>
+              <input
+                type="text"
+                className="w-full border p-2 rounded"
+                placeholder="1234 5678 9012 3456"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value.replace(/\s/g, ''))}
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <div className="w-1/2">
+                <label className="block font-semibold mb-1">Expiry Date (MM/YY)</label>
+                <input
+                  type="text"
+                  className="w-full border p-2 rounded"
+                  placeholder="MM/YY"
+                  value={expiryDate}
+                  onChange={(e) => setExpiryDate(e.target.value)}
+                />
+              </div>
+
+              <div className="w-1/2">
+                <label className="block font-semibold mb-1">CVV</label>
+                <input
+                  type="text"
+                  className="w-full border p-2 rounded"
+                  placeholder="123"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                />
               </div>
             </div>
 
@@ -114,7 +193,7 @@ export default function DonatePage() {
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Next
+                Donate
               </button>
             </div>
           </form>

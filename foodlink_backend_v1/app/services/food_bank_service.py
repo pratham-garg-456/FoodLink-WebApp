@@ -553,6 +553,7 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         start = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
 
         end = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
+        
         # Create the event
         new_event = Event(
             foodbank_id=foodbank_id,
@@ -1006,6 +1007,7 @@ async def update_appointment_status_in_db(appointment_id: str, updated_status: s
             detail=f"An error occured while updating the appointment in DB: {e}",
         )
 
+
 async def get_all_donations(foodbank_id: str):
 
     donation_list = []
@@ -1028,87 +1030,105 @@ async def get_all_donations(foodbank_id: str):
             detail=f"An error occurred while retrieving a list of donations in db: {str(e)}",
         )
 
-async def search_donations(
-    foodbank_id: str,
-    donor_id: Optional[str] = None,
-    donation_id: Optional[str] = None,
-    start_time: Optional[datetime] = None,
-    end_time: Optional[datetime] = None,
-    status: Optional[str] = None,
-    min_amount: Optional[float] = None,
-    max_amount: Optional[float] = None
-) -> List[Donation]:
-    query = {"foodbank_id": foodbank_id}
 
-    if donor_id:
-        query["donor_id"] = donor_id
-    if donation_id:
-        try:
-            donation_id = PydanticObjectId(donation_id)
-            query["_id"] = donation_id
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Invalid donation_id: {str(e)}")
-    if start_time:
-        query["created_at"] = {"$gte": start_time}
-    if end_time:
-        if "created_at" in query:
-            query["created_at"]["$lte"] = end_time
-        else:
-            query["created_at"] = {"$lte": end_time}
-    if status:
-        query["status"] = status
-    if min_amount is not None:
-        query["amount"] = {"$gte": min_amount}
-    if max_amount is not None:
-        if "amount" in query:
-            query["amount"]["$lte"] = max_amount
-        else:
-            query["amount"] = {"$lte": max_amount}
+# async def search_donations(
+#     foodbank_id: str,
+#     donor_id: Optional[str] = None,
+#     donation_id: Optional[str] = None,
+#     start_time: Optional[datetime] = None,
+#     end_time: Optional[datetime] = None,
+#     status: Optional[str] = None,
+#     min_amount: Optional[float] = None,
+#     max_amount: Optional[float] = None,
+# ) -> List[Donation]:
+#     query = {"foodbank_id": foodbank_id}
 
-    try:
-        donations = await Donation.find(query).to_list()
-        donation_list = [donation.model_dump() for donation in donations]
-        for donation in donation_list:
-            donation["id"] = str(donation["id"])
-        return donation_list
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred while searching donations: {str(e)}")
-       
-# OPTIONAL
-async def get_donation_by_status(foodbank_id: str, status: str):
-    """
-    Retrieve all donation records from the database by status.
-    :return: List of donations.
-    """
-    donation_list = []
-    try:
-        donations = await Donation.find(Donation.foodbank_id == foodbank_id, Donation.status == status).to_list()
-        for donation in donations:
-            donation = donation.model_dump()
-            donation["id"] = str(donation["id"])
-            donation_list.append(donation)
+#     if donor_id:
+#         query["donor_id"] = donor_id
+#     if donation_id:
+#         try:
+#             donation_id = PydanticObjectId(donation_id)
+#             query["_id"] = donation_id
+#         except Exception as e:
+#             raise HTTPException(
+#                 status_code=400, detail=f"Invalid donation_id: {str(e)}"
+#             )
+#     if start_time:
+#         query["created_at"] = {"$gte": start_time}
+#     if end_time:
+#         if "created_at" in query:
+#             query["created_at"]["$lte"] = end_time
+#         else:
+#             query["created_at"] = {"$lte": end_time}
+#     if status:
+#         query["status"] = status
+#     if min_amount is not None:
+#         query["amount"] = {"$gte": min_amount}
+#     if max_amount is not None:
+#         if "amount" in query:
+#             query["amount"]["$lte"] = max_amount
+#         else:
+#             query["amount"] = {"$lte": max_amount}
 
-        return donation_list
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
-    
-# OPTIONAL
-async def get_donation_by_donor_id_and_status(donor_id: str, status: str):
-    """
-    Retrieve all donation records from the database by donor ID and status.
-    :return: List of donations.
-    """
-    donation_list = []
-    try:
-        donations = await Donation.find(Donation.donor_id == donor_id, Donation.status == status).to_list()
-        for donation in donations:
-            donation = donation.model_dump()
-            donation["id"] = str(donation["id"])
-            donation_list.append(donation)
+#     try:
+#         donations = await Donation.find(query).to_list()
+#         donation_list = [donation.model_dump() for donation in donations]
+#         for donation in donation_list:
+#             donation["id"] = str(donation["id"])
+#         return donation_list
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=400,
+#             detail=f"An error occurred while searching donations: {str(e)}",
+#         )
 
-        return donation_list
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"An error occurred while retrieving a list of donations in db: {str(e)}")
+
+# # OPTIONAL
+# async def get_donation_by_status(foodbank_id: str, status: str):
+#     """
+#     Retrieve all donation records from the database by status.
+#     :return: List of donations.
+#     """
+#     donation_list = []
+#     try:
+#         donations = await Donation.find(
+#             Donation.foodbank_id == foodbank_id, Donation.status == status
+#         ).to_list()
+#         for donation in donations:
+#             donation = donation.model_dump()
+#             donation["id"] = str(donation["id"])
+#             donation_list.append(donation)
+
+#         return donation_list
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=400,
+#             detail=f"An error occurred while retrieving a list of donations in db: {str(e)}",
+#         )
+
+
+# # OPTIONAL
+# async def get_donation_by_donor_id_and_status(donor_id: str, status: str):
+#     """
+#     Retrieve all donation records from the database by donor ID and status.
+#     :return: List of donations.
+#     """
+#     donation_list = []
+#     try:
+#         donations = await Donation.find(
+#             Donation.donor_id == donor_id, Donation.status == status
+#         ).to_list()
+#         for donation in donations:
+#             donation = donation.model_dump()
+#             donation["id"] = str(donation["id"])
+#             donation_list.append(donation)
+
+#         return donation_list
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=400,
+#             detail=f"An error occurred while retrieving a list of donations in db: {str(e)}",
+#         )
 
 
 async def add_a_new_job_in_db(foodbank_id: str, job_data: dict):
@@ -1349,4 +1369,38 @@ async def list_event_job_in_db():
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while fetching the list of job in db: {e}",
+        )
+
+
+async def update_existing_job_info_in_db(job_id: str, job_data: dict):
+    """
+    Update the existing job information
+    :param job_id: Used to identify the job that we are looking for
+    :param job_data: Job new information
+    """
+
+    job = await Job.get(PydanticObjectId(job_id))
+
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # Convert deadline string time to ISO format
+    deadline = convert_string_time_to_iso(
+        job_data["deadline"].split(" ")[0], job_data["deadline"].split(" ")[1]
+    )
+
+    job_data["deadline"] = datetime.fromisoformat(deadline)
+
+    try:
+        for key, value in job_data.items():
+            setattr(job, key, value)
+
+        await job.save()
+        job = job.model_dump()
+        job["id"] = str(job["id"])
+        return job
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"An error occurred while updating the job in db: {e}",
         )

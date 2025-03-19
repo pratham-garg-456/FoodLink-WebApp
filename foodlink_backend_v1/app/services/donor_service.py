@@ -2,7 +2,7 @@ from app.models.donation import Donation
 from fastapi import HTTPException
 from typing import List
 
-async def create_donation_in_db(donor_id: str, donation_data: dict) -> dict:
+async def create_donation_in_db(donor_id: str, donation_data: dict):
     """
     Allow a donor to make a monetary donation.
     :param donor_id: The ID of the donor making the donation.
@@ -23,7 +23,7 @@ async def create_donation_in_db(donor_id: str, donation_data: dict) -> dict:
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating donation in db: {str(e)}")
             
-async def get_donations_by_user(donor_id: str) -> List[dict]:
+async def get_donations_by_user(donor_id: str):
     """
     Retrieve all donations made by a specific donor.
     :param donor_id: The ID of the donor.
