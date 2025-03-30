@@ -79,7 +79,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed w-full flex p-8 md:p-4 md:px-6 md gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
+      className={`md:bg-white fixed w-full flex p-8 md:p-4 md:px-6 md gap-4 basis-1/10 bg-white text-black md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >
@@ -130,7 +130,7 @@ const Navbar = () => {
 
       <div
         ref={navRef} // Attach ref to the sidebar
-        className={`md:relative fixed top-0 right-0 bg-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
+        className={`md:relative fixed top-0 right-0 bg-black text-white md:text-black md:bg-transparent overflow-x-hidden duration-500 font-bold  flex justify-center items-center h-full md:h-auto md:w-full  ${
           isNavOpen ? 'w-2/5' : 'w-0 bg-transparent '
         }`}
       >
