@@ -120,7 +120,7 @@ const Contact = () => {
             </button>
           </form>
         </div>
-        <div className="contact-info p-4">
+        <div className="contact-info p-4 flex flex-col items-center justify-center">
           <h2 className="text-2xl font-bold mb-4">General Inquiries</h2>
           <p>
             <strong>Email:</strong> info@foodlink.com
@@ -130,6 +130,27 @@ const Contact = () => {
           </p>
           <p>
             <strong>Address:</strong> 123 Food Link Ave, City, State, ZIP Code
+          </p>
+          <h2 className="text-2xl font-bold mb-4 mt-6">Donations</h2>
+          <p>
+            <strong>Email:</strong> donations@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 234-567-8901
+          </p>
+          <h2 className="text-2xl font-bold mb-4 mt-6">Volunteer</h2>
+          <p>
+            <strong>Email:</strong> volunteer@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 345-678-9012
+          </p>
+          <h2 className="text-2xl font-bold mb-4 mt-6">Technical Support</h2>
+          <p>
+            <strong>Email:</strong> support@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 456-789-0123
           </p>
         </div>
         <div className="picture-space">

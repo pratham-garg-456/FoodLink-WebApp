@@ -74,7 +74,7 @@ const IndividualDashboard = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row  md:w-[90vw] md:justify-between  md:gap-2">
+    <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row  md:w-[90vw] md:justify-between md:gap-2 md:px-24 my-16 md:my-24">
       {/* Left Section */}
       <div className="md:pr-4 flex flex-col  items-center md:items-start justify-center">
         <h1 className="text-3xl md:text-6xl text-center mt-5 font-bold text-gray-900 md:text-start  mb-12">
@@ -94,7 +94,7 @@ const IndividualDashboard = () => {
       {/* Right Section */}
       <div className=" flex flex-col justify-center items-center mb-5 md:mb-0">
         {/* Upcoming Appointments */}
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full sm:w-96 overflow-y-auto max-h-[70vh]">
           <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6 md:mb-0">
             Booked Appointments
           </h1>

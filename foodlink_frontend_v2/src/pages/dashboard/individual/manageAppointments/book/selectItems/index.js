@@ -104,11 +104,21 @@ const FoodBankInventory = () => {
           setCartError('You can only select up to 2 of each item.');
           return prevCart;
         }
+        setInventory((prevInventory) =>
+          prevInventory.map((i) =>
+            i.food_name === item.food_name ? { ...i, quantity: i.quantity - 1 } : i
+          )
+        );
         return prevCart.map((i, index) =>
           index === existingItemIndex ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
 
+      setInventory((prevInventory) =>
+        prevInventory.map((i) =>
+          i.food_name === item.food_name ? { ...i, quantity: i.quantity - 1 } : i
+        )
+      );
       return [...prevCart, { ...item, quantity: 1 }];
     });
   };
@@ -136,13 +146,21 @@ const FoodBankInventory = () => {
 
   const decrementQuantity = (foodName) => {
     setCartError('');
-    setCart((prevCart) =>
-      prevCart
+    setCart((prevCart) => {
+      const updatedCart = prevCart
         .map((item) =>
           item.food_name === foodName ? { ...item, quantity: item.quantity - 1 } : item
         )
-        .filter((item) => item.quantity > 0)
-    );
+        .filter((item) => item.quantity > 0);
+
+      setInventory((prevInventory) =>
+        prevInventory.map((i) =>
+          i.food_name === foodName ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      );
+
+      return updatedCart;
+    });
   };
 
   const handleCheckout = () => {
