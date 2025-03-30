@@ -2,7 +2,7 @@ import React from 'react';
 
 const AppointmentBooking = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4  md:my-24 my-16">
       <h1 className="text-4xl font-bold text-center mb-8 mt-10">Appointment Booking</h1>
       <img
         src="/images/appointment-booking2.jpg"

@@ -1,7 +1,7 @@
 // pages/about.js
 export default function About() {
   return (
-    <div className="flex flex-col items-center justify-center w-[80vw] mt-24">
+    <div className="flex flex-col items-center justify-center w-[80vw] md:mt-24 mt-16">
       <h1 className="mt-16 text-4xl md:text-5xl font-extrabold mb-2 text-center">
         OUR MISSION AND VISION
       </h1>
@@ -53,7 +53,7 @@ export default function About() {
             </p>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center m-28">
+        <div className="flex flex-col items-center justify-center md:m-28 my-16">
           <h2 className="text-3xl font-bold text-gray-800 mt-8 mb-4">Join Us</h2>
           <p className="text-lg text-gray-600 font-medium text-center mb-4 lg:w-4/5">
             We invite you to become part of our community and support the cause through donations,

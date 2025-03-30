@@ -31,9 +31,9 @@ const Services = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-4">
-      <h1 className="mt-2 text-4xl md:text-5xl font-extrabold mb-2 text-center">Our Services</h1>
-      <p className="text-lg text-center mb-8 w-1/2 mx-auto">
+    <div className="container mx-auto px-4 py-4 md:my-24 my-16">
+      <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-center">Our Services</h1>
+      <p className="text-lg text-center mb-8 w-3/4 md:w-1/2 mx-auto">
         We offer a variety of services to support our community, including interactive tools,
         donation options, volunteer management, and appointment booking. Explore our services below
         to learn more about how we can assist you.

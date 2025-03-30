@@ -2,8 +2,8 @@ import React from 'react';
 
 const InteractiveMapTools = () => {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Interactive Map Tools</h1>
+    <div className="container mx-auto px-4 md:my-24 my-16">
+      <h1 className="text-4xl font-bold text-center mb-8 mt-10">Interactive Map Tools</h1>
       <img
         src="/images/map-tools.jpg"
         alt="Interactive Map Tools"
