@@ -62,38 +62,39 @@ const Contact = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-3 gap-4">
-        <div className="contact-form bg-white p-4 shadow-lg">
-          <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
+    <div className="container px-4 py-8 m-24">
+      <h1 className="mt-2 text-4xl md:text-5xl font-extrabold mb-16 text-center">Contact US</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="contact-form bg-white p-6 rounded-lg w-3/4 flex flex-col items-center justify-center mx-auto">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
               type="text"
               name="name"
-              placeholder="Name:"
+              placeholder="Name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
 
             <input
               type="email"
               name="email"
-              placeholder="Email:"
+              placeholder="Email"
               value={formData.email}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
 
             <input
               type="tel"
               name="phone"
-              placeholder="Phone:"
+              placeholder="Phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
 
@@ -101,7 +102,7 @@ const Contact = () => {
               name="subject"
               value={formData.subject}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="General Inquiry">General Inquiry</option>
               <option value="Donations">Donations</option>
@@ -110,17 +111,20 @@ const Contact = () => {
             </select>
             <textarea
               name="message"
-              placeholder="Message (Optional):"
+              placeholder="Message (Optional)"
               value={formData.message}
               onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded h-32"
+              className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
             />
-            <button type="submit" className="w-full bg-black text-white px-4 py-2 rounded">
+            <button
+              type="submit"
+              className="w-full bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition duration-200"
+            >
               Submit
             </button>
           </form>
         </div>
-        <div className="contact-info p-4">
+        <div className="contact-info p-4 flex flex-col items-center justify-center">
           <h2 className="text-2xl font-bold mb-4">General Inquiries</h2>
           <p>
             <strong>Email:</strong> info@foodlink.com
@@ -131,9 +135,27 @@ const Contact = () => {
           <p>
             <strong>Address:</strong> 123 Food Link Ave, City, State, ZIP Code
           </p>
-        </div>
-        <div className="picture-space">
-          <img src="/images/contact-us.jpg" alt="Display" className="w-full h-full object-cover" />
+          <h2 className="text-2xl font-bold mb-4 mt-6">Donations</h2>
+          <p>
+            <strong>Email:</strong> donations@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 234-567-8901
+          </p>
+          <h2 className="text-2xl font-bold mb-4 mt-6">Volunteer</h2>
+          <p>
+            <strong>Email:</strong> volunteer@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 345-678-9012
+          </p>
+          <h2 className="text-2xl font-bold mb-4 mt-6">Technical Support</h2>
+          <p>
+            <strong>Email:</strong> support@foodlink.com
+          </p>
+          <p>
+            <strong>Phone:</strong> 456-789-0123
+          </p>
         </div>
       </div>
     </div>

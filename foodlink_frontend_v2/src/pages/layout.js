@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import NavbarIndividual from '../components/NavbarIndividual.js';
-import NavbarFoodBank from '../components/NavbarFoodbank.js';
-import NavbarDonor from '../components/NavbarDonor.js';
 import Footer from '../components/Footer.js';
 import Navbar from '../components/Navbar.js';
-import { useRouter } from 'next/router';
-import { jwtDecode } from 'jwt-decode';
 
 const Layout = ({ children }) => {
   return (

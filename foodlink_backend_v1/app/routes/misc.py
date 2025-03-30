@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from app.models.service import Service
 from app.models.contact import Contact
 from app.models.user import User
+from app.models.donation import Donation
 
 router = APIRouter()
 
@@ -127,6 +128,21 @@ async def retrieve_list_of_users():
         raise HTTPException(status_code=404, detail=f"List is empty or {e}")
 
     return {"status": "success", "users": user_list}
+
+@router.get("/donations")
+async def get_donations_for_foodbank():
+    """
+    API Endpoint: Retrieve all donations for foodbank.
+    """
+    total_donations = 0
+    donations = await Donation.find().to_list()
+    for donation in donations:
+        total_donations += donation.amount
+
+    return {
+        "status": "success",
+        "total_donations": total_donations,
+    }
 
 
 
