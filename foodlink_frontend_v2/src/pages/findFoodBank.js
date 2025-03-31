@@ -117,22 +117,23 @@ const FindBankPage = () => {
             ))}
           </select>
         </div>
-        <div className="flex flex-col md:flex-row w-[80vw] justify-center items-center">
-          <div className="w-full md:w-1/3 p-4 overflow-y-auto flex flex-col items-center">
+        <div className="flex flex-col lg:flex-row w-[80vw] justify-center items-center lg:justify-around">
+          <div className="w-auto  p-4 overflow-y-auto flex flex-col items-start">
             <FoodBankList
               foodBanks={filteredFoodBanks}
               onSelect={handleSelectFoodBank}
               getDirections={getDirections}
             />
           </div>
-
-          <Map
-            foodBanks={filteredFoodBanks}
-            selectedFoodBank={selectedFoodBank}
-            userLocation={userLocation}
-            setUserLocation={setUserLocation}
-            directions={directions}
-          />
+          <div className="relative flex flex-col justify-center items-center w-full bg-black h-[50vh] max-w-[50vw] md:max-w-auto">
+            <Map
+              foodBanks={filteredFoodBanks}
+              selectedFoodBank={selectedFoodBank}
+              userLocation={userLocation}
+              setUserLocation={setUserLocation}
+              directions={directions}
+            />
+          </div>
         </div>
       </div>
     </div>

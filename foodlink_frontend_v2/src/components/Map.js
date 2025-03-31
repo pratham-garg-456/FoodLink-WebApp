@@ -106,7 +106,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
   };
 
   return (
-    <div className="relative flex flex-col justify-center items-center w-full bg-black md:w-2/3 h-[50vh]">
+    <>
       <div ref={mapContainerRef} className="w-full h-full  flex  justify-center items-center" />
 
       {/* User Location Button */}
@@ -144,7 +144,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
