@@ -1,8 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
 from app.models.service import Service
 from app.models.contact import Contact
 from app.models.user import User
 from app.models.donation import Donation
+
+# Configuration
+cloudinary.config(
+    cloud_name="dsyakhivg",
+    api_key="554361879535433",
+    api_secret="5MQvSQUhGVXwUZgr3n_N4bUsV7Q",  # Replace with your actual API secret
+    secure=True
+)
 
 router = APIRouter()
 
@@ -144,5 +155,27 @@ async def get_donations_for_foodbank():
         "total_donations": total_donations,
     }
 
+@router.post("/upload/")
+async def upload_image(file: UploadFile = File(...)):
+    try:
+        # Upload the image to Cloudinary
+        upload_result = cloudinary.uploader.upload(file.file, public_id=file.filename)
+        secure_url = upload_result["secure_url"]
 
+        # Return the secure URL
+        return {"secure_url": secure_url}
+    except Exception as e:
+        return {"error": str(e)}
+
+@router.get("/optimize/{public_id}")
+def optimize_image(public_id: str):
+    # Optimize delivery by resizing and applying auto-format and auto-quality
+    optimize_url, _ = cloudinary_url(public_id, fetch_format="auto", quality="auto")
+    return {"optimize_url": optimize_url}
+
+@router.get("/auto-crop/{public_id}")
+def auto_crop_image(public_id: str):
+    # Transform the image: auto-crop to square aspect ratio
+    auto_crop_url, _ = cloudinary_url(public_id, width=500, height=500, crop="auto", gravity="auto")
+    return {"auto_crop_url": auto_crop_url}
 

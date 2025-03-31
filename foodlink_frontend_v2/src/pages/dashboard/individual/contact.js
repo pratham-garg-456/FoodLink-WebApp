@@ -13,7 +13,7 @@ const Contact = () => {
   useEffect(() => {
     const storedName = localStorage.getItem('name');
     const storedEmail = localStorage.getItem('email');
-    const storedPhone = localStorage.getItem('phone');
+    const storedPhone = localStorage.getItem('phone_number');
 
     if (storedName) setFormData((prevData) => ({ ...prevData, name: storedName }));
     if (storedEmail) setFormData((prevData) => ({ ...prevData, email: storedEmail }));
@@ -73,7 +73,7 @@ const Contact = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="contact-form bg-white p-4 shadow-lg">
           <h2 className="text-2xl font-bold mb-4">Get in Touch</h2>
           <form className="space-y-4" onSubmit={handleSubmit}>

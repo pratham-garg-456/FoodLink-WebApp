@@ -35,6 +35,30 @@ const LoginPage = () => {
         console.error(error);
       }
     }
+    try {
+      console.log('I am here');
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('details after login', response.data);
+      if (response.data.status === 'success') {
+        localStorage.setItem('name', response.data.user.name);
+        localStorage.setItem('email', response.data.user.email);
+        localStorage.setItem('location', response.data.user.location || '');
+        localStorage.setItem('phone_number', response.data.user.phone_number || '');
+        localStorage.setItem('image_url', response.data.user.image_url || '');
+
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
