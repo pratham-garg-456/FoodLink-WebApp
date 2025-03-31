@@ -100,37 +100,40 @@ const FindBankPage = () => {
     : foodBanks; // Filter food banks based on selected city
 
   return (
-    <div className="flex flex-col  my-16 w-[80vw] justify-center items-center my-16 ">
-      <div className=" flex justify-center items-center">
-        <select
-          value={selectedCity}
-          onChange={(e) => setSelectedCity(e.target.value)}
-          className="mb-4"
-        >
-          <option value="">Select a city</option>
-          {cities.map((city, index) => (
-            <option key={index} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex flex-col md:flex-row w-[80vw] justify-center items-center">
-        <div className="w-full md:w-1/3 p-4 overflow-y-auto flex flex-col items-center">
-          <FoodBankList
+    <div className="flex flex-col my-16 w-[80vw] justify-center items-center md:my-24 ">
+      <h1 className="text-center text-4xl font-bold ">Find a Food Bank</h1>
+      <div className="flex flex-col  my-16 w-[80vw] justify-center items-center ">
+        <div className=" flex justify-center items-center">
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="mb-4"
+          >
+            <option value="">Select a city</option>
+            {cities.map((city, index) => (
+              <option key={index} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col md:flex-row w-[80vw] justify-center items-center">
+          <div className="w-full md:w-1/3 p-4 overflow-y-auto flex flex-col items-center">
+            <FoodBankList
+              foodBanks={filteredFoodBanks}
+              onSelect={handleSelectFoodBank}
+              getDirections={getDirections}
+            />
+          </div>
+
+          <Map
             foodBanks={filteredFoodBanks}
-            onSelect={handleSelectFoodBank}
-            getDirections={getDirections}
+            selectedFoodBank={selectedFoodBank}
+            userLocation={userLocation}
+            setUserLocation={setUserLocation}
+            directions={directions}
           />
         </div>
-
-        <Map
-          foodBanks={filteredFoodBanks}
-          selectedFoodBank={selectedFoodBank}
-          userLocation={userLocation}
-          setUserLocation={setUserLocation}
-          directions={directions}
-        />
       </div>
     </div>
   );
