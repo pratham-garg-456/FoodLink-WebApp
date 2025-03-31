@@ -27,7 +27,8 @@ async def update_foodbank_information(
         location=foodbank_data["location"],
         operating_hours=foodbank_data["operating_hours"],
         services=foodbank_data["services"],
-        phone_number=foodbank_data["phone_number"]
+        phone_number=foodbank_data["phone_number"],
+        image_url=foodbank_data["image_url"],
     )
-    
+
     return {"status": "success", "foodbank": foodbank}

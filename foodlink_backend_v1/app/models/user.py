@@ -11,16 +11,16 @@ class User(Document):
     created_at: datetime = datetime.now(timezone.utc)
     updated_at: datetime = datetime.now(timezone.utc)
 
-    # New optional fields for volunteers only
     experiences: Optional[str] = None
-
-    # New optional fields for foodbank
+    
     description: Optional[str] = None
     location: Optional[str] = None
     operating_hours: Optional[str] = None
     services_offered: Optional[List[str]] = []
     phone_number: Optional[str] = None
 
+    image_url: Optional[str] = None
+    
     class Settings:
         collection = "users"
 

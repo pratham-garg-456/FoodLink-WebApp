@@ -1359,7 +1359,13 @@ async def update_existing_job_info_in_db(job_id: str, job_data: dict):
 
 
 async def update_details_information(
-    id: str, desc: str, location: str, operating_hours: str, services: List[str], phone_number: str
+    id: str,
+    desc: str,
+    location: str,
+    operating_hours: str,
+    services: List[str],
+    phone_number: str,
+    image_url: str,
 ):
     """
     update detailed information of a foodbank in db
@@ -1368,6 +1374,8 @@ async def update_details_information(
     :param location: An address of foodbank
     :param operating_hours: Operating Hours of a foodbank
     :param services: List of offered services
+    :param image_url: Profile picture
+    :param phone_number: Foodbank office phone number
     """
 
     try:
@@ -1389,7 +1397,8 @@ async def update_details_information(
 
         foodbank.updated_at = datetime.now(timezone.utc)
         foodbank.phone_number = phone_number
-        
+        foodbank.image_url = image_url
+
         await foodbank.save()
         foodbank = foodbank.model_dump()
         foodbank["id"] = str(foodbank["id"])

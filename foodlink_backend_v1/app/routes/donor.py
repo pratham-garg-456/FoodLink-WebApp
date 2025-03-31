@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Body
 from app.services.donor_service import (
     create_donation_in_db,
     get_donations_by_user,
+    update_donor_detailed_info_in_db,
 )
 
 from app.utils.jwt_handler import jwt_required
@@ -58,3 +59,29 @@ async def get_donations_for_donor(payload: dict = Depends(jwt_required)):
 
     donations = await get_donations_by_user(donor_id=payload.get("sub"))
     return {"status": "success", "donations": donations}
+
+
+@router.put("/metadata")
+async def update_donor_metadata(
+    payload: dict = Depends(jwt_required), donor_data: dict = {}
+):
+    """
+    Allow donor to add more informations about them such as image url, description, phone number
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param donor_data: Information of donor
+    """
+    # Validate if the request is made from donor
+    if payload.get("role") != "donor":
+        raise HTTPException(
+            status_code=401, detail="Only donor can update their information"
+        )
+
+    # Update the metadata for donor in db
+    donor = await update_donor_detailed_info_in_db(
+        id=payload.get("sub"),
+        desc=donor_data["description"],
+        image_url=donor_data["image_url"],
+        phone_number=donor_data["phone_number"],
+    )
+
+    return {"status": "success", "donor": donor}
