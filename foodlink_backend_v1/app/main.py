@@ -12,6 +12,7 @@ from app.routes.foodbank import (
     appointments,
     donations,
     jobs,
+    details
 )
 
 
@@ -77,6 +78,10 @@ app.include_router(jobs.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodB
 
 app.include_router(
     volunteer_mangement.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
+)
+
+app.include_router(
+    details.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
 )
 
 
