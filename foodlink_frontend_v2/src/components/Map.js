@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { FaCrosshairs, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ'; 
+mapboxgl.accessToken =
+  'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
 const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, directions }) => {
   const mapContainerRef = useRef(null);
@@ -31,7 +32,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
 
       // Add user location marker if available
       if (userLocation) {
-        new mapboxgl.Marker({ color: 'blue' })
+        new mapboxgl.Marker({ color: 'black' })
           .setLngLat(userLocation)
           .setPopup(new mapboxgl.Popup().setHTML('<h3>You are here</h3>'))
           .addTo(mapRef.current);
@@ -48,7 +49,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
         center: [selectedFoodBank.lng, selectedFoodBank.lat],
         zoom: 14,
         essential: true,
-        duration: 1000, 
+        duration: 1000,
       });
     }
   }, [selectedFoodBank]);
@@ -105,8 +106,8 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
   };
 
   return (
-    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+    <div className="relative flex flex-col justify-center items-center w-full bg-black md:w-2/3 h-[50vh]">
+      <div ref={mapContainerRef} className="w-full h-full  flex  justify-center items-center" />
 
       {/* User Location Button */}
       <button
@@ -119,22 +120,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
             });
           }
         }}
-        style={{
-          position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 1000,
-          width: '50px',
-          height: '50px',
-          backgroundColor: '#007bff',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-        }}
+        className="absolute bottom-5 right-9 z-10 w-12 h-12 bg-black text-white rounded-full flex items-center justify-center cursor-pointer"
         title="Center on My Location"
       >
         <FaCrosshairs size={20} />
@@ -142,21 +128,7 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
 
       {/* Directions Controls */}
       {directions && directions.steps && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '80px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: 'white',
-            padding: '10px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded-lg shadow-md flex items-center gap-2">
           <button onClick={handlePrevStep} disabled={currentStep === 0}>
             <FaArrowLeft />
           </button>

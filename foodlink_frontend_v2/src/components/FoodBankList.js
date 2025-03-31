@@ -19,7 +19,7 @@ const FoodBankList = ({ foodBanks, onSelect, getDirections }) => {
             <p className="text-gray-600 my-2">{foodBank.address}</p>
             <button
               onClick={() => getDirections(foodBank)}
-              className="px-4 py-2 bg-blue-500 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+              className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
             >
               Get Directions
             </button>

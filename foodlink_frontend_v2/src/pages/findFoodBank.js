@@ -6,10 +6,12 @@ import mapboxgl from 'mapbox-gl';
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
-const FindBankPage = ({ foodBanks }) => {
+const FindBankPage = () => {
+  const [foodBanks, setFoodBanks] = useState([]);
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
   const [directions, setDirections] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [selectedCity, setSelectedCity] = useState('');
 
   const handleSelectFoodBank = (foodBank) => {
     setSelectedFoodBank(foodBank);
@@ -60,19 +62,70 @@ const FindBankPage = ({ foodBanks }) => {
     }
   }, [userLocation]);
 
-  return (
-    <div style={{ display: 'flex', height: '85vh', width: '95%' }}>
-      <div style={{ width: '30%', padding: '1rem', backgroundColor: '#f7f7f7', overflowY: 'auto' }}>
-        <FoodBankList
-          foodBanks={foodBanks}
-          onSelect={handleSelectFoodBank}
-          getDirections={getDirections}
-        />
-      </div>
+  useEffect(() => {
+    const fetchFoodBanks = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+        );
 
-      <div style={{ flex: 1 }}>
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const { users } = await response.json();
+        const foodbankUsers = users.filter((user) => user.role === 'foodbank');
+
+        // Hardcode address and coordinates for foodbank users
+        const foodBankData = foodbankUsers.map((user) => ({
+          name: user.name, // Assuming user object has a name property
+          address: user.address || 'Hardcoded Address', // Hardcoded address
+          lat: user.lat || 43.7, // Hardcoded latitude
+          lng: user.lng || -79.4, // Hardcoded longitude
+        }));
+
+        setFoodBanks(foodBankData);
+      } catch (error) {
+        console.error('Error fetching food banks:', error);
+      }
+    };
+
+    fetchFoodBanks();
+  }, []);
+
+  const cities = [...new Set(foodBanks.map((bank) => bank.city))]; // Extract unique cities from food banks
+
+  const filteredFoodBanks = selectedCity
+    ? foodBanks.filter((bank) => bank.city === selectedCity)
+    : foodBanks; // Filter food banks based on selected city
+
+  return (
+    <div className="flex flex-col  my-16 w-[80vw] justify-center items-center my-16 ">
+      <div className=" flex justify-center items-center">
+        <select
+          value={selectedCity}
+          onChange={(e) => setSelectedCity(e.target.value)}
+          className="mb-4"
+        >
+          <option value="">Select a city</option>
+          {cities.map((city, index) => (
+            <option key={index} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex flex-col md:flex-row w-[80vw] justify-center items-center">
+        <div className="w-full md:w-1/3 p-4 overflow-y-auto flex flex-col items-center">
+          <FoodBankList
+            foodBanks={filteredFoodBanks}
+            onSelect={handleSelectFoodBank}
+            getDirections={getDirections}
+          />
+        </div>
+
         <Map
-          foodBanks={foodBanks}
+          foodBanks={filteredFoodBanks}
           selectedFoodBank={selectedFoodBank}
           userLocation={userLocation}
           setUserLocation={setUserLocation}
@@ -82,34 +135,5 @@ const FindBankPage = ({ foodBanks }) => {
     </div>
   );
 };
-
-export async function getServerSideProps() {
-  const foodBanks = [
-    {
-      name: 'Daily Bread Food Bank',
-      address: '191 New Toronto St, Toronto, ON M8V 2E7',
-      lat: 43.635417,
-      lng: -79.535421,
-    },
-    {
-      name: 'North York Harvest Food Bank',
-      address: '116 Industry St, Toronto, ON M6M 4L8',
-      lat: 43.763619,
-      lng: -79.481751,
-    },
-    {
-      name: 'Scarborough Centre for Healthy Communities',
-      address: '629 Markham Rd, Toronto, ON M1H 2A4',
-      lat: 43.7805,
-      lng: -79.2273,
-    },
-  ];
-
-  return {
-    props: {
-      foodBanks,
-    },
-  };
-}
 
 export default FindBankPage;
