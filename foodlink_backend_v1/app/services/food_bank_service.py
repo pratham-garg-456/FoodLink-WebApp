@@ -1377,8 +1377,7 @@ async def update_details_information(
             raise HTTPException(status_code=404, detail="User not found!")
 
         if foodbank.role != "foodbank":
-            raise HTTPException(status_code=400, detail="User is not a volunteer")
-
+            raise HTTPException(status_code=400, detail="User is not a foodbank admin")
         foodbank.description = desc
         foodbank.location = location
         foodbank.operating_hours = operating_hours
