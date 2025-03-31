@@ -208,7 +208,7 @@ async def create_volunteer_metadata(
     # Validate if the request is made from Volunteer
     if payload.get("role") != "volunteer":
         raise HTTPException(
-            status_code=401, detail="Only Volunteer get the list of the jobs"
+            status_code=401, detail="Only Volunteer can update their information"
         )
 
     # Update the metadata for volunteer in db

@@ -1,6 +1,6 @@
 from beanie import Document
 from datetime import datetime, timezone
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 
 class User(Document):
@@ -13,7 +13,13 @@ class User(Document):
 
     # New optional fields for volunteers only
     experiences: Optional[str] = None
+
+    # New optional fields for foodbank
     description: Optional[str] = None
+    location: Optional[str] = None
+    operating_hours: Optional[str] = None
+    services_offered: Optional[List[str]] = []
+    phone_number: Optional[str] = None
 
     class Settings:
         collection = "users"
