@@ -19,6 +19,7 @@ class User(Document):
     location: Optional[str] = None
     operating_hours: Optional[str] = None
     services_offered: Optional[List[str]] = []
+    phone_number: Optional[str] = None
 
     class Settings:
         collection = "users"
