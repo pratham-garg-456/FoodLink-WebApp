@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
 from app.services.individual_service import create_appointment_in_db
 from app.services.individual_service import get_appointments_by_individual
-from app.services.individual_service import get_inventory_in_db
+from app.services.individual_service import get_inventory_in_db, update_individual_detailed_info_in_db
 
 router = APIRouter()
 
@@ -80,3 +80,28 @@ async def get_inventory(payload: dict = Depends(jwt_required), foodbank_id: str 
     return {"status": "success", "inventory": inventory_list}
 
 
+
+@router.put("/metadata")
+async def update_individual_metadata(
+    payload: dict = Depends(jwt_required), individual_data: dict = {}
+):
+    """
+    Allow individual to add more informations about them such as image url, description, phone number
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    :param individual_data: Information of individual
+    """
+    # Validate if the request is made from individual
+    if payload.get("role") != "individual":
+        raise HTTPException(
+            status_code=401, detail="Only individual can update their information"
+        )
+
+    # Update the metadata for individual in db
+    individual = await update_individual_detailed_info_in_db(
+        id=payload.get("sub"),
+        desc=individual_data["description"],
+        image_url=individual_data["image_url"],
+        phone_number=individual_data["phone_number"],
+    )
+
+    return {"status": "success", "individual": individual}

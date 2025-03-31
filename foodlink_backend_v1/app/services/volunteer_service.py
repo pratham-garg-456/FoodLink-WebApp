@@ -213,12 +213,16 @@ async def delete_application(volunteer_id: str, application_id: str):
         )
 
 
-async def update_metadata_in_db(id: str, experiences: str, description: str):
+async def update_metadata_in_db(
+    id: str, experiences: str, description: str, image_url: str, phone_number: str
+):
     """
     update metadata for volunteer users in db
     :param id: A mongoDB identifier
     :param experiences: A past experiences about volunteer
     :param description: A brief description about volunteer
+    :param image_url: Profile Image
+    :param phone_number: Volunteer's Phone Number
     """
     try:
         volunteer = await User.get(PydanticObjectId(id))
@@ -231,6 +235,8 @@ async def update_metadata_in_db(id: str, experiences: str, description: str):
 
         volunteer.experiences = experiences
         volunteer.description = description
+        volunteer.image_url = image_url
+        volunteer.phone_number = phone_number
         volunteer.updated_at = datetime.now(timezone.utc)
 
         await volunteer.save()

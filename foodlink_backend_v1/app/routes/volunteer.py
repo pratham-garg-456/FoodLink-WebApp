@@ -212,6 +212,6 @@ async def create_volunteer_metadata(
         )
 
     # Update the metadata for volunteer in db
-    volunteer = await update_metadata_in_db(id=payload.get("sub"), experiences=volunteer_data["experiences"], description=volunteer_data["description"])
+    volunteer = await update_metadata_in_db(id=payload.get("sub"), experiences=volunteer_data["experiences"], description=volunteer_data["description"], image_url=volunteer_data["image_url"], phone_number=volunteer_data["phone_number"])
     
     return {"status": "success", "volunteer": volunteer}

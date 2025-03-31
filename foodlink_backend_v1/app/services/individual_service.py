@@ -2,7 +2,9 @@ from app.models.appointment import Appointment
 from fastapi import HTTPException
 from app.models.inventory import MainInventory
 from datetime import datetime, timezone
-
+from app.models.user import User
+from datetime import datetime, timezone
+from beanie import PydanticObjectId
 
 async def create_appointment_in_db(individual_id: str, appointment_data: dict):
     """
@@ -125,3 +127,39 @@ async def get_inventory_in_db(foodbank_id: str):
             detail=f"An error occurred while retrieving the inventory for foodbank '{foodbank_id}': {str(e)}"
         )
 
+
+async def update_individual_detailed_info_in_db(
+    id: str, desc: str, image_url: str, phone_number: str
+):
+    """
+    update metadata for individual users in db
+    :param id: A mongoDB identifier
+    :param description: A brief description about individual
+    :param image_url: Profile Image
+    :param phone_number: individual's Phone Number
+    """
+    try:
+        individual = await User.get(PydanticObjectId(id))
+
+        if not individual:
+            raise HTTPException(status_code=404, detail="User not found!")
+
+        if individual.role != "individual":
+            raise HTTPException(status_code=400, detail="User is not a individual")
+
+        individual.description = desc
+        individual.image_url = image_url
+        individual.phone_number = phone_number
+        individual.updated_at = datetime.now(timezone.utc)
+
+        await individual.save()
+        individual = individual.model_dump()
+        individual["id"] = str(individual["id"])
+
+        return individual
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while updating the metadata for individual: {e}",
+        )

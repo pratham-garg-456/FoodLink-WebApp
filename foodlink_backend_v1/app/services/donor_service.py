@@ -1,6 +1,9 @@
 from app.models.donation import Donation
 from fastapi import HTTPException
-from typing import List
+from app.models.user import User
+from datetime import datetime, timezone
+from beanie import PydanticObjectId
+
 
 async def create_donation_in_db(donor_id: str, donation_data: dict):
     """
@@ -14,15 +17,18 @@ async def create_donation_in_db(donor_id: str, donation_data: dict):
             donor_id=donor_id,
             amount=donation_data["amount"],
             foodbank_id=donation_data["foodbank_id"],
-            status="confirmed"
+            status="confirmed",
         )
         await new_donation.insert()
         donation = new_donation.model_dump()
         donation["id"] = str(donation["id"])
         return donation
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error creating donation in db: {str(e)}")
-            
+        raise HTTPException(
+            status_code=400, detail=f"Error creating donation in db: {str(e)}"
+        )
+
+
 async def get_donations_by_user(donor_id: str):
     """
     Retrieve all donations made by a specific donor.
@@ -40,5 +46,42 @@ async def get_donations_by_user(donor_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"Error retrieving donations for user {donor_id}: {str(e)}"
+            detail=f"Error retrieving donations for user {donor_id}: {str(e)}",
+        )
+
+
+async def update_donor_detailed_info_in_db(
+    id: str, desc: str, image_url: str, phone_number: str
+):
+    """
+    update metadata for donor users in db
+    :param id: A mongoDB identifier
+    :param description: A brief description about donor
+    :param image_url: Profile Image
+    :param phone_number: donor's Phone Number
+    """
+    try:
+        donor = await User.get(PydanticObjectId(id))
+
+        if not donor:
+            raise HTTPException(status_code=404, detail="User not found!")
+
+        if donor.role != "donor":
+            raise HTTPException(status_code=400, detail="User is not a donor")
+
+        donor.description = desc
+        donor.image_url = image_url
+        donor.phone_number = phone_number
+        donor.updated_at = datetime.now(timezone.utc)
+
+        await donor.save()
+        donor = donor.model_dump()
+        donor["id"] = str(donor["id"])
+
+        return donor
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while updating the metadata for donor: {e}",
         )
