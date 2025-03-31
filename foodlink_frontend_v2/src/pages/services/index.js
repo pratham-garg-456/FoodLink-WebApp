@@ -31,36 +31,38 @@ const Services = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-4 md:my-24 my-16">
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-center">Our Services</h1>
-      <p className="text-lg text-center mb-8 w-3/4 md:w-1/2 mx-auto">
-        We offer a variety of services to support our community, including interactive tools,
-        donation options, volunteer management, and appointment booking. Explore our services below
-        to learn more about how we can assist you.
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {servicesList.map((service) => (
-          <Link key={service.id} href={service.link}>
-            <div className="service-item text-center transition-transform transform hover:scale-105 shadow-lg p-4 rounded-lg flex flex-col justify-between">
-              <div className="relative">
-                <img
-                  src={serviceImages[service.title] || '/images/default.jpg'}
-                  alt={service.title}
-                  className="h-48 w-full mb-4 object-cover rounded-lg"
-                />
-                <h2 className="text-xl font-semibold">{service.title}</h2>
-                {serviceDetails[service.title] && (
-                  <p className="text-gray-500 mt-2">Additional details about {service.title}.</p>
-                )}
+    <div className="flex flex-col items-center justify-center w-[80vw] md:my-24 my-16">
+      <h1 className="mt-16 text-4xl md:text-5xl font-extrabold mb-2 text-center">Our Services</h1>
+      <div className="p-8 flex flex-col items-center justify-center">
+        <p className="text-lg text-center text-gray-700 mb-6">
+          We offer a variety of services to support our community, including interactive tools,
+          donation options, volunteer management, and appointment booking. Explore our services
+          below to learn more about how we can assist you.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          {servicesList.map((service) => (
+            <Link key={service.id} href={service.link}>
+              <div className="service-item text-center transition-transform transform hover:scale-105 shadow-lg p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                  <img
+                    src={serviceImages[service.title] || '/images/default.jpg'}
+                    alt={service.title}
+                    className="h-48 w-full mb-2 object-cover rounded-lg"
+                  />
+                  <h2 className="text-lg font-semibold">{service.title}</h2>
+                  {serviceDetails[service.title] && (
+                    <p className="text-gray-500 mt-2">Additional details about {service.title}.</p>
+                  )}
+                </div>
+                <div className="">
+                  <button className="mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded transition duration-200">
+                    Learn More
+                  </button>
+                </div>
               </div>
-              <div className="">
-                <button className="mt-4 bg-black hover:bg-gray-800 text-white px-4 py-2 rounded transition duration-200">
-                  Learn More
-                </button>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
