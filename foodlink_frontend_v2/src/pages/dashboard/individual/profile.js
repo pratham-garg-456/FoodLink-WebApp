@@ -175,10 +175,10 @@ export default function Profile() {
   };
 
   return (
-    <div className="mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg flex flex-col lg:flex-row w-[80vw] my-16 md:my-28">
+    <div className="mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg flex flex-col lg:flex-row w-[70vw] my-16 md:my-28">
       <div className="order-2 lg:order-1 pr-4 w-full lg:w-2/3 flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">User Profile</h2>
-        <div className="space-y-4 w-full">
+        <div className="space-y-4 w-full lg:w-1/2">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">User Profile</h2>
           <label className="block">
             <span className="text-gray-700">Name</span>
             <input
@@ -220,17 +220,18 @@ export default function Profile() {
               className="w-full mt-1 p-2 border rounded-md bg-gray-200 cursor-not-allowed"
             />
           </label>
+          <label className="flex justify-center items-start flex-col">
+            <span className="text-gray-700">Profile Picture</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={!isEditing}
+              className="mt-1 w-full p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+            />
+          </label>
         </div>
-        <label className="flex justify-center items-start flex-col">
-          <span className="text-gray-700">Profile Picture</span>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            disabled={!isEditing}
-            className="mt-1 w-full p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-          />
-        </label>
+
         <div className="flex gap-4 mt-6">
           {isEditing ? (
             <>
@@ -258,11 +259,11 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="order-1 lg:order-2 w-auto lg:w-1/3 flex justify-center items-center">
+      <div className="order-1 lg:order-2 w-auto  flex justify-center items-center">
         <img
           src={user.image_url || profileImage}
           alt="User Profile"
-          className="w-44 h-44 rounded-full object-cover"
+          className="w-44 md:w-64 h-44 md:h-64 rounded-full object-cover"
         />
       </div>
     </div>
