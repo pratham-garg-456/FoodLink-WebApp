@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import router from 'next/router';
+import { useRouter } from 'next/router';
 import {
   appointmentDateAtom,
   appointmentTimeAtom,
@@ -10,6 +11,9 @@ import {
 import validateToken from '@/utils/validateToken';
 
 const BookAppointment = () => {
+  const router = useRouter();
+  const { foodBank } = router.query;
+
   const [appointmentDate, setAppointmentDate] = useAtom(appointmentDateAtom);
   const [appointmentTime, setAppointmentTime] = useAtom(appointmentTimeAtom);
   const [selectedFoodbank, setSelectedFoodbank] = useAtom(selectedFoodbankAtom);
@@ -35,6 +39,12 @@ const BookAppointment = () => {
     checkToken();
   }, [router]);
   const [nextAvailableDate, setNextAvailableDate] = useState('');
+
+  useEffect(() => {
+    if (foodBank) {
+      setSelectedFoodbank(foodBank);
+    }
+  }, [foodBank, setSelectedFoodbank]);
 
   // Load data from localStorage on page load
   useEffect(() => {

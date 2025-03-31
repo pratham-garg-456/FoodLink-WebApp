@@ -196,7 +196,7 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/findFoodBank"
+                href="/dashboard/individual/findFoodBank"
               >
                 Find Food Banks
               </Link>

@@ -135,7 +135,7 @@ const IndividualDashboard = () => {
             </button>
             <button
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              onClick={() => router.push('/findFoodBank')}
+              onClick={() => router.push('/dashboard/individual/findFoodBank')}
             >
               Find Nearby Food Banks
             </button>

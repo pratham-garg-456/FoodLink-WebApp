@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import FoodBankList from '../components/FoodBankList';
-import Map from '../components/Map';
+import FoodBankList from '@/components/FoodBankList';
+import Map from '@/components/Map';
 import mapboxgl from 'mapbox-gl';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 mapboxgl.accessToken =
@@ -89,6 +88,7 @@ const FindBankPage = () => {
           address: user.address || 'Hardcoded Address', // Hardcoded address
           lat: user.lat || 43.7, // Hardcoded latitude
           lng: user.lng || -79.4, // Hardcoded longitude
+          id: user.id,
         }));
 
         setFoodBanks(foodBankData);
@@ -109,8 +109,8 @@ const FindBankPage = () => {
   return (
     <div className="flex flex-col my-16 w-[80vw] justify-center items-center md:my-24 ">
       <h1 className="text-center text-4xl font-bold ">Find a Food Bank</h1>
-      <div className="flex flex-col my-16 w-[80vw] justify-center items-center ">
-        <div className="flex justify-center items-center">
+      <div className="flex flex-col  my-16 w-[80vw] justify-center items-center ">
+        <div className=" flex justify-center items-center">
           <select
             value={selectedCity}
             onChange={(e) => setSelectedCity(e.target.value)}
@@ -125,22 +125,43 @@ const FindBankPage = () => {
           </select>
         </div>
         <div className="flex flex-col lg:flex-row w-[80vw] justify-center items-center lg:justify-around">
-          <div className="w-auto p-4 overflow-y-auto flex flex-col items-start">
-            <FoodBankList
-              foodBanks={filteredFoodBanks}
-              onSelect={handleSelectFoodBank}
-              getDirections={getDirections}
-              renderBookButton={(foodBank) => (
-                <button
-                  onClick={() => handleBookAppointment(foodBank)}
-                  className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
-                >
-                  Book Appointment
-                </button>
-              )}
-            />
+          <div className="w-auto  p-4 overflow-y-auto flex flex-col items-start">
+            <div className="p-4 flex flex-col w-auto">
+              <h2 className="text-center mb-4 font-bold text-3xl">Food Banks</h2>
+              <div className="flex flex-col justify-center gap-4">
+                {filteredFoodBanks.map((foodBank, index) => (
+                  <div
+                    key={index}
+                    className="mb-4 border border-gray-300 rounded-lg p-6 bg-white shadow-md flex flex-col items-center justify-center"
+                  >
+                    <strong
+                      className="text-xl text-center text-black cursor-pointer"
+                      onClick={() => handleSelectFoodBank(foodBank)}
+                    >
+                      {foodBank.name}
+                    </strong>
+                    <p className="text-gray-600 my-2 text-center">{foodBank.address}</p>
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => getDirections(foodBank)}
+                        className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Get Directions
+                      </button>
+                      <button
+                        onClick={() => handleBookAppointment(foodBank)}
+                        className="px-4 py-2 bg-gray-600 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Book an Appointment
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="relative flex flex-col justify-center items-center w-full bg-white h-[50vh] max-w-[50vw] md:max-w-auto">
+
+          <div className="relative flex flex-col justify-center items-center w-full bg-black h-[50vh] max-w-[50vw] md:max-w-auto">
             <Map
               foodBanks={filteredFoodBanks}
               selectedFoodBank={selectedFoodBank}

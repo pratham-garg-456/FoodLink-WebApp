@@ -88,6 +88,12 @@ const IndividualDashboard = () => {
           >
             Book an Appointment
           </button>
+          <button
+            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+            onClick={() => router.push('/dashboard/individual/manageAppointments/view')}
+          >
+            View Appointments History
+          </button>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Contact = () => {
@@ -9,6 +9,16 @@ const Contact = () => {
     subject: 'General Inquiry',
     message: '',
   });
+
+  useEffect(() => {
+    const storedName = localStorage.getItem('name');
+    const storedEmail = localStorage.getItem('email');
+    const storedPhone = localStorage.getItem('phone');
+
+    if (storedName) setFormData((prevData) => ({ ...prevData, name: storedName }));
+    if (storedEmail) setFormData((prevData) => ({ ...prevData, email: storedEmail }));
+    if (storedPhone) setFormData((prevData) => ({ ...prevData, phone: storedPhone }));
+  }, []);
 
   const [errors, setErrors] = useState({});
 
