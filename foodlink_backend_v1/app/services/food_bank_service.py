@@ -1399,5 +1399,5 @@ async def update_details_information(
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred while updating the metadata for volunteer: {e}",
+            detail=f"An error occurred while updating the metadata for foodbank: {e}",
         )
