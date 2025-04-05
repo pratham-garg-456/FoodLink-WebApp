@@ -155,8 +155,11 @@ const ViewAppointments = () => {
 
   return (
     <div className="bg-white p-8 shadow-lg">
-      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Manage Appointments</h1>
+      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+        Manage Appointments
+      </h1>
 
+      {/* Status Filter */}
       <div className="mb-4">
         <label className="mr-2">Filter by Status:</label>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
@@ -167,44 +170,86 @@ const ViewAppointments = () => {
         </select>
       </div>
 
+      {/* Loading / Error / Table & Cards */}
       {loading ? (
         <p className="text-center text-gray-600">Loading...</p>
       ) : errorMessage ? (
         <p className="text-center text-red-500">{errorMessage}</p>
       ) : filteredAppointments.length === 0 ? (
-        <p className="text-center text-gray-600">No appointments found for the selected status.</p>
+        <p className="text-center text-gray-600">
+          No appointments found for the selected status.
+        </p>
       ) : (
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">Name</th>
-              <th className="py-2 px-4 border-b">Start Time</th>
-              <th className="py-2 px-4 border-b">End Time</th>
-              <th className="py-2 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <>
+          {/* TABLE: visible on md+ screens */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b">Name</th>
+                  <th className="py-2 px-4 border-b">Start Time</th>
+                  <th className="py-2 px-4 border-b">End Time</th>
+                  <th className="py-2 px-4 border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppointments.map((appointment) => (
+                  <tr key={appointment._id}>
+                    <td className="py-2 px-4 border-b">
+                      {individualUsernames[appointment.individual_id] ||
+                        appointment.individual_id}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {formatDate(appointment.start_time)}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      {formatDate(appointment.end_time)}
+                    </td>
+                    <td className="py-2 px-4 border-b">
+                      <button
+                        onClick={() => handleViewDetail(appointment)}
+                        className="text-blue-500 hover:underline"
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* CARD VIEW: visible on small screens */}
+          <div className="block md:hidden space-y-4">
             {filteredAppointments.map((appointment) => (
-              <tr key={appointment._id}>
-                <td className="py-2 px-4 border-b">
-                  {individualUsernames[appointment.individual_id] || appointment.individual_id}
-                </td>
-                <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
-                <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
-                <td className="py-2 px-4 border-b">
-                  <button
-                    onClick={() => handleViewDetail(appointment)}
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Details
-                  </button>
-                </td>
-              </tr>
+              <div
+                key={appointment._id}
+                className="border rounded p-4 shadow-sm"
+              >
+                <p>
+                  <strong>Name:</strong>{' '}
+                  {individualUsernames[appointment.individual_id] ||
+                    appointment.individual_id}
+                </p>
+                <p>
+                  <strong>Start Time:</strong> {formatDate(appointment.start_time)}
+                </p>
+                <p>
+                  <strong>End Time:</strong> {formatDate(appointment.end_time)}
+                </p>
+                <button
+                  onClick={() => handleViewDetail(appointment)}
+                  className="text-blue-500 hover:underline mt-2 block"
+                >
+                  View Details
+                </button>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
 
+      {/* Modal for Appointment Details */}
       {isModalOpen && selectedAppointment && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
@@ -221,7 +266,8 @@ const ViewAppointments = () => {
             <ul className="space-y-2 mt-2">
               {selectedAppointment.product.map((item, index) => (
                 <li key={index} className="text-sm text-gray-600">
-                  {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
+                  {item.food_name}: {item.quantity}{' '}
+                  {item.quantity > 1 ? 'items' : 'item'}
                 </li>
               ))}
             </ul>

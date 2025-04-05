@@ -46,37 +46,78 @@ export default function DonationTracker() {
   };
 
   return (
-    <div className="container mx-auto p-6 w-[70vw] flex flex-col justify-start h-[70vh]">
-      <h1 className="text-2xl font-bold mb-4 flex justify-center">DONATIONS</h1>
+    <div className="container mx-auto p-4 sm:p-6 w-full md:w-[70vw] flex flex-col min-h-[70vh]">
+      <h1 className="text-2xl font-bold mb-4 text-center">DONATIONS</h1>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Donation ID</th>
-            <th className="border p-2">Amount ($)</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Timestamp</th>
-          </tr>
-        </thead>
-        <tbody>
-          {donations.length > 0 ? (
-            donations.map((donation, index) => (
-              <tr key={donation.id} className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
-                <td className="border p-2">{donation.id}</td>
-                <td className="border p-2">${donation.amount.toFixed(2)}</td>
-                <td className="border p-2">{donation.status}</td>
-                <td className="border p-2">{new Date(donation.created_at).toLocaleString()}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="text-center p-4">
-                No donations yet
-              </td>
+
+      {/* TABLE: visible on md+ screens */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2">Donation ID</th>
+              <th className="border p-2">Amount ($)</th>
+              <th className="border p-2">Status</th>
+              <th className="border p-2">Timestamp</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {donations.length > 0 ? (
+              donations.map((donation, index) => (
+                <tr
+                  key={donation.id}
+                  className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
+                >
+                  <td className="border p-2">{donation.id}</td>
+                  <td className="border p-2">${donation.amount.toFixed(2)}</td>
+                  <td className="border p-2">{donation.status}</td>
+                  <td className="border p-2">
+                    {new Date(donation.created_at).toLocaleString()}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center p-4">
+                  No donations yet
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* CARDS: visible on small screens */}
+      <div className="block md:hidden space-y-2">
+        {donations.length > 0 ? (
+          donations.map((donation, index) => (
+            <div
+              key={donation.id}
+              className={`border border-gray-300 p-4 ${
+                index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
+              }`}
+            >
+              <p>
+                <strong>Donation ID:</strong> {donation.id}
+              </p>
+              <p>
+                <strong>Amount ($):</strong> ${donation.amount.toFixed(2)}
+              </p>
+              <p>
+                <strong>Status:</strong> {donation.status}
+              </p>
+              <p>
+                <strong>Timestamp:</strong>{' '}
+                {new Date(donation.created_at).toLocaleString()}
+              </p>
+            </div>
+          ))
+        ) : (
+          <div className="text-center p-4 bg-gray-100 text-gray-600">
+            No donations yet
+          </div>
+        )}
+      </div>
     </div>
   );
 }

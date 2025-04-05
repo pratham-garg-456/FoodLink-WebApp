@@ -191,35 +191,68 @@ export default function Inventory() {
           + Add Food Item
         </button>
       </div>
+
       {loadingFoodItems ? (
         <p>Loading food items...</p>
       ) : (
-        <div className="bg-white shadow-md rounded p-4 overflow-auto">
+        <div className="bg-white shadow-md rounded p-4">
           {foodItems.length > 0 ? (
-            <table className="min-w-full bg-white">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b">Food Name</th>
-                  <th className="py-2 px-4 border-b">Category</th>
-                  <th className="py-2 px-4 border-b">Unit</th>
-                  <th className="py-2 px-4 border-b">Description</th>
-                  <th className="py-2 px-4 border-b">Expiration Date</th>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              {/* TABLE (hidden on small screens) */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full bg-white">
+                  <thead>
+                    <tr>
+                      <th className="py-2 px-4 border-b">Food Name</th>
+                      <th className="py-2 px-4 border-b">Category</th>
+                      <th className="py-2 px-4 border-b">Unit</th>
+                      <th className="py-2 px-4 border-b">Description</th>
+                      <th className="py-2 px-4 border-b">Expiration Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {foodItems.map((item) => (
+                      <tr key={item.id}>
+                        <td className="py-2 px-4 border-b">{item.food_name}</td>
+                        <td className="py-2 px-4 border-b">{item.category}</td>
+                        <td className="py-2 px-4 border-b">{item.unit}</td>
+                        <td className="py-2 px-4 border-b">{item.description}</td>
+                        <td className="py-2 px-4 border-b">
+                          {formatDateToLocal(item.expiration_date)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* CARD VIEW (visible on small screens) */}
+              <div className="block md:hidden space-y-4">
                 {foodItems.map((item) => (
-                  <tr key={item.id}>
-                    <td className="py-2 px-4 border-b">{item.food_name}</td>
-                    <td className="py-2 px-4 border-b">{item.category}</td>
-                    <td className="py-2 px-4 border-b">{item.unit}</td>
-                    <td className="py-2 px-4 border-b">{item.description}</td>
-                    <td className="py-2 px-4 border-b">
+                  <div
+                    key={item.id}
+                    className="border rounded p-4 shadow-sm"
+                  >
+                    <p>
+                      <strong>Food Name:</strong> {item.food_name}
+                    </p>
+                    <p>
+                      <strong>Category:</strong> {item.category}
+                    </p>
+                    <p>
+                      <strong>Unit:</strong> {item.unit}
+                    </p>
+                    <p>
+                      <strong>Description:</strong> {item.description}
+                    </p>
+                    <p>
+                      <strong>Expiration Date:</strong>{' '}
                       {formatDateToLocal(item.expiration_date)}
-                    </td>
-                  </tr>
+                    </p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           ) : (
             <p>No food items available.</p>
           )}
@@ -234,30 +267,59 @@ export default function Inventory() {
         ) : (
           <div className="bg-white shadow-md rounded p-4">
             {inventory.length > 0 ? (
-              inventory.map((inv) => (
-                <div key={inv.id} className="mb-6">
-                  <h2 className="text-xl font-semibold mb-2">Inventory ID: {inv.id}</h2>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Last Updated: {formatDateToLocal(inv.last_updated)}
-                  </p>
-                  <table className="min-w-full bg-white">
-                    <thead>
-                      <tr>
-                        <th className="py-2 px-4 border-b">Food Name</th>
-                        <th className="py-2 px-4 border-b">Quantity</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+              <>
+                {inventory.map((inv) => (
+                  <div key={inv.id} className="mb-6">
+                    <h2 className="text-xl font-semibold mb-2">
+                      Inventory ID: {inv.id}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-2">
+                      Last Updated: {formatDateToLocal(inv.last_updated)}
+                    </p>
+
+                    {/* TABLE (hidden on small screens) */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="min-w-full bg-white">
+                        <thead>
+                          <tr>
+                            <th className="py-2 px-4 border-b">Food Name</th>
+                            <th className="py-2 px-4 border-b">Quantity</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {inv.stock.map((item, idx) => (
+                            <tr key={idx}>
+                              <td className="py-2 px-4 border-b">
+                                {item.food_name}
+                              </td>
+                              <td className="py-2 px-4 border-b">
+                                {item.quantity}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* CARD VIEW (visible on small screens) */}
+                    <div className="block md:hidden space-y-4">
                       {inv.stock.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="py-2 px-4 border-b">{item.food_name}</td>
-                          <td className="py-2 px-4 border-b">{item.quantity}</td>
-                        </tr>
+                        <div
+                          key={idx}
+                          className="border rounded p-4 shadow-sm"
+                        >
+                          <p>
+                            <strong>Food Name:</strong> {item.food_name}
+                          </p>
+                          <p>
+                            <strong>Quantity:</strong> {item.quantity}
+                          </p>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))
+                    </div>
+                  </div>
+                ))}
+              </>
             ) : (
               <p>No inventory data available.</p>
             )}
@@ -301,6 +363,7 @@ export default function Inventory() {
               </button>
             </form>
           </div>
+
           {/* Form to remove/decrement stock */}
           <div className="flex-1">
             <h3 className="font-semibold mb-2">Remove Stock</h3>

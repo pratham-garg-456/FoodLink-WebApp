@@ -135,16 +135,20 @@ const ViewAppointments = () => {
   });
 
   return (
-    <div className="flex flex-col my-16 w-[90vw] justify-center items-center md:my-24 h-full ">
+    <div className="flex flex-col my-16 w-[90vw] justify-center items-center md:my-24 h-full">
       <h1 className="text-center text-4xl font-bold mb-4">Appointments History</h1>
-      <div className="bg-white p-8 shadow-xl md:w-[80vw] w-full overflow-x-auto text-xs md:text-base">
-        {/* Filter Section */}
+      <div className="bg-white p-8 shadow-xl md:w-[80vw] w-full text-xs md:text-base">
         {/* Filter Section */}
         <div className="mb-4">
           <label htmlFor="statusFilter" className="mr-2">
             Filter by Status:
           </label>
-          <select id="statusFilter" value={filterStatus} onChange={handleFilterChange}>
+          <select
+            id="statusFilter"
+            value={filterStatus}
+            onChange={handleFilterChange}
+            className="border rounded px-2 py-1"
+          >
             <option value="">All</option>
             <option value="reschedule">Reschedule</option>
             <option value="scheduled">Scheduled</option>
@@ -153,66 +157,110 @@ const ViewAppointments = () => {
           </select>
         </div>
 
+        {/* Loading/Error */}
         {loading ? (
           <p className="text-center text-gray-600">Loading...</p>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : sortedAppointments.length > 0 ? (
-          <table className="min-w-full border-collapse ">
-            <thead>
-              <tr>
-                <th
-                  className="py-2 px-4 border-b text-left cursor-pointer"
-                  onClick={() => handleSort('foodbank')}
-                >
-                  Food Bank
-                  {sortColumn === 'foodbank' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </th>
-                <th
-                  className="py-2 px-4 border-b text-left cursor-pointer"
-                  onClick={() => handleSort('start_time')}
-                >
-                  Start Time
-                  {sortColumn === 'start_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </th>
-                <th
-                  className="py-2 px-4 border-b text-left cursor-pointer"
-                  onClick={() => handleSort('end_time')}
-                >
-                  End Time
-                  {sortColumn === 'end_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </th>
-                <th
-                  className="py-2 px-4 border-b text-left cursor-pointer"
-                  onClick={() => handleSort('status')}
-                >
-                  Status
-                  {sortColumn === 'status' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </th>
-                <th className="py-2 px-4 border-b text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedAppointments.map((appointment) => (
-                <tr key={appointment._id}>
-                  <td className="py-2 px-4 border-b">
-                    {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
-                  </td>
-                  <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
-                  <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
-                  <td className="py-2 px-4 border-b">{appointment.status}</td>
-                  <td className="py-2 px-4 border-b">
-                    <button
-                      onClick={() => handleViewDetail(appointment)}
-                      className="text-blue-500 hover:underline"
+          <>
+            {/* TABLE: visible on md+ screens */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th
+                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      onClick={() => handleSort('foodbank')}
                     >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
+                      Food Bank
+                      {sortColumn === 'foodbank' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </th>
+                    <th
+                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      onClick={() => handleSort('start_time')}
+                    >
+                      Start Time
+                      {sortColumn === 'start_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </th>
+                    <th
+                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      onClick={() => handleSort('end_time')}
+                    >
+                      End Time
+                      {sortColumn === 'end_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </th>
+                    <th
+                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      onClick={() => handleSort('status')}
+                    >
+                      Status
+                      {sortColumn === 'status' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </th>
+                    <th className="py-2 px-4 border-b text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedAppointments.map((appointment) => (
+                    <tr key={appointment._id}>
+                      <td className="py-2 px-4 border-b">
+                        {foodbankUsernames[appointment.foodbank_id] ||
+                          appointment.foodbank_id}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {formatDate(appointment.start_time)}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {formatDate(appointment.end_time)}
+                      </td>
+                      <td className="py-2 px-4 border-b">{appointment.status}</td>
+                      <td className="py-2 px-4 border-b">
+                        <button
+                          onClick={() => handleViewDetail(appointment)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* CARDS: visible on small screens */}
+            <div className="block md:hidden space-y-4">
+              {sortedAppointments.map((appointment) => (
+                <div
+                  key={appointment._id}
+                  className="border rounded p-4 shadow-sm"
+                >
+                  <p className="mb-2">
+                    <strong>Food Bank:</strong>{' '}
+                    {foodbankUsernames[appointment.foodbank_id] ||
+                      appointment.foodbank_id}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Start Time:</strong>{' '}
+                    {formatDate(appointment.start_time)}
+                  </p>
+                  <p className="mb-2">
+                    <strong>End Time:</strong>{' '}
+                    {formatDate(appointment.end_time)}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Status:</strong> {appointment.status}
+                  </p>
+                  <button
+                    onClick={() => handleViewDetail(appointment)}
+                    className="text-blue-500 hover:underline"
+                  >
+                    View Details
+                  </button>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         ) : (
           <p className="text-center text-gray-600">No appointments found.</p>
         )}
@@ -220,7 +268,7 @@ const ViewAppointments = () => {
         {/* Modal */}
         {isModalOpen && selectedAppointment && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[90vw] sm:w-96">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[90vw] sm:w-96 max-h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
               <p>
                 <strong>Description:</strong> {selectedAppointment.description}
@@ -233,16 +281,20 @@ const ViewAppointments = () => {
               </p>
               <div className="mt-4">
                 <strong className="text-gray-800">Products:</strong>
-                <ul className=" mt-2">
+                <ul className="mt-2">
                   {selectedAppointment.product.map((item, index) => (
                     <li key={index} className="text-xs text-gray-600 md:text-base">
-                      {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
+                      {item.food_name}: {item.quantity}{' '}
+                      {item.quantity > 1 ? 'items' : 'item'}
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="mt-4 text-right">
-                <button onClick={closeModal} className="bg-blue-500 text-white px-4 py-2 rounded">
+                <button
+                  onClick={closeModal}
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
                   Close
                 </button>
               </div>
