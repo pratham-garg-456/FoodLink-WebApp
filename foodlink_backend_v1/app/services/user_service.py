@@ -54,5 +54,5 @@ async def create_user_in_db(name: str, role: str, email: str, password: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating new user in db: {e}",
+            detail=f"An error occurred while creating new user in db: {e}",
         )

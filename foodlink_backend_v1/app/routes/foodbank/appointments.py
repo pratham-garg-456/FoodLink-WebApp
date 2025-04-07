@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
-from app.services.food_bank_service import (
+from app.services.foodbank.appointment_service import (
     get_list_appointments_in_db,
     update_appointment_status_in_db,
     reschedule_appointment_in_db,

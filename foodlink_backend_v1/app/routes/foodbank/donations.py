@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from app.utils.jwt_handler import jwt_required
-from app.services.food_bank_service import (
+from app.services.foodbank.donation_service import (
     search_donations,
     get_all_donations,
 )
@@ -27,6 +27,7 @@ async def get_donations_for_foodbank(payload: dict = Depends(jwt_required)):
         "status": "success",
         "donations": donations,
     }
+
 
 @router.get("/donations/search")
 async def search_for_donations(

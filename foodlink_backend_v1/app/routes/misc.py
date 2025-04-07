@@ -54,7 +54,7 @@ async def add_available_services(service_data: dict = {}):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating new service in db: {e}",
+            detail=f"An error occurred while creating new service in db: {e}",
         )
 
     return {"status": "success", "service": service_dict}
@@ -114,7 +114,7 @@ async def submit_question(contact_data: dict = {}):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating a new question in db: {e}",
+            detail=f"An error occurred while creating a new question in db: {e}",
         )
 
     return {"status": "success", "question": new_question}

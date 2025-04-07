@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
-from app.services.food_bank_service import (
+from app.services.foodbank.inventory_service import (
     add_inventory_in_db,
     get_inventory_in_db,
     remove_inventory_in_db,
 )
 
 router = APIRouter()
+
 
 @router.post("/inventory")
 async def add_inventory(
@@ -36,7 +37,7 @@ async def add_inventory(
     for item in inventory_data["stock"]:
         # Convert given quantity to float type
         item["quantity"] = float(item["quantity"])
-        
+
         if "food_name" not in item or not item["food_name"]:
             raise HTTPException(
                 status_code=400,

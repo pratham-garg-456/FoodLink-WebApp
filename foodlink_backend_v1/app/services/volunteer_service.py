@@ -1,5 +1,5 @@
 from app.models.application import Application, EventApplication
-from app.models.volunter_activity import VolunteerActivity
+from app.models.volunteer_activity import VolunteerActivity
 from app.models.job import Job
 from app.models.user import User
 from beanie import PydanticObjectId
@@ -28,7 +28,7 @@ async def add_event_application_in_db(volunteer_id: str, event_id: str, job_id: 
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating a new application in db: {e}",
+            detail=f"An error occurred while creating a new application in db: {e}",
         )
 
 
@@ -64,7 +64,7 @@ async def add_foodbank_job_application_in_db(
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while creating a new application in db: {e}",
+            detail=f"An error occurred while creating a new application in db: {e}",
         )
 
 
@@ -94,7 +94,7 @@ async def retrieve_volunteer_activity_in_db(volunteer_id):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while fetching a list of volunteer activity in db: {e}",
+            detail=f"An error occurred while fetching a list of volunteer activity in db: {e}",
         )
 
 
@@ -127,7 +127,7 @@ async def retrieve_list_jobs_in_db():
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while fetching a list of job in db: {e}",
+            detail=f"An error occurred while fetching a list of job in db: {e}",
         )
 
 
@@ -156,7 +156,7 @@ async def retrieve_specific_job_in_db(job_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while fetching a specific job in db: {e}",
+            detail=f"An error occurred while fetching a specific job in db: {e}",
         )
 
 
@@ -188,7 +188,7 @@ async def retrieve_applied_job_in_db(volunteer_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while fetching a list of applied job in db: {e}",
+            detail=f"An error occurred while fetching a list of applied job in db: {e}",
         )
 
 
@@ -209,7 +209,7 @@ async def delete_application(volunteer_id: str, application_id: str):
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while deleting job in db: {e}",
+            detail=f"An error occurred while deleting job in db: {e}",
         )
 
 

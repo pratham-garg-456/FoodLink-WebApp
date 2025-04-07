@@ -10,10 +10,10 @@ from app.models import (
     appointment,
     donation,
     job,
-    volunter_activity,
     food_item,
 )
 from app.config import settings
+from app.models import volunteer_activity
 
 
 async def init_db():
@@ -35,7 +35,7 @@ async def init_db():
             appointment.Appointment,
             donation.Donation,
             job.Job,
-            volunter_activity.VolunteerActivity,
+            volunteer_activity.VolunteerActivity,
             food_item.FoodItem,
         ],
     )
