@@ -21,7 +21,7 @@ const NavbarFoodbank = () => {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
-      ); // Replace with your actual API endpoint
+      );
       if (!response.ok) throw new Error('Failed to fetch users');
 
       const data = await response.json();
@@ -237,7 +237,7 @@ const NavbarFoodbank = () => {
               className=" flex items-center justify-center bg-white text-black px-3 py-2 rounded-lg md:bg-black md:text-white cursor-pointer w-full"
               onClick={toggleDropdown}
             >
-              {foodbankId}
+              {foodbankName.substring(0, foodbankName.indexOf(' '))}
 
               <svg
                 className="w-2.5 h-2.5 ms-2.5"
@@ -261,7 +261,7 @@ const NavbarFoodbank = () => {
                 className="flex flex-col justify-center items-center mt-2  bg-white text-black rounded-lg shadow-lg w-auto "
               >
                 <Link
-                  href="/profile"
+                  href="/dashboard/foodbank/profile"
                   className="w-full px-4 py-2 hover:bg-gray-200 hover:rounded-lg hover:rounded-b-none "
                 >
                   Profile
