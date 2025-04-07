@@ -60,9 +60,9 @@ export default function FindDropOffLocation({ foodBanks }) {
   }, [userLocation]);
 
   return (
-    <div style={{ display: 'flex', height: '85vh', width: '95%' }}>
+    <div className="mx-auto w-[95%] h-[85vh] grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Left Panel: Food Bank List */}
-      <div style={{ width: '30%', padding: '1rem', backgroundColor: '#f7f7f7', overflowY: 'auto' }}>
+      <div className="md:col-span-1 p-4 bg-gray-100 overflow-y-auto">
         <FoodBankList
           foodBanks={foodBanks}
           onSelect={handleSelectFoodBank}
@@ -71,7 +71,7 @@ export default function FindDropOffLocation({ foodBanks }) {
       </div>
 
       {/* Right Panel: Map */}
-      <div style={{ flex: 1 }}>
+      <div className="md:col-span-2 flex-1">
         <Map
           foodBanks={foodBanks}
           selectedFoodBank={selectedFoodBank}

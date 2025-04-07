@@ -52,6 +52,8 @@ export default function VolunteerProfile() {
     e.preventDefault();
     try {
       await axios.put(
+        // http://127.0.0.1:8000
+        // ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/metadata
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/metadata`,
         volunteer,
         {

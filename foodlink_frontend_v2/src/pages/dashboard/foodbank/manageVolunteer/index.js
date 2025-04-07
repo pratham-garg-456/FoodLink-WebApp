@@ -176,96 +176,122 @@ export default function ManageVolunteers() {
 
         {/* List of Applications */}
         {!selectedApplication && (
-          <div className="bg-white shadow rounded-lg w-full overflow-x-auto">
+          <div className="bg-white shadow rounded-lg w-full">
             {applications.length === 0 ? (
               <div className="p-6 text-center bg-gray-100 text-gray-600">
                 There are no applications now.
               </div>
             ) : (
-              <table className="w-full table-auto divide-y divide-gray-200">
-                {filterStatus === 'pending' ? (
-                  <>
-                    <thead className="bg-yellow-400">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Volunteer Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Job Title
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Job Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                          Applied At
-                        </th>
-                      </tr>
-                    </thead>
-                  </>
-                ) : (
-                  <thead className="bg-green-600">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                        Volunteer Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                        Job Title
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                        Job Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">Status</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                        Applied At
-                      </th>
-                    </tr>
-                  </thead>
-                )}
-                <tbody className="bg-white divide-y divide-gray-200">
+              <>
+                {/* TABLE (hidden on small screens) */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full table-auto divide-y divide-gray-200">
+                    {filterStatus === 'pending' ? (
+                      <thead className="bg-yellow-400">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Volunteer Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Job Title
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Job Category
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Category
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Applied At
+                          </th>
+                        </tr>
+                      </thead>
+                    ) : (
+                      <thead className="bg-green-600">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Volunteer Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Job Title
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Job Category
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Category
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                            Applied At
+                          </th>
+                        </tr>
+                      </thead>
+                    )}
+
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {applications.map((app) => (
+                        <tr
+                          key={app.id}
+                          className="cursor-pointer hover:bg-gray-100"
+                          onClick={() => handleApplicationClick(app)}
+                        >
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {app.volunteer_name}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {app.job_name}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {app.job_category}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {app.category}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {app.status}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                            {formatDateToLocal(app.applied_at)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* CARD VIEW (visible on small screens) */}
+                <div className="block md:hidden space-y-2">
                   {applications.map((app) => (
-                    <tr
+                    <div
                       key={app.id}
-                      className="cursor-pointer hover:bg-gray-100"
+                      className="border p-4 shadow-sm cursor-pointer hover:bg-gray-50"
                       onClick={() => handleApplicationClick(app)}
                     >
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {app.volunteer_name}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {app.job_name}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {app.job_category}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {app.category}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {app.status}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
-                        {formatDateToLocal(app.applied_at)}
-                      </td>
-                    </tr>
+                      <p className="font-semibold">
+                        Volunteer Name: {app.volunteer_name}
+                      </p>
+                      <p>Job Title: {app.job_name}</p>
+                      <p>Job Category: {app.job_category}</p>
+                      <p>Category: {app.category}</p>
+                      <p>Status: {app.status}</p>
+                      <p>Applied At: {formatDateToLocal(app.applied_at)}</p>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </>
             )}
           </div>
         )}
 
         {/* Volunteer Details View */}
         {selectedApplication && volunteerDetails && (
-          <div className="bg-white shadow rounded-lg p-6">
+          <div className="bg-white shadow rounded-lg p-6 mt-4">
             <button
               onClick={() => {
                 setSelectedApplication(null);
@@ -337,7 +363,7 @@ export default function ManageVolunteers() {
                       required
                     />
                   </div>
-                  <div className="flex space-x-4">
+                  <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
                     <div className="flex-1">
                       <label className="block mb-1 font-semibold">Start Time</label>
                       <input
