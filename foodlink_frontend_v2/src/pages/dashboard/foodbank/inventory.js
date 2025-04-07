@@ -98,7 +98,9 @@ export default function Inventory() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
-          body: JSON.stringify({ stock: [{ food_name: foodName.trim(), quantity: Number(quantity) }] }),
+          body: JSON.stringify({
+            stock: [{ food_name: foodName.trim(), quantity: Number(quantity) }],
+          }),
         }
       );
       const data = await response.json();
@@ -121,7 +123,9 @@ export default function Inventory() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           },
-          body: JSON.stringify({ stock: [{ food_name: foodName.trim(), quantity: Number(quantity) }] }),
+          body: JSON.stringify({
+            stock: [{ food_name: foodName.trim(), quantity: Number(quantity) }],
+          }),
         }
       );
       const data = await response.json();
@@ -229,10 +233,7 @@ export default function Inventory() {
               {/* CARD VIEW (visible on small screens) */}
               <div className="block md:hidden space-y-4">
                 {foodItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="border rounded p-4 shadow-sm"
-                  >
+                  <div key={item.id} className="border rounded p-4 shadow-sm">
                     <p>
                       <strong>Food Name:</strong> {item.food_name}
                     </p>
@@ -246,8 +247,7 @@ export default function Inventory() {
                       <strong>Description:</strong> {item.description}
                     </p>
                     <p>
-                      <strong>Expiration Date:</strong>{' '}
-                      {formatDateToLocal(item.expiration_date)}
+                      <strong>Expiration Date:</strong> {formatDateToLocal(item.expiration_date)}
                     </p>
                   </div>
                 ))}
@@ -270,9 +270,7 @@ export default function Inventory() {
               <>
                 {inventory.map((inv) => (
                   <div key={inv.id} className="mb-6">
-                    <h2 className="text-xl font-semibold mb-2">
-                      Inventory ID: {inv.id}
-                    </h2>
+                    <h2 className="text-xl font-semibold mb-2">Inventory ID: {inv.id}</h2>
                     <p className="text-sm text-gray-600 mb-2">
                       Last Updated: {formatDateToLocal(inv.last_updated)}
                     </p>
@@ -289,12 +287,8 @@ export default function Inventory() {
                         <tbody>
                           {inv.stock.map((item, idx) => (
                             <tr key={idx}>
-                              <td className="py-2 px-4 border-b">
-                                {item.food_name}
-                              </td>
-                              <td className="py-2 px-4 border-b">
-                                {item.quantity}
-                              </td>
+                              <td className="py-2 px-4 border-b">{item.food_name}</td>
+                              <td className="py-2 px-4 border-b">{item.quantity}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -304,10 +298,7 @@ export default function Inventory() {
                     {/* CARD VIEW (visible on small screens) */}
                     <div className="block md:hidden space-y-4">
                       {inv.stock.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="border rounded p-4 shadow-sm"
-                        >
+                        <div key={idx} className="border rounded p-4 shadow-sm">
                           <p>
                             <strong>Food Name:</strong> {item.food_name}
                           </p>
@@ -410,44 +401,58 @@ export default function Inventory() {
                 <input
                   type="text"
                   value={newFoodItem.food_name}
-                  onChange={(e) =>
-                    setNewFoodItem({ ...newFoodItem, food_name: e.target.value })
-                  }
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, food_name: e.target.value })}
                   className="border p-2 w-full"
                   required
                 />
               </div>
               <div className="mb-4">
                 <label className="block mb-1">Category</label>
-                <input
-                  type="text"
+                <select
                   value={newFoodItem.category}
-                  onChange={(e) =>
-                    setNewFoodItem({ ...newFoodItem, category: e.target.value })
-                  }
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, category: e.target.value })}
                   className="border p-2 w-full"
                   required
-                />
+                >
+                  <option value="" disabled>
+                    Select a category
+                  </option>
+                  <option value="Vegetables">Vegetables</option>
+                  <option value="Fruits">Fruits</option>
+                  <option value="Dairy">Dairy</option>
+                  <option value="Meat">Meat</option>
+                  <option value="Canned Goods">Canned Goods</option>
+                  <option value="Grains">Grains</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Packed Food">Packed Food</option>
+                  <option value="Others">Others</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block mb-1">Unit</label>
-                <input
-                  type="text"
+                <select
                   value={newFoodItem.unit}
-                  onChange={(e) =>
-                    setNewFoodItem({ ...newFoodItem, unit: e.target.value })
-                  }
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, unit: e.target.value })}
                   className="border p-2 w-full"
                   required
-                />
+                >
+                  <option value="" disabled>
+                    Select a unit
+                  </option>
+                  <option value="kg">Kilograms (kg)</option>
+                  <option value="grams">Grams (g)</option>
+                  <option value="liters">Liters (l)</option>
+                  <option value="ml">Milliliters (ml)</option>
+                  <option value="pcs">Pieces (pcs)</option>
+                  <option value="packs">Packs</option>
+                </select>
               </div>
               <div className="mb-4">
                 <label className="block mb-1">Description</label>
                 <textarea
                   value={newFoodItem.description}
-                  onChange={(e) =>
-                    setNewFoodItem({ ...newFoodItem, description: e.target.value })
-                  }
+                  onChange={(e) => setNewFoodItem({ ...newFoodItem, description: e.target.value })}
                   className="border p-2 w-full"
                   required
                 />

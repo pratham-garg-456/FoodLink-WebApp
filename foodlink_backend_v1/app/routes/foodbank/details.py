@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
-from app.services.food_bank_service import update_details_information
+from app.services.foodbank.details_service import update_details_information
 
 router = APIRouter()
 
