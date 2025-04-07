@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.services.user_service import get_user_by_id
 from app.utils.jwt_handler import jwt_required
-from app.services.foodbank.volunteer_mangement_service import (
+from app.services.foodbank.volunteer_management_service import (
     get_list_volunteer_in_db,
     update_application_status_in_db,
     get_list_foodbank_application_in_db,

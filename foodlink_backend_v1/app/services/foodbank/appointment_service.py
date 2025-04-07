@@ -49,7 +49,7 @@ async def update_appointment_status_in_db(appointment_id: str, updated_status: s
     except Exception as e:
         raise HTTPException(
             status_code=400,
-            detail=f"An error occured while updating the appointment in DB: {e}",
+            detail=f"An error occurred while updating the appointment in DB: {e}",
         )
 
 

@@ -47,7 +47,7 @@ async def signup(user_data: dict = {}):
         hashed_password = get_password_hash(user_data["password"])
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"An error occured while hashing the password: {e}"
+            status_code=400, detail=f"An error occurred while hashing the password: {e}"
         )
 
     # Store the new user into a db
