@@ -153,18 +153,49 @@ const ViewAppointments = () => {
     }
   };
 
+  const handleMarkAsPicked = async () => {
+    if (!selectedAppointment) return;
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
+
+      // Make the API request to update the status
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/appointment/${selectedAppointment._id}`,
+        { updated_status: 'picked' },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Update local state after marking as picked
+      setAllAppointments((prevAppointments) =>
+        prevAppointments.map((appt) =>
+          appt._id === selectedAppointment._id ? { ...appt, status: 'picked' } : appt
+        )
+      );
+
+      // Close the modal
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error marking appointment as picked:', error);
+    }
+  };
+
   return (
     <div className="bg-white p-8 shadow-lg">
-      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-        Manage Appointments
-      </h1>
+      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Manage Appointments</h1>
 
       {/* Status Filter */}
       <div className="mb-4">
         <label className="mr-2">Filter by Status:</label>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="rescheduled">Rescheduled</option>
-          <option value="completed">Completed</option>
+          <option value="picked">Completed</option>
           <option value="cancelled">Cancelled</option>
           <option value="scheduled">Scheduled</option>
         </select>
@@ -176,9 +207,7 @@ const ViewAppointments = () => {
       ) : errorMessage ? (
         <p className="text-center text-red-500">{errorMessage}</p>
       ) : filteredAppointments.length === 0 ? (
-        <p className="text-center text-gray-600">
-          No appointments found for the selected status.
-        </p>
+        <p className="text-center text-gray-600">No appointments found for the selected status.</p>
       ) : (
         <>
           {/* TABLE: visible on md+ screens */}
@@ -196,15 +225,10 @@ const ViewAppointments = () => {
                 {filteredAppointments.map((appointment) => (
                   <tr key={appointment._id}>
                     <td className="py-2 px-4 border-b">
-                      {individualUsernames[appointment.individual_id] ||
-                        appointment.individual_id}
+                      {individualUsernames[appointment.individual_id] || appointment.individual_id}
                     </td>
-                    <td className="py-2 px-4 border-b">
-                      {formatDate(appointment.start_time)}
-                    </td>
-                    <td className="py-2 px-4 border-b">
-                      {formatDate(appointment.end_time)}
-                    </td>
+                    <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
+                    <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
                     <td className="py-2 px-4 border-b">
                       <button
                         onClick={() => handleViewDetail(appointment)}
@@ -222,14 +246,10 @@ const ViewAppointments = () => {
           {/* CARD VIEW: visible on small screens */}
           <div className="block md:hidden space-y-4">
             {filteredAppointments.map((appointment) => (
-              <div
-                key={appointment._id}
-                className="border rounded p-4 shadow-sm"
-              >
+              <div key={appointment._id} className="border rounded p-4 shadow-sm">
                 <p>
                   <strong>Name:</strong>{' '}
-                  {individualUsernames[appointment.individual_id] ||
-                    appointment.individual_id}
+                  {individualUsernames[appointment.individual_id] || appointment.individual_id}
                 </p>
                 <p>
                   <strong>Start Time:</strong> {formatDate(appointment.start_time)}
@@ -266,8 +286,7 @@ const ViewAppointments = () => {
             <ul className="space-y-2 mt-2">
               {selectedAppointment.product.map((item, index) => (
                 <li key={index} className="text-sm text-gray-600">
-                  {item.food_name}: {item.quantity}{' '}
-                  {item.quantity > 1 ? 'items' : 'item'}
+                  {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
                 </li>
               ))}
             </ul>
@@ -276,13 +295,21 @@ const ViewAppointments = () => {
             </p>
             {(selectedAppointment.status === 'scheduled' ||
               selectedAppointment.status === 'rescheduled') && (
-              <button
-                onClick={handleCancelAppointment}
-                disabled={isCancelling}
-                className="bg-red-500 text-white px-4 py-2 rounded mt-4"
-              >
-                {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
-              </button>
+              <>
+                <button
+                  onClick={handleCancelAppointment}
+                  disabled={isCancelling}
+                  className="bg-red-500 text-white px-4 py-2 rounded mt-4"
+                >
+                  {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
+                </button>
+                <button
+                  onClick={handleMarkAsPicked}
+                  className="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-2"
+                >
+                  Mark as Picked
+                </button>
+              </>
             )}
             <button
               onClick={closeModal}
