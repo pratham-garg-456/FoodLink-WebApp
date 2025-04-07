@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from app.models.user import User
 from datetime import datetime, timezone
 from beanie import PydanticObjectId
+from app.models.event import Event, EventInventory
 
 
 async def create_donation_in_db(donor_id: str, donation_data: dict):
@@ -84,4 +85,40 @@ async def update_donor_detailed_info_in_db(
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while updating the metadata for donor: {e}",
+        )
+
+
+async def retrieve_list_of_events_in_db():
+    """
+    Retrieve the detailed information about an ongoing events
+    """
+    # Initialize the list with empty array
+    event_list = []
+    try:
+        events = await Event.find().to_list()
+
+        for event in events:
+            event = event.model_dump()
+            event["id"] = str(event["id"])
+
+            # Fetch event inventory
+            event_inventory = await EventInventory.find_one(
+                EventInventory.event_id == event["id"]
+            )
+            if not event_inventory:
+                raise HTTPException(
+                    status_code=404, detail="Event inventory not found."
+                )
+
+            event_inventory = event_inventory.model_dump()
+            event_inventory["id"] = str(event_inventory["id"])
+
+            event["event_inventory"] = event_inventory
+            event_list.append(event)
+
+        return event_list
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while fetching the list of events: {e}",
         )

@@ -145,6 +145,12 @@ const IndividualDashboard = () => {
             >
               View Appointments History
             </button>
+            <button
+              className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700"
+              onClick={() => router.push('/dashboard/individual/eventList')}
+            >
+              View Ongoing Foodbank Events
+            </button>
           </div>
 
           <div className="mt-8">

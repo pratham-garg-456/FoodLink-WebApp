@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.utils.jwt_handler import jwt_required
 from app.services.individual_service import create_appointment_in_db
 from app.services.individual_service import get_appointments_by_individual
-from app.services.individual_service import get_inventory_in_db, update_individual_detailed_info_in_db
+from app.services.individual_service import (
+    get_inventory_in_db,
+    update_individual_detailed_info_in_db,
+    retrieve_list_of_events_in_db,
+)
 
 router = APIRouter()
 
@@ -42,10 +46,9 @@ async def request_an_appointment(
 
     return {"status": "success", "appointment": appointment}
 
+
 @router.get("/appointments")
-async def fetch_appointments_by_individual(
-    payload: dict = Depends(jwt_required)
-):
+async def fetch_appointments_by_individual(payload: dict = Depends(jwt_required)):
     """
     API route to get all appointments for a specific individual.
     Only Food Bank Admins can access this route.
@@ -53,6 +56,7 @@ async def fetch_appointments_by_individual(
 
     appointments = await get_appointments_by_individual(payload.get("sub"))
     return {"status": "success", "appointments": appointments}
+
 
 @router.get("/inventory/{foodbank_id}")
 async def get_inventory(payload: dict = Depends(jwt_required), foodbank_id: str = None):
@@ -68,7 +72,7 @@ async def get_inventory(payload: dict = Depends(jwt_required), foodbank_id: str 
             status_code=401,
             detail="Only individual can retrieve the inventory list",
         )
-    
+
     if foodbank_id is None:
         raise HTTPException(
             status_code=400,
@@ -78,7 +82,6 @@ async def get_inventory(payload: dict = Depends(jwt_required), foodbank_id: str 
     inventory_list = await get_inventory_in_db(foodbank_id=foodbank_id)
 
     return {"status": "success", "inventory": inventory_list}
-
 
 
 @router.put("/metadata")
@@ -105,3 +108,21 @@ async def update_individual_metadata(
     )
 
     return {"status": "success", "individual": individual}
+
+
+@router.get("/events")
+async def retrieve_list_of_ongoing_events(payload: dict = Depends(jwt_required)):
+    """
+    Allow individual to get the list of ongoing foodbank events
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
+
+    # Validate if the request is made from individual
+    if payload.get("role") != "individual":
+        raise HTTPException(
+            status_code=401, detail="Only individual can retrieve the list of events"
+        )
+
+    events = await retrieve_list_of_events_in_db()
+
+    return {"status": "success", "events": events}

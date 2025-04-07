@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from app.utils.time_converter import convert_string_time_to_iso
 from app.models.event import Event, EventInventory, EventInventoryFoodItem
 from typing import List
-from app.models.inventory import MainInventory, MainInventoryFoodItem
+from app.models.inventory import MainInventory
 
 
 async def create_an_event_in_db(foodbank_id: str, event_data: dict):
