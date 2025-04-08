@@ -1,134 +1,227 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import axios from "axios";
+'use client';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
+import validateToken from '@/utils/validateToken';
 
 export default function VolunteerProfile() {
   const router = useRouter();
-  const [volunteer, setVolunteer] = useState({ description: "", experiences: "" });
-  const [userInfo, setUserInfo] = useState(null);
+
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    image_url: '',
+    description: '',
+    experiences: '',
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState('/images/default-profile.png');
+  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchProfile() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return router.push('/auth/login');
+
+      const decoded = await validateToken(token);
+      if (decoded.error) return router.push('/auth/login');
+
       try {
-        const response = await axios.get(
-            // ${process.env.NEXT_PUBLIC_BACKEND_URL}
+        const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/profile`,
           {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log(response);
 
-        // Extract user details from response and prepopulate the fields
-        const user = response.data.user;
-        console.log(user);
-        
-        setVolunteer({
-          description: user.description || "",
-          experiences: user.experiences || "",
-          // other user fields if needed
-          ...user,
+        const user = res.data.user;
+
+        setProfile({
+          name: user.name || '',
+          email: user.email || '',
+          phone: user.phone_number || '',
+          address: user.address || '',
+          image_url: user.image_url || '',
+          description: user.description || '',
+          experiences: user.experiences || '',
         });
-        setUserInfo(user);
+
+        setProfileImage(user.image_url || '/images/default-profile.png');
       } catch (err) {
-        setError("Failed to fetch profile.");
+        console.error('Failed to fetch profile', err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchProfile();
   }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setVolunteer({ ...volunteer, [name]: value });
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(
-        // http://127.0.0.1:8000
-        // ${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/metadata
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/metadata`,
-        volunteer,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-          },
-        }
-      );
-      alert("Profile updated successfully!");
-    } catch (err) {
-      alert("Failed to update profile.");
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setProfileImage(URL.createObjectURL(file));
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  const handleSubmit = async () => {
+    try {
+      let imageUrl = profile.image_url;
+
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+
+        const uploadRes = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/upload/`,
+          { method: 'POST', body: formData }
+        );
+
+        const result = await uploadRes.json();
+        imageUrl = result.secure_url;
+      }
+
+      const token = localStorage.getItem('accessToken');
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/metadata`,
+        {
+          phone_number: profile.phone,
+          image_url: imageUrl,
+          description: profile.description,
+          experiences: profile.experiences,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      alert('Profile updated successfully!');
+      setIsEditing(false);
+      window.location.reload();
+    } catch (err) {
+      console.error('Update failed', err);
+      alert('Error updating profile.');
+    }
+  };
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-white shadow-lg rounded-lg">
-      <h1 className="text-6xl font-bold mb-6 text-center">Volunteer Profile</h1>
+    <div className="mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg flex flex-col lg:flex-row w-[70vw] my-16 md:my-28">
+      <div className="order-2 lg:order-1 pr-4 w-full lg:w-2/3 flex flex-col items-center">
+        <div className="space-y-4 w-full lg:w-3/4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Volunteer Profile</h2>
 
-      {/* Display user information */}
-      {userInfo && (
-        <div className="mb-6 bg-gray-100 p-4 rounded-lg">
-          <p className="text-lg"><strong>Name:</strong> {userInfo.name}</p>
-          <p className="text-lg"><strong>Email:</strong> {userInfo.email}</p>
-          <p className="text-lg">
-            <strong>Created At:</strong>{" "}
-            {new Date(userInfo.created_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </div>
-      )}
+          {[
+            { label: 'Name', value: profile.name, disabled: true },
+            { label: 'Email', value: profile.email, disabled: true },
+            {
+              label: 'Phone',
+              name: 'phone',
+              value: profile.phone,
+              disabled: !isEditing,
+            },
+            {
+              label: 'Address',
+              value: profile.address,
+              disabled: true,
+            },
+          ].map((field, idx) => (
+            <label key={idx}>
+              <span className="text-gray-700">{field.label}</span>
+              <input
+                type="text"
+                name={field.name || field.label.toLowerCase()}
+                value={field.value}
+                onChange={handleChange}
+                disabled={field.disabled}
+                className={`w-full mt-1 p-2 border rounded-md ${
+                  field.disabled ? 'bg-gray-200' : ''
+                }`}
+              />
+            </label>
+          ))}
 
-      {/* Profile update form */}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-lg mb-2">Description</label>
-          <textarea
-            name="description"
-            value={volunteer.description}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-            rows="5"
-          />
+          <label>
+            <span className="text-gray-700">Description</span>
+            <textarea
+              name="description"
+              rows={4}
+              value={profile.description}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className="w-full mt-1 p-2 border rounded-md"
+            />
+          </label>
+
+          <label>
+            <span className="text-gray-700">Experiences</span>
+            <textarea
+              name="experiences"
+              rows={5}
+              value={profile.experiences}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className="w-full mt-1 p-2 border rounded-md"
+            />
+          </label>
+
+          <label>
+            <span className="text-gray-700">Profile Picture</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={!isEditing}
+              className="mt-1 w-full p-2 border rounded-md"
+            />
+          </label>
+
+          <div className="flex gap-4 mt-6">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSubmit}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+              >
+                Edit
+              </button>
+            )}
+          </div>
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-lg mb-2">Experiences</label>
-          <textarea
-            name="experiences"
-            value={volunteer.experiences}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500"
-            rows="6"
-          />
-        </div>
-        <div className="flex justify-between">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="px-5 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-800 text-lg"
-          >
-            Back
-          </button>
-          <button
-            type="submit"
-            className="px-5 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-800 text-lg"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
+      </div>
+
+      <div className="order-1 lg:order-2 w-auto flex justify-center items-center">
+        <img
+          src={profile.image_url || profileImage}
+          alt="Profile"
+          className="w-44 md:w-64 h-44 md:h-64 rounded-full object-cover"
+        />
+      </div>
     </div>
   );
 }

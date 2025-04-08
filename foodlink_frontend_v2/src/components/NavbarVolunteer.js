@@ -203,7 +203,7 @@ const NavbarIndividual = () => {
                 className="flex flex-col justify-center items-center mt-2 bg-white text-black rounded-lg shadow-lg w-auto"
               >
                 <Link
-                  href="/profile"
+                  href="/dashboard/volunteer/profile"
                   className="w-full px-4 py-2 hover:bg-gray-200 hover:rounded-lg hover:rounded-b-none"
                 >
                   Profile
