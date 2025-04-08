@@ -98,7 +98,7 @@ export default function DonatePage() {
       className="bg-white flex items-center justify-center p-8"
       style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}
     >
-      <div className="flex flex-col md:flex-row w-[60vw] h-[75vh] bg-white shadow-md rounded">
+      <div className="flex flex-col md:flex-row w-[60vw] h-[75vh] bg-slate-200 shadow-2xl rounded">
         {/* Left Column */}
         <div className="w-full md:w-1/2 relative">
           <Image
@@ -112,19 +112,21 @@ export default function DonatePage() {
 
         {/* Right Column: Donation Form */}
         <div className="w-full md:w-1/2 p-6 flex flex-col justify-center">
-          <h1 className="text-2xl font-bold mb-6">Your support means the world to us</h1>
+          <h1 className="text-5xl font-bold mb-6">Your support means the world to us</h1>
           {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-gray-600">Food Bank</label>
+              <label className="block text-lg text-gray-600">Food Bank</label>
               <select
                 value={selectedFoodbank}
                 onChange={(e) => setSelectedFoodbank(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
-                <option value="">Select a Food Bank</option>
+                <option value="" disabled>
+                  Select a Food Bank
+                </option>
                 {foodbanks.map((foodbank) => (
                   <option key={foodbank.id} value={foodbank.id}>
                     {foodbank.name}
@@ -134,7 +136,7 @@ export default function DonatePage() {
             </div>
 
             <div>
-              <label className="block font-semibold mb-1">Donation Amount ($)</label>
+              <label className="block text-lg  font-semibold mb-1">Donation Amount ($)</label>
               <input
                 type="number"
                 min="1"
@@ -147,7 +149,7 @@ export default function DonatePage() {
 
             {/* Card Details Section */}
             <div>
-              <label className="block font-semibold mb-1">Card Number</label>
+              <label className="block text-lg font-semibold mb-1">Card Number</label>
               <input
                 type="text"
                 className="w-full border p-2 rounded"
@@ -159,7 +161,7 @@ export default function DonatePage() {
 
             <div className="flex gap-4">
               <div className="w-1/2">
-                <label className="block font-semibold mb-1">Expiry Date (MM/YY)</label>
+                <label className="block text-lg  font-semibold mb-1">Expiry Date (MM/YY)</label>
                 <input
                   type="text"
                   className="w-full border p-2 rounded"
@@ -170,7 +172,7 @@ export default function DonatePage() {
               </div>
 
               <div className="w-1/2">
-                <label className="block font-semibold mb-1">CVV</label>
+                <label className="block text-lg font-semibold mb-1">CVV</label>
                 <input
                   type="text"
                   className="w-full border p-2 rounded"
@@ -184,14 +186,14 @@ export default function DonatePage() {
             <div className="flex justify-between mt-6">
               <button
                 type="button"
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="px-4 text-lg  py-2 bg-gray-300 rounded hover:bg-gray-400"
                 onClick={() => router.push('/dashboard/donor')}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className=" text-2xl px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-700"
               >
                 Donate
               </button>

@@ -82,7 +82,7 @@ app.include_router(
 
 app.include_router(
     details.router, prefix="/api/v1/foodlink/foodbank", tags=["FoodBank"]
-)
+) 
 
 
 # Root endpoint for health checks or basic info
