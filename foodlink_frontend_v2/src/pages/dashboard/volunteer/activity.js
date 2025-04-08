@@ -46,8 +46,8 @@ export default function VolunteerDashboard() {
   return (
     <div className="p-4 flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-8">
       {/* Left Side - Table */}
-      <div className="lg:w-3/4">
-        <h2 className="text-xl font-bold mb-4">Volunteer Activities</h2>
+      <div className="lg:w-full">
+        <h2 className="text-4xl font-bold mb-4">Volunteer Activities</h2>
         <div className="overflow-x-auto w-full border border-black">
           <table className="w-full divide-y divide-gray-200">
             <thead className="bg-black text-white">
@@ -85,7 +85,7 @@ export default function VolunteerDashboard() {
 
       {/* Right Side - Total Hours Circle */}
       <div className="lg:w-1/4 flex flex-col items-center">
-        <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex justify-center items-center border-4 border-gray-700 rounded-full">
+        <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex justify-center items-center border-4 border-green-700 rounded-full">
           <span className="text-lg sm:text-2xl font-bold">
             {totalHours.toFixed(2)} hrs
           </span>

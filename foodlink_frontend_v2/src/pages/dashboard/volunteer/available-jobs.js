@@ -9,7 +9,7 @@ const AvailableJobs = () =>{
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(5); // Assuming 5 pages for now
     const jobsPerPage = 8
-    const [volunteerIdd, setVolunteerId] = useState([]);
+    const [volunteerId, setVolunteerId] = useState([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -57,7 +57,7 @@ const AvailableJobs = () =>{
     const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
 
     return (
-        <div className="p-4">
+        <div className="p-4 w-3/4">
           {/* TABLE VIEW for md+ screens */}
           <div className="hidden md:block">
             <table className="w-full mt-4 border border-black">
