@@ -182,7 +182,7 @@ const NavbarDonor = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3"
-                href="/donate"
+                href="/dashboard/donor/donate"
               >
                 Donate
               </Link>
@@ -190,7 +190,7 @@ const NavbarDonor = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3"
-                href="/my-donations"
+                href="/dashboard/donor/tracker"
               >
                 My Donations
               </Link>

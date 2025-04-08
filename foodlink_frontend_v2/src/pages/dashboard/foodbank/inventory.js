@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import validateToken from '@/utils/validateToken';
+import Notification from '@/components/Notification';
 
 export default function Inventory() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function Inventory() {
     description: '',
     expiration_date: '',
   });
+  const [notification, setNotification] = useState({ message: '', type: '' });
 
   // Check token and set foodbankId
   useEffect(() => {
@@ -87,8 +89,43 @@ export default function Inventory() {
     setLoadingFoodItems(false);
   };
 
+  const isFoodInInventory = (foodName) => {
+    let found = false;
+    inventory?.forEach((inv) => {
+      inv.stock.forEach((item) => {
+        if (item.food_name.toLowerCase() === foodName.toLowerCase()) {
+          found = true;
+        }
+      });
+    });
+
+    return found;
+  };
+
+  const isFoodQuantityGreaterThanInventory = (foodName, quantity) => {
+    let isGreater = false;
+    inventory?.forEach((inv) => {
+      inv.stock.forEach((item) => {
+        if (item.food_name.toLowerCase() === foodName.toLowerCase()) {
+          if (Number(quantity) > item.quantity) {
+            isGreater = true;
+          }
+        }
+      });
+    });
+
+    return isGreater;
+  };
+
   // POST route: Add or increment stock
   const handleAddStock = async (foodName, quantity) => {
+    if (!isFoodInInventory(foodName)) {
+      setNotification({
+        message: `${foodName} is not in the inventory.`,
+        type: 'error',
+      });
+      return;
+    }
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
@@ -114,6 +151,23 @@ export default function Inventory() {
 
   // PUT route: Decrement stock
   const handleRemoveStock = async (foodName, quantity) => {
+    // Validate the food name before sending the request
+    if (!isFoodInInventory(foodName.trim())) {
+      setNotification({
+        message: `${foodName} is not in the inventory.`,
+        type: 'error',
+      });
+      return;
+    }
+
+    if (isFoodQuantityGreaterThanInventory(foodName, quantity)) {
+      setNotification({
+        message: `${foodName}'s quantity is greater than the stock quantity`,
+        type: 'error',
+      });
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/inventory`,
@@ -133,7 +187,10 @@ export default function Inventory() {
         fetchInventory();
       }
     } catch (error) {
-      console.error('Error removing stock', error);
+      setNotification({
+        message: error?.response?.data?.detail || 'Error removing stock.',
+        type: 'error',
+      });
     }
   };
 
@@ -166,7 +223,10 @@ export default function Inventory() {
         fetchFoodItems();
       }
     } catch (error) {
-      console.error('Error adding food item', error);
+      setNotification({
+        message: error?.response?.data?.detail || 'Error adding food items.',
+        type: 'error',
+      });
     }
   };
 
@@ -185,6 +245,13 @@ export default function Inventory() {
 
   return (
     <div className="container mx-auto p-4 mt-10">
+      {notification.message && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ message: '', type: '' })}
+        />
+      )}
       {/* Food Items Section */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Available Food Items</h2>

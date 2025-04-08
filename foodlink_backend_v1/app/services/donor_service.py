@@ -42,6 +42,8 @@ async def get_donations_by_user(donor_id: str):
         for donation in donations:
             donation = donation.model_dump()
             donation["id"] = str(donation["id"])
+            
+            # Get donor 
             donation_list.append(donation)
         return donation_list
     except Exception as e:

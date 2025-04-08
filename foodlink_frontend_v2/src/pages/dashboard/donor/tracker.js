@@ -47,38 +47,37 @@ export default function DonationTracker() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 w-full md:w-[70vw] flex flex-col min-h-[70vh]">
-      <h1 className="text-2xl font-bold mb-4 text-center">DONATIONS</h1>
+      <h1 className="text-5xl font-bold mb-4 text-center">DONATIONS</h1>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
 
       {/* TABLE: visible on md+ screens */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Donation ID</th>
+            <tr className="bg-gray-200 text-2xl">
               <th className="border p-2">Amount ($)</th>
               <th className="border p-2">Status</th>
-              <th className="border p-2">Timestamp</th>
+              <th className="border p-2">Date</th>
+              <th className="border p-2">Time</th>
             </tr>
           </thead>
           <tbody>
             {donations.length > 0 ? (
               donations.map((donation, index) => (
-                <tr
-                  key={donation.id}
-                  className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}
-                >
-                  <td className="border p-2">{donation.id}</td>
-                  <td className="border p-2">${donation.amount.toFixed(2)}</td>
-                  <td className="border p-2">{donation.status}</td>
-                  <td className="border p-2">
-                    {new Date(donation.created_at).toLocaleString()}
+                <tr key={donation.id} className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
+                  <td className="border p-2 text-xl">${donation.amount.toFixed(2)}</td>
+                  <td className="border p-2 text-xl">{donation.status}</td>
+                  <td className="border p-2 text-xl">
+                    {new Date(donation.created_at).toDateString()}
+                  </td>
+                  <td className="border p-2 text-xl">
+                    {new Date(donation.created_at).toLocaleTimeString()}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="text-center p-4">
+                <td colSpan="4" className="text-center p-4 text-5xl">
                   No donations yet
                 </td>
               </tr>
@@ -98,24 +97,18 @@ export default function DonationTracker() {
               }`}
             >
               <p>
-                <strong>Donation ID:</strong> {donation.id}
-              </p>
-              <p>
                 <strong>Amount ($):</strong> ${donation.amount.toFixed(2)}
               </p>
               <p>
                 <strong>Status:</strong> {donation.status}
               </p>
               <p>
-                <strong>Timestamp:</strong>{' '}
-                {new Date(donation.created_at).toLocaleString()}
+                <strong>Timestamp:</strong> {new Date(donation.created_at).toLocaleString()}
               </p>
             </div>
           ))
         ) : (
-          <div className="text-center p-4 bg-gray-100 text-gray-600">
-            No donations yet
-          </div>
+          <div className="text-center p-4 bg-gray-100 text-gray-600">No donations yet</div>
         )}
       </div>
     </div>

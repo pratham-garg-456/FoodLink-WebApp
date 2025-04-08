@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react';
 import FoodBankList from '@/components/FoodBankList';
 import Map from '@/components/Map';
 import mapboxgl from 'mapbox-gl';
+import { useRouter } from 'next/router';
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
-export default function FindDropOffLocation({ foodBanks }) {
+const FindDropOffLocation = () => {
+  const router = useRouter();
+  const [foodBanks, setFoodBanks] = useState([]);
   const [selectedFoodBank, setSelectedFoodBank] = useState(null);
   const [directions, setDirections] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [selectedCity, setSelectedCity] = useState('');
 
   const handleSelectFoodBank = (foodBank) => {
     setSelectedFoodBank(foodBank);
@@ -24,6 +28,7 @@ export default function FindDropOffLocation({ foodBanks }) {
 
     const userCoords = userLocation;
     const foodBankCoords = [foodBank.lng, foodBank.lat];
+
     const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
     try {
@@ -43,8 +48,8 @@ export default function FindDropOffLocation({ foodBanks }) {
     }
   };
 
-  // Get user location on mount
   useEffect(() => {
+    // Fetch the user's location on component mount
     if (!userLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -52,63 +57,113 @@ export default function FindDropOffLocation({ foodBanks }) {
           setUserLocation(userCoords);
         },
         (error) => {
-          console.error('Error fetching location:', error);
+          console.error('Error fetching location: ', error);
           alert('Could not fetch user location.');
         }
       );
     }
   }, [userLocation]);
 
-  return (
-    <div className="mx-auto w-[95%] h-[85vh] grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Left Panel: Food Bank List */}
-      <div className="md:col-span-1 p-4 bg-gray-100 overflow-y-auto">
-        <FoodBankList
-          foodBanks={foodBanks}
-          onSelect={handleSelectFoodBank}
-          getDirections={getDirections}
-        />
-      </div>
+  useEffect(() => {
+    const fetchFoodBanks = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+        );
 
-      {/* Right Panel: Map */}
-      <div className="md:col-span-2 flex-1">
-        <Map
-          foodBanks={foodBanks}
-          selectedFoodBank={selectedFoodBank}
-          userLocation={userLocation}
-          setUserLocation={setUserLocation}
-          directions={directions}
-        />
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const { users } = await response.json();
+        const foodbankUsers = users.filter((user) => user.role === 'foodbank');
+
+        // Hardcode address and coordinates for foodbank users
+        const foodBankData = foodbankUsers.map((user) => ({
+          name: user.name, // Assuming user object has a name property
+          address: user.address || 'Hardcoded Address', // Hardcoded address
+          lat: user.lat || 43.7, // Hardcoded latitude
+          lng: user.lng || -79.4, // Hardcoded longitude
+          id: user.id,
+        }));
+
+        setFoodBanks(foodBankData);
+      } catch (error) {
+        console.error('Error fetching food banks:', error);
+      }
+    };
+
+    fetchFoodBanks();
+  }, []);
+
+  const cities = [...new Set(foodBanks.map((bank) => bank.city))]; // Extract unique cities from food banks
+
+  const filteredFoodBanks = selectedCity
+    ? foodBanks.filter((bank) => bank.city === selectedCity)
+    : foodBanks; // Filter food banks based on selected city
+
+  return (
+    <div className="flex flex-col my-16 w-[80vw] justify-center items-center md:my-24 ">
+      <h1 className="text-center text-4xl font-bold ">Find a Food Bank</h1>
+      <div className="flex flex-col  my-16 w-[80vw] justify-center items-center ">
+        <div className=" flex justify-center items-center">
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="mb-4"
+          >
+            <option value="">Select a city</option>
+            {cities.map((city, index) => (
+              <option key={index} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col lg:flex-row w-[80vw] justify-center items-center lg:justify-around">
+          <div className="w-auto  p-4 overflow-y-auto flex flex-col items-start">
+            <div className="p-4 flex flex-col w-auto">
+              <h2 className="text-center mb-4 font-bold text-3xl">Food Banks</h2>
+              <div className="flex flex-col justify-center gap-4">
+                {filteredFoodBanks.map((foodBank, index) => (
+                  <div
+                    key={index}
+                    className="mb-4 border border-gray-300 rounded-lg p-6 bg-white shadow-md flex flex-col items-center justify-center"
+                  >
+                    <strong
+                      className="text-xl text-center text-black cursor-pointer"
+                      onClick={() => handleSelectFoodBank(foodBank)}
+                    >
+                      {foodBank.name}
+                    </strong>
+                    <p className="text-gray-600 my-2 text-center">{foodBank.address}</p>
+                    <div className="flex flex-col gap-1">
+                      <button
+                        onClick={() => getDirections(foodBank)}
+                        className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Get Directions
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="relative flex flex-col justify-center items-center w-full bg-black h-[50vh] max-w-[50vw] md:max-w-auto">
+            <Map
+              foodBanks={filteredFoodBanks}
+              selectedFoodBank={selectedFoodBank}
+              userLocation={userLocation}
+              setUserLocation={setUserLocation}
+              directions={directions}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export async function getServerSideProps() {
-  const foodBanks = [
-    {
-      name: 'Daily Bread Food Bank',
-      address: '191 New Toronto St, Toronto, ON M8V 2E7',
-      lat: 43.635417,
-      lng: -79.535421,
-    },
-    {
-      name: 'North York Harvest Food Bank',
-      address: '116 Industry St, Toronto, ON M6M 4L8',
-      lat: 43.763619,
-      lng: -79.481751,
-    },
-    {
-      name: 'Scarborough Centre for Healthy Communities',
-      address: '629 Markham Rd, Toronto, ON M1H 2A4',
-      lat: 43.7805,
-      lng: -79.2273,
-    },
-  ];
-
-  return {
-    props: {
-      foodBanks,
-    },
-  };
-}
+export default FindDropOffLocation;
