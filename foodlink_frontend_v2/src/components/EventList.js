@@ -54,9 +54,9 @@ export default function EventList({ apiEndPoint }) {
       )}
       {events.map((event) => (
         <div key={event.id} className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-2">{event.event_name}</h2>
-          <p className="text-gray-700 mb-2">{event.description}</p>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
+          <p className="text-gray-700 text-xl mb-2">{event.description}</p>
+          <p className="text-lg text-gray-500">
             Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
             {new Date(event.start_time).toLocaleTimeString([], {
               hour: '2-digit',
@@ -68,14 +68,14 @@ export default function EventList({ apiEndPoint }) {
               minute: '2-digit',
             })}
           </p>
-          <p className="text-sm text-gray-500">Location: {event.location}</p>
-          <p className="text-sm text-gray-500">Status: {event.status}</p>
+          <p className="text-lg text-gray-500">Location: {event.location}</p>
+          <p className="text-lg text-gray-500">Status: {event.status}</p>
           {event.event_inventory && (
             <div className="mt-4">
-              <h3 className="text-xl font-semibold">Event Inventory</h3>
+              <h3 className="text-2xl font-semibold">Event Inventory</h3>
               <ul className="list-disc ml-5">
                 {event.event_inventory.stock.map((item, idx) => (
-                  <li key={idx} className="flex items-center space-x-2">
+                  <li key={idx} className="flex items-center space-x-2 text-xl">
                     {/* Inventory icon */}
                     <span
                       className={`inline-block w-3 h-3 rounded-full ${getQuantityColor(item.quantity)}`}
@@ -86,7 +86,7 @@ export default function EventList({ apiEndPoint }) {
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-gray-400">
+              <p className="text-sm text-gray-400">
                 Last Updated: {new Date(event.event_inventory.last_updated).toLocaleString()}
               </p>
             </div>
