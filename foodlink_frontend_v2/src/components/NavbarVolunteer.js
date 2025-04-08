@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { jwtDecode } from 'jwt-decode';
+import validateToken from '@/utils/validateToken';
 
-const NavbarIndividual = () => {
+const NavbarVolunteer = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -15,16 +15,50 @@ const NavbarIndividual = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        setUserName(decodedToken.firstName || decodedToken.sub.slice(0, 5)); // Use first name or first 5 chars of ID
-      } catch (error) {
-        console.error('Invalid token: ', error);
-      }
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+      ); // Replace with your actual API endpoint
+      if (!response.ok) throw new Error('Failed to fetch users');
+
+      const data = await response.json();
+      const users = data.users; // Extract the 'users' array from the response
+      const matchedUser = users.find((user) => user.id === userId);
+
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest'; // Default name if there's an error
     }
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        router.push('/auth/login');
+        return;
+      }
+
+      try {
+        const decodedToken = await validateToken(token);
+
+        if (decodedToken.error) {
+          console.error('Invalid token: ', decodedToken.error);
+          router.push('/auth/login');
+          return;
+        }
+        const userId = decodedToken.user.id; // Assuming 'sub' is the user ID
+        const username = await getUsername(userId);
+        setUserName(username);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        router.push('/auth/login');
+      }
+    };
+
+    fetchUserData();
   }, []);
 
   const openNav = () => {
@@ -79,7 +113,7 @@ const NavbarIndividual = () => {
       }`}
     >
       <div className="flex items-start text-2xl font-bold text-black">
-        <Link href="/dashboard/individual" legacyBehavior>
+        <Link href="/dashboard/volunteer" legacyBehavior>
           FoodLink
         </Link>
       </div>
@@ -152,25 +186,17 @@ const NavbarIndividual = () => {
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/volunteer/appointments"
+                href="/dashboard/volunteer/applied-jobs"
               >
-                Manage Appointments
+                View Applied Jobs
               </Link>
             </div>
             <div>
               <Link
                 className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/findFoodBank"
+                href="/dashboard/volunteer/activity"
               >
-                Find Food Banks
-              </Link>
-            </div>
-            <div>
-              <Link
-                className="md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center"
-                href="/dashboard/volunteer/contact"
-              >
-                Contact Us
+                View past activities
               </Link>
             </div>
           </div>
@@ -223,4 +249,4 @@ const NavbarIndividual = () => {
   );
 };
 
-export default NavbarIndividual;
+export default NavbarVolunteer;

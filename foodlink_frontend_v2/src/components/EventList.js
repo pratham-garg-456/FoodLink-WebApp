@@ -53,10 +53,10 @@ export default function EventList({ apiEndPoint }) {
         />
       )}
       {events.map((event) => (
-        <div key={event.id} className="bg-white shadow rounded-lg p-6">
+        <div key={event.id} className="bg-indigo-50 shadow-xl rounded-xl p-6">
           <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
           <p className="text-gray-700 text-xl mb-2">{event.description}</p>
-          <p className="text-lg text-gray-500">
+          <p className="text-lg text-gray-600">
             Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
             {new Date(event.start_time).toLocaleTimeString([], {
               hour: '2-digit',
@@ -68,8 +68,8 @@ export default function EventList({ apiEndPoint }) {
               minute: '2-digit',
             })}
           </p>
-          <p className="text-lg text-gray-500">Location: {event.location}</p>
-          <p className="text-lg text-gray-500">Status: {event.status}</p>
+          <p className="text-lg text-gray-600">Location: {event.location}</p>
+          <p className="text-lg text-gray-600">Status: {event.status}</p>
           {event.event_inventory && (
             <div className="mt-4">
               <h3 className="text-2xl font-semibold">Event Inventory</h3>
@@ -86,7 +86,7 @@ export default function EventList({ apiEndPoint }) {
                   </li>
                 ))}
               </ul>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-500">
                 Last Updated: {new Date(event.event_inventory.last_updated).toLocaleString()}
               </p>
             </div>

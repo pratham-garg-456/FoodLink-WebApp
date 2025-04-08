@@ -89,7 +89,7 @@ const AvailableJobs = () => {
   const currentJobs = applications.slice(indexOfFirstJob, indexOfLastJob);
 
   return (
-    <div className="p-4">
+    <div className="p-4 w-3/4">
       {/* TABLE VIEW for md+ screens */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full mt-4 border border-black">
