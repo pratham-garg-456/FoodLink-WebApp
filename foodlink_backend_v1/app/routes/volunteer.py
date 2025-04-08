@@ -9,6 +9,7 @@ from app.services.volunteer_service import (
     retrieve_specific_job_in_db,
     retrieve_volunteer_activity_in_db,
     update_metadata_in_db,
+    retrieve_list_of_events_in_db,
 )
 
 router = APIRouter()
@@ -212,6 +213,30 @@ async def create_volunteer_metadata(
         )
 
     # Update the metadata for volunteer in db
-    volunteer = await update_metadata_in_db(id=payload.get("sub"), experiences=volunteer_data["experiences"], description=volunteer_data["description"], image_url=volunteer_data["image_url"], phone_number=volunteer_data["phone_number"])
-    
+    volunteer = await update_metadata_in_db(
+        id=payload.get("sub"),
+        experiences=volunteer_data["experiences"],
+        description=volunteer_data["description"],
+        image_url=volunteer_data["image_url"],
+        phone_number=volunteer_data["phone_number"],
+    )
+
     return {"status": "success", "volunteer": volunteer}
+
+
+@router.get("/events")
+async def retrieve_list_of_ongoing_events(payload: dict = Depends(jwt_required)):
+    """
+    Allow volunteer to get the list of ongoing foodbank events
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
+
+    # Validate if the request is made from volunteer
+    if payload.get("role") != "volunteer":
+        raise HTTPException(
+            status_code=401, detail="Only volunteer can retrieve the list of events"
+        )
+
+    events = await retrieve_list_of_events_in_db()
+
+    return {"status": "success", "events": events}

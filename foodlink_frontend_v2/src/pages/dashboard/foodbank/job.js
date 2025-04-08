@@ -89,13 +89,11 @@ export default function JobsPage() {
 
   const convertDateFormat = (input) => {
     if (!input) return '';
-    const deadline = formatDateToLocal(input)
+    const deadline = formatDateToLocal(input);
     const [datePart, timePart] = deadline.split(', ');
     const [month, day, year] = datePart.split('/');
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${timePart}`;
   };
-  
-  
 
   // Pre-fill the form for editing a job
   const handleEditJob = (job) => {
@@ -105,7 +103,7 @@ export default function JobsPage() {
       description: job.description,
       location: job.location,
       category: job.category,
-      deadline: job.deadline ? convertDateFormat(job.deadline) : " ",
+      deadline: job.deadline ? convertDateFormat(job.deadline) : ' ',
       status: job.status,
     });
     setModalOpen(true);
@@ -114,7 +112,7 @@ export default function JobsPage() {
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
     const utcDate = new Date(isoString + 'Z');
-    utcDate.setHours(utcDate.getHours() + 4)
+    utcDate.setHours(utcDate.getHours() + 4);
     return utcDate.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',
@@ -166,21 +164,11 @@ export default function JobsPage() {
                   <th className="px-6 py-3 text-left text-sm font-medium text-white">
                     Description
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                    Location
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                    Deadline
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Location</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Deadline</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -222,10 +210,7 @@ export default function JobsPage() {
           {/* CARD view for small screens */}
           <div className="block md:hidden space-y-2">
             {jobs.map((job) => (
-              <div
-                key={job.id}
-                className="bg-white shadow rounded-lg p-4"
-              >
+              <div key={job.id} className="bg-white shadow rounded-lg p-4">
                 <p className="font-semibold">Title: {job.title}</p>
                 <p>Description: {job.description}</p>
                 <p>Location: {job.location}</p>

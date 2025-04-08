@@ -84,6 +84,12 @@ const DonorDashboard = () => {
             >
               Find Drop-off Location
             </button>
+            <button
+              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              onClick={() => router.push('/dashboard/donor/eventList')}
+            >
+              View Ongoing Events
+            </button>
           </div>
 
           <div className="mt-8 text-md text-gray-800 flex flex-col items-center md:flex-row md:justify-start md:items-start md:gap-4">

@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends, Request, Body
+from fastapi import APIRouter, HTTPException, Depends
 from app.services.donor_service import (
     create_donation_in_db,
     get_donations_by_user,
     update_donor_detailed_info_in_db,
+    retrieve_list_of_events_in_db,
 )
 
 from app.utils.jwt_handler import jwt_required
-from typing import List
 
 router = APIRouter()
 
@@ -85,3 +85,21 @@ async def update_donor_metadata(
     )
 
     return {"status": "success", "donor": donor}
+
+
+@router.get("/events")
+async def retrieve_list_of_ongoing_events(payload: dict = Depends(jwt_required)):
+    """
+    Allow donor to get the list of ongoing foodbank events
+    :param payload: Decoded JWT containing user claims (validated via jwt_required).
+    """
+
+    # Validate if the request is made from donor
+    if payload.get("role") != "donor":
+        raise HTTPException(
+            status_code=401, detail="Only donor can retrieve the list of events"
+        )
+
+    events = await retrieve_list_of_events_in_db()
+
+    return {"status": "success", "events": events}
