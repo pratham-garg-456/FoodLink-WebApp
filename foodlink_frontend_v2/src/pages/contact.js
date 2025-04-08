@@ -62,7 +62,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="container px-4 py-8 m-24">
+    <div className="container px-4 py-8 m-24" id="contact">
       <h1 className="mt-2 text-4xl md:text-5xl font-extrabold mb-16 text-center">Contact US</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -31,7 +31,10 @@ const Services = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center w-[80vw] md:my-24 my-16">
+    <div
+      className="flex flex-col items-center justify-center md:h-[80vh] w-[80vw] md:my-24 my-16"
+      id="services"
+    >
       <h1 className="mt-16 text-4xl md:text-5xl font-extrabold mb-2 text-center">Our Services</h1>
       <div className="p-8 flex flex-col items-center justify-center">
         <p className="text-lg text-center text-gray-700 mb-6">

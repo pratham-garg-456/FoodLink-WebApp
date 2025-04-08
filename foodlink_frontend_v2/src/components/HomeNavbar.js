@@ -77,9 +77,24 @@ const Navbar = () => {
     }
   };
 
+  const handleSmoothScroll = (e, targetId) => {
+    e.preventDefault();
+    if (router.pathname !== '/') {
+      // Navigate to the home page with the section ID as a query parameter
+      router.push(`/?scrollTo=${targetId}`);
+    } else {
+      // Scroll to the section if already on the home page
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    exitNav(); // Close the navbar after clicking a link
+  };
+
   return (
     <nav
-      className={`md:bg-white fixed w-full flex p-8 md:p-4 md:px-6 md gap-4 basis-1/10 bg-white text-black md:text-black z-50 transition-transform duration-300 justify-between items-center  md:${
+      className={`fixed w-full flex md:pt-5 p-8 md:p-4 md:px-6 text-white md:text-black bg-white z-50 transition-transform duration-300 justify-between items-center ${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >
@@ -148,36 +163,41 @@ const Navbar = () => {
           <div></div>
           <div className="flex flex-col items-center md:flex-row ">
             <div>
-              <Link
+              <a
+                href="#home"
+                onClick={(e) => handleSmoothScroll(e, 'home')}
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/"
               >
                 HOME
-              </Link>
+              </a>
             </div>
+
             <div>
-              <Link
+              <a
+                href="#services"
+                onClick={(e) => handleSmoothScroll(e, 'services')}
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/about"
-              >
-                ABOUT US
-              </Link>
-            </div>
-            <div>
-              <Link
-                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/services"
               >
                 SERVICES
-              </Link>
+              </a>
             </div>
             <div>
-              <Link
+              <a
+                href="#about"
+                onClick={(e) => handleSmoothScroll(e, 'about')}
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
-                href="/contact"
+              >
+                ABOUT US
+              </a>
+            </div>
+            <div>
+              <a
+                href="#contact"
+                onClick={(e) => handleSmoothScroll(e, 'contact')}
+                className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3`}
               >
                 CONTACT
-              </Link>
+              </a>
             </div>
           </div>
           <div className="my-4 flex justify-center w-36">
