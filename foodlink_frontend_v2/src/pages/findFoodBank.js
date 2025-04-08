@@ -83,20 +83,52 @@ const FindBankPage = () => {
         const { users } = await response.json();
         const foodbankUsers = users.filter((user) => user.role === 'foodbank');
 
-        // Hardcode address and coordinates for foodbank users
-        const foodBankData = foodbankUsers.map((user) => ({
-          name: user.name, // Assuming user object has a name property
-          address: user.address || 'Hardcoded Address', // Hardcoded address
-          lat: user.lat || 43.7, // Hardcoded latitude
-          lng: user.lng || -79.4, // Hardcoded longitude
-        }));
+        const foodBankData = await Promise.all(
+          foodbankUsers.map(async (user) => {
+            let lat = user.lat || 43.7; // Default latitude
+            let lng = user.lng || -79.4; // Default longitude
+            let city = 'Unknown City'; // Default city
+
+            if (user.location) {
+              // Extract city from the location string
+              const locationParts = user.location.split(',');
+              if (locationParts.length > 1) {
+                city = locationParts[1].trim(); // Get the second part and trim whitespace
+              }
+
+              try {
+                const geocodeResponse = await fetch(
+                  `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+                    user.location
+                  )}.json?access_token=${mapboxgl.accessToken}`
+                );
+                const geocodeData = await geocodeResponse.json();
+
+                if (geocodeData.features && geocodeData.features[0]) {
+                  lat = geocodeData.features[0].center[1]; // Latitude
+                  lng = geocodeData.features[0].center[0]; // Longitude
+                }
+              } catch (geocodeError) {
+                console.error(`Error geocoding location for ${user.name}:`, geocodeError);
+              }
+            }
+
+            return {
+              name: user.name,
+              address: user.location || 'Hardcoded Address',
+              lat,
+              lng,
+              city, // Include the extracted city
+              id: user.id,
+            };
+          })
+        );
 
         setFoodBanks(foodBankData);
       } catch (error) {
         console.error('Error fetching food banks:', error);
       }
     };
-
     fetchFoodBanks();
   }, []);
 
@@ -125,22 +157,14 @@ const FindBankPage = () => {
           </select>
         </div>
         <div className="flex flex-col lg:flex-row w-[80vw] justify-center items-center lg:justify-around">
-          <div className="w-auto p-4 overflow-y-auto flex flex-col items-start">
+          <div className="w-auto  p-4 md:h-[60vh] h-[50vh] overflow-y-auto flex flex-col items-start mb-20 md:mb-0">
             <FoodBankList
               foodBanks={filteredFoodBanks}
               onSelect={handleSelectFoodBank}
               getDirections={getDirections}
-              renderBookButton={(foodBank) => (
-                <button
-                  onClick={() => handleBookAppointment(foodBank)}
-                  className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
-                >
-                  Book Appointment
-                </button>
-              )}
             />
           </div>
-          <div className="relative flex flex-col justify-center items-center w-full bg-white h-[50vh] max-w-[50vw] md:max-w-auto">
+          <div className="relative flex flex-col justify-center items-center w-full bg-white h-[50vh] max-w-[70vw] md:max-w-auto">
             <Map
               foodBanks={filteredFoodBanks}
               selectedFoodBank={selectedFoodBank}

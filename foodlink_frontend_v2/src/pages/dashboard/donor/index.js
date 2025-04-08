@@ -67,25 +67,25 @@ const DonorDashboard = () => {
 
           <div className="flex flex-wrap justify-center gap-2 md:justify-start">
             <button
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-gray-700"
               onClick={() => router.push('/dashboard/donor/donate')}
             >
               Donate Now!
             </button>
             <button
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-gray-700"
               onClick={() => router.push('/dashboard/donor/tracker')}
             >
               Track Donations
             </button>
             <button
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-gray-700"
               onClick={() => router.push('/dashboard/donor/findDropOffLocation')}
             >
               Find Drop-off Location
             </button>
             <button
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700"
+              className="px-4 py-2 bg-pink-800 text-white rounded-lg hover:bg-gray-700"
               onClick={() => router.push('/dashboard/donor/eventList')}
             >
               View Ongoing Events

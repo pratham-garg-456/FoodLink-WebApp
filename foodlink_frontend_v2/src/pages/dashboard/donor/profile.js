@@ -131,7 +131,7 @@ export default function Profile() {
 
       // Update user profile
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/individual/metadata`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/metadata`,
         updatedData,
         {
           headers: {
