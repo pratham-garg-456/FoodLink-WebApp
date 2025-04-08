@@ -157,7 +157,7 @@ export default function ManageVolunteers() {
             className={`py-2 px-4 rounded ${
               filterStatus === 'pending'
                 ? 'bg-yellow-400 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
             }`}
           >
             Pending Applications
@@ -167,7 +167,7 @@ export default function ManageVolunteers() {
             className={`py-2 px-4 rounded ${
               filterStatus === 'approved'
                 ? 'bg-green-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                : 'bg-gray-200 text-gray-900 hover:bg-gray-300'
             }`}
           >
             Approved Applications
@@ -184,27 +184,27 @@ export default function ManageVolunteers() {
             ) : (
               <>
                 {/* TABLE (hidden on small screens) */}
-                <div className="hidden md:block overflow-x-auto">
+                <div className="hidden md:block overflow-x-auto rounded-lg">
                   <table className="w-full table-auto divide-y divide-gray-200">
                     {filterStatus === 'pending' ? (
                       <thead className="bg-yellow-400">
                         <tr>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Volunteer Name
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Job Title
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Job Category
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Category
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Applied At
                           </th>
                         </tr>
@@ -212,22 +212,22 @@ export default function ManageVolunteers() {
                     ) : (
                       <thead className="bg-green-600">
                         <tr>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Volunteer Name
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Job Title
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Job Category
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Category
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Status
                           </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                          <th className="px-6 py-3 text-left text-md font-medium text-white">
                             Applied At
                           </th>
                         </tr>
@@ -241,22 +241,22 @@ export default function ManageVolunteers() {
                           className="cursor-pointer hover:bg-gray-100"
                           onClick={() => handleApplicationClick(app)}
                         >
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {app.volunteer_name}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {app.job_name}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {app.job_category}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {app.category}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {app.status}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
                             {formatDateToLocal(app.applied_at)}
                           </td>
                         </tr>

@@ -141,7 +141,7 @@ export default function JobsPage() {
               status: 'available',
             });
           }}
-          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+          className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded"
         >
           Add New Job
         </button>
@@ -156,43 +156,43 @@ export default function JobsPage() {
       ) : (
         <>
           {/* TABLE for md+ screens */}
-          <div className="hidden md:block bg-white shadow rounded-lg overflow-x-auto">
+          <div className="hidden md:block bg-white shadow-lg rounded-lg overflow-x-auto">
             <table className="w-full table-auto divide-y divide-gray-200">
-              <thead className="bg-green-600">
+              <thead className="bg-gray-600 text-md">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Title</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">
+                  <th className="px-6 py-3 text-left font-medium text-white">Title</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">
                     Description
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Location</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Category</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Deadline</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-white">Actions</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">Location</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">Category</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">Deadline</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">Status</th>
+                  <th className="px-6 py-3 text-left font-medium text-white">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {jobs.map((job) => (
                   <tr key={job.id}>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       {job.title}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 whitespace-normal break-words">
+                    <td className="px-6 py-4 text-sm whitespace-normal break-words">
                       {job.description}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       {job.location}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       {job.category}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       {formatDateToLocal(job.deadline)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       {job.status}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap">
                       <button
                         onClick={() => handleEditJob(job)}
                         className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded mr-2"
