@@ -71,18 +71,6 @@ const VolunteerDashboard = ({ userRole }) => {
               View Profile
             </button>
           </div>
-
-          <div className="mt-8 text-md text-gray-800 flex flex-col items-center md:justify-start md:items-start md:flex-row md:gap-4">
-            <p>
-              <strong>5,000+</strong> Volunteer Hours Logged
-            </p>
-            <p>
-              <strong>800</strong> Active Volunteers
-            </p>
-            <p>
-              <strong>300+</strong> Community Events Supported
-            </p>
-          </div>
         </div>
 
         {/* Right Section */}

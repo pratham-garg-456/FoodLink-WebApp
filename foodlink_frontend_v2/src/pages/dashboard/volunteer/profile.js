@@ -11,7 +11,6 @@ export default function VolunteerProfile() {
     name: '',
     email: '',
     phone: '',
-    address: '',
     image_url: '',
     description: '',
     experiences: '',
@@ -21,6 +20,12 @@ export default function VolunteerProfile() {
   const [profileImage, setProfileImage] = useState('/images/default-profile.png');
   const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [phoneError, setPhoneError] = useState(''); // State to track phone validation error
+
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/; // Regex for 10-digit phone number
+    return phoneRegex.test(phone);
+  };
 
   useEffect(() => {
     async function fetchProfile() {
@@ -44,7 +49,6 @@ export default function VolunteerProfile() {
           name: user.name || '',
           email: user.email || '',
           phone: user.phone_number || '',
-          address: user.address || '',
           image_url: user.image_url || '',
           description: user.description || '',
           experiences: user.experiences || '',
@@ -63,6 +67,15 @@ export default function VolunteerProfile() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'phone') {
+      if (!validatePhoneNumber(value)) {
+        setPhoneError('Phone number must be 10 digits (e.g., 4379911301)');
+      } else {
+        setPhoneError('');
+      }
+    }
+
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -75,6 +88,11 @@ export default function VolunteerProfile() {
   };
 
   const handleSubmit = async () => {
+    if (phoneError) {
+      alert('Please fix the phone number validation error before saving.');
+      return;
+    }
+
     try {
       let imageUrl = profile.image_url;
 
@@ -125,17 +143,6 @@ export default function VolunteerProfile() {
           {[
             { label: 'Name', value: profile.name, disabled: true },
             { label: 'Email', value: profile.email, disabled: true },
-            {
-              label: 'Phone',
-              name: 'phone',
-              value: profile.phone,
-              disabled: !isEditing,
-            },
-            {
-              label: 'Address',
-              value: profile.address,
-              disabled: true,
-            },
           ].map((field, idx) => (
             <label key={idx}>
               <span className="text-gray-700">{field.label}</span>
@@ -151,6 +158,21 @@ export default function VolunteerProfile() {
               />
             </label>
           ))}
+
+          <label>
+            <span className="text-gray-700">Phone</span>
+            <input
+              type="text"
+              name="phone"
+              value={profile.phone}
+              onChange={handleChange}
+              disabled={!isEditing}
+              className={`w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring ${
+                phoneError ? 'border-red-500' : 'focus:border-blue-300'
+              }`}
+            />
+            {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
+          </label>
 
           <label>
             <span className="text-gray-700">Description</span>
@@ -192,7 +214,10 @@ export default function VolunteerProfile() {
               <>
                 <button
                   onClick={handleSubmit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  disabled={!!phoneError} // Disable if there's a phone validation error
+                  className={`px-4 py-2 rounded-md text-white ${
+                    phoneError ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                  }`}
                 >
                   Save
                 </button>
