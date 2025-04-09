@@ -5,41 +5,47 @@ import { FaCrosshairs, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 mapboxgl.accessToken =
   'pk.eyJ1IjoiYnJvamVyZW1pYWgiLCJhIjoiY202OTJhNms3MG1lMzJtb2xhMWplYTJ0ayJ9.Mii1Lm7LmWL2HA-f3ZB3oQ';
 
-const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, directions }) => {
+const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, directions,  }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: userLocation || [-79.3832, 43.6532], // Default to Toronto
-      zoom: 12,
-    });
-
-    mapRef.current.on('load', () => {
-      setMapLoaded(true);
-
-      // Add food bank markers
-      foodBanks.forEach((bank) => {
-        new mapboxgl.Marker()
-          .setLngLat([bank.lng, bank.lat])
-          .setPopup(new mapboxgl.Popup().setHTML(`<h3>${bank.name}</h3><p>${bank.address}</p>`))
-          .addTo(mapRef.current);
+    if (mapContainerRef.current) {
+      mapRef.current = new mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: userLocation || [-79.3832, 43.6532], // Default to Toronto
+        zoom: 12,
       });
 
-      // Add user location marker if available
-      if (userLocation) {
-        new mapboxgl.Marker({ color: 'black' })
-          .setLngLat(userLocation)
-          .setPopup(new mapboxgl.Popup().setHTML('<h3>You are here</h3>'))
-          .addTo(mapRef.current);
-      }
-    });
+      mapRef.current.on('load', () => {
+        setMapLoaded(true);
 
-    return () => mapRef.current.remove();
+        // Add food bank markers
+        foodBanks.forEach((bank) => {
+          new mapboxgl.Marker()
+            .setLngLat([bank.lng, bank.lat])
+            .setPopup(new mapboxgl.Popup().setHTML(`<h3>${bank.name}</h3><p>${bank.address}</p>`))
+            .addTo(mapRef.current);
+        });
+
+        // Add user location marker if available
+        if (userLocation) {
+          new mapboxgl.Marker({ color: 'black' })
+            .setLngLat(userLocation)
+            .setPopup(new mapboxgl.Popup().setHTML('<h3>You are here</h3>'))
+            .addTo(mapRef.current);
+        }
+      });
+
+      return () => {
+        if (mapRef.current) {
+          mapRef.current.remove();
+        }
+      };
+    }
   }, [foodBanks, userLocation]);
 
   useEffect(() => {
@@ -61,31 +67,59 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
         geometry: directions.route, // GeoJSON route geometry
       };
 
-      if (!mapRef.current.getSource('route')) {
-        mapRef.current.addSource('route', {
-          type: 'geojson',
-          data: routeGeoJSON,
-        });
+      const addRouteLayer = () => {
+        if (!mapRef.current.getSource('route')) {
+          mapRef.current.addSource('route', {
+            type: 'geojson',
+            data: routeGeoJSON,
+          });
 
-        mapRef.current.addLayer({
-          id: 'route-layer',
-          type: 'line',
-          source: 'route',
-          paint: {
-            'line-color': '#007bff',
-            'line-width': 5,
-          },
-        });
+          mapRef.current.addLayer({
+            id: 'route-layer',
+            type: 'line',
+            source: 'route',
+            paint: {
+              'line-color': '#007bff',
+              'line-width': 5,
+            },
+          });
+        } else {
+          mapRef.current.getSource('route').setData(routeGeoJSON);
+        }
+
+        // Fit bounds to the route
+        const bounds = new mapboxgl.LngLatBounds();
+        routeGeoJSON.geometry.coordinates.forEach((coord) => bounds.extend(coord));
+        mapRef.current.fitBounds(bounds, { padding: 50 });
+      };
+
+      if (mapRef.current.isStyleLoaded()) {
+        addRouteLayer();
       } else {
-        mapRef.current.getSource('route').setData(routeGeoJSON);
+        mapRef.current.once('styledata', addRouteLayer);
       }
-
-      // Fit bounds to the route
-      const bounds = new mapboxgl.LngLatBounds();
-      routeGeoJSON.geometry.coordinates.forEach((coord) => bounds.extend(coord));
-      mapRef.current.fitBounds(bounds, { padding: 50 });
+    } else if (mapLoaded) {
+      // Remove the route layer and source if no directions are available
+      if (mapRef.current.getSource('route')) {
+        mapRef.current.removeLayer('route-layer');
+        mapRef.current.removeSource('route');
+      }
     }
   }, [directions, mapLoaded]);
+
+  useEffect(() => {
+    if (directions === null || selectedFoodBank === null) {
+      setCurrentStep(0); // Reset the step counter when directions or selected food bank are cleared
+
+      if (mapRef.current) {
+        // Remove the route source and layer if they exist
+        if (mapRef.current.getSource('route')) {
+          mapRef.current.removeLayer('route-layer');
+          mapRef.current.removeSource('route');
+        }
+      }
+    }
+  }, [directions, selectedFoodBank]);
 
   const handleNextStep = () => {
     if (directions?.steps && currentStep < directions.steps.length - 1) {
@@ -94,6 +128,10 @@ const Map = ({ foodBanks, selectedFoodBank, userLocation, setUserLocation, direc
       const nextLocation = directions.steps[nextStep].maneuver.location;
       mapRef.current.easeTo({ center: nextLocation, zoom: 16, essential: true, duration: 1000 });
     }
+
+    console.log('Next step:', currentStep + 1);
+    console.log('Directions:', directions.steps[currentStep + 1]?.maneuver.location);
+    console.log('Current step:', currentStep);
   };
 
   const handlePrevStep = () => {

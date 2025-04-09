@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
-import FoodBankList from '../components/FoodBankList';
-import Map from '../components/Map';
+import { useEffect, useState, useRef } from 'react';
+import FoodBankList from '@/components/FoodBankList';
+import Map from '@/components/Map';
 import mapboxgl from 'mapbox-gl';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 mapboxgl.accessToken =
@@ -15,26 +14,49 @@ const FindBankPage = () => {
   const [directions, setDirections] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [selectedCity, setSelectedCity] = useState('');
+  const [currentStep, setCurrentStep] = useState(0);
+  const mapRef = useRef(null);
 
   const handleSelectFoodBank = (foodBank) => {
     setSelectedFoodBank(foodBank);
-    setDirections(null); // Reset directions when selecting a new food bank
+    setDirections(null); // Reset directions
+    setCurrentStep(0); // Reset steps to the beginning
+
+    // Fly to the selected food bank's location immediately
+    if (mapRef.current && foodBank) {
+      mapRef.current.easeTo({
+        center: [foodBank.lng, foodBank.lat],
+        zoom: 14,
+        essential: true,
+        duration: 1000,
+      });
+    }
   };
 
-  const handleBookAppointment = (foodBank) => {
-    router.push(`/dashboard/individual/manageAppointments/book?foodBank=${foodBank.id}`);
+  const handleCityChange = (city) => {
+    setSelectedCity(city);
+    setSelectedFoodBank(null); // Reset selected food bank
+    setDirections(null); // Reset directions
+    setCurrentStep(0); // Reset steps to the beginning
   };
 
   const getDirections = async (foodBank) => {
+    const targetFoodBank = foodBank || selectedFoodBank || foodBanks[0]; // Use the first food bank as fallback
+
+    if (!targetFoodBank) {
+      alert('No food banks available to get directions.');
+      return;
+    }
+
     if (!userLocation) {
       alert('Could not determine your location!');
       return;
     }
 
     const userCoords = userLocation;
-    const foodBankCoords = [foodBank.lng, foodBank.lat];
+    const foodBankCoords = [targetFoodBank.lng, targetFoodBank.lat];
 
-    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${userCoords[0]},${userCoords[1]};${foodBankCoords[0]},${foodBankCoords[1]}?steps=true&geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`;
 
     try {
       const response = await fetch(directionsUrl);
@@ -44,6 +66,37 @@ const FindBankPage = () => {
         const route = data.routes[0].geometry; // GeoJSON geometry of the route
         const steps = data.routes[0].legs[0].steps; // Navigation steps
         setDirections({ steps, route });
+        setSelectedFoodBank(foodBank); // Set the selected food bank
+
+        // Ensure the map and style are loaded before adding the route
+        if (mapRef.current) {
+          const addRouteToMap = () => {
+            if (!mapRef.current.getSource('route')) {
+              mapRef.current.addSource('route', {
+                type: 'geojson',
+                data: route,
+              });
+
+              mapRef.current.addLayer({
+                id: 'route-layer',
+                type: 'line',
+                source: 'route',
+                paint: {
+                  'line-color': '#007bff',
+                  'line-width': 5,
+                },
+              });
+            } else {
+              mapRef.current.getSource('route').setData(route);
+            }
+          };
+
+          if (mapRef.current.isStyleLoaded()) {
+            addRouteToMap();
+          } else {
+            mapRef.current.once('styledata', addRouteToMap);
+          }
+        }
       } else {
         alert('No directions found.');
       }
@@ -52,6 +105,56 @@ const FindBankPage = () => {
       alert('Failed to fetch directions. Please try again.');
     }
   };
+
+  useEffect(() => {
+    if (userLocation) {
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) {
+        console.error('Map container not found.');
+        return;
+      }
+
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: userLocation,
+        zoom: 12,
+      });
+
+      mapRef.current = map;
+
+      // Listen for changes in directions to update the map with the new route
+      if (directions) {
+        const routeGeoJson = directions.route;
+        map.on('load', () => {
+          map.addSource('route', {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  geometry: routeGeoJson,
+                },
+              ],
+            },
+          });
+
+          map.addLayer({
+            id: 'route',
+            type: 'line',
+            source: 'route',
+            paint: {
+              'line-color': '#3b9ddd',
+              'line-width': 5,
+            },
+          });
+        });
+      }
+
+      return () => map.remove();
+    }
+  }, [userLocation, foodBanks, directions]);
 
   useEffect(() => {
     // Fetch the user's location on component mount
@@ -120,6 +223,8 @@ const FindBankPage = () => {
               lng,
               city, // Include the extracted city
               id: user.id,
+              hours: user.operating_hours || 'Hours not available',
+              phone: user.phone_number || 'Phone not available',
             };
           })
         );
@@ -129,23 +234,24 @@ const FindBankPage = () => {
         console.error('Error fetching food banks:', error);
       }
     };
+
     fetchFoodBanks();
   }, []);
 
-  const cities = [...new Set(foodBanks.map((bank) => bank.city))]; // Extract unique cities from food banks
+  const cities = [...new Set(foodBanks.map((bank) => bank.city))]; // Extract unique cities
 
   const filteredFoodBanks = selectedCity
     ? foodBanks.filter((bank) => bank.city === selectedCity)
     : foodBanks; // Filter food banks based on selected city
 
   return (
-    <div className="flex flex-col my-16 w-[80vw] justify-center items-center md:my-24 ">
-      <h1 className="text-center text-4xl font-bold ">Find a Food Bank</h1>
-      <div className="flex flex-col my-16 w-[80vw] justify-center items-center ">
+    <div className="flex flex-col my-8 w-[75vw] justify-center items-center md:my-16">
+      <h1 className="text-center text-4xl font-bold">Find a Food Bank</h1>
+      <div className="flex flex-col my-8 w-[75vw] justify-center items-center">
         <div className="flex justify-center items-center">
           <select
             value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
+            onChange={(e) => handleCityChange(e.target.value)}
             className="mb-4"
           >
             <option value="">Select a city</option>
@@ -156,15 +262,46 @@ const FindBankPage = () => {
             ))}
           </select>
         </div>
-        <div className="flex flex-col lg:flex-row w-[80vw] justify-center items-center lg:justify-around">
-          <div className="w-auto  p-4 md:h-[60vh] h-[50vh] overflow-y-auto flex flex-col items-start mb-20 md:mb-0">
-            <FoodBankList
-              foodBanks={filteredFoodBanks}
-              onSelect={handleSelectFoodBank}
-              getDirections={getDirections}
-            />
+        <div className="flex flex-col lg:flex-row w-[75vw] justify-center items-center lg:justify-around">
+          <div className="w-auto p-4 md:h-[60vh] h-[60vh] overflow-y-auto flex flex-col items-start mb-16 md:mb-0">
+            <div className="p-4 flex flex-col w-auto">
+              <h2 className="text-center mb-4 font-bold text-3xl">Food Banks</h2>
+              <div className="flex flex-col justify-center gap-4">
+                {filteredFoodBanks.map((foodBank, index) => (
+                  <div
+                    key={index}
+                    className="mb-4 border border-gray-300 rounded-lg p-6 bg-white shadow-md flex flex-col items-center justify-center"
+                  >
+                    <strong
+                      className="text-xl text-center text-black cursor-pointer"
+                      onClick={() => handleSelectFoodBank(foodBank)}
+                    >
+                      {foodBank.name}
+                    </strong>
+                    <p className="text-gray-600 my-2 text-center">{foodBank.address}</p>
+                    <p className="text-gray-600 my-2 text-center">Hours: {foodBank.hours}</p>
+                    <p className="text-gray-600 my-2 text-center">Phone: {foodBank.phone}</p>
+                    <div className="flex flex-col justify-center gap-1">
+                      <button
+                        onClick={() => getDirections(foodBank)}
+                        className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Get Directions
+                      </button>
+                      <button
+                        onClick={() => router.push('/auth/login')}
+                        className="px-4 py-2 bg-gray-600 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Book an Appointment
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="relative flex flex-col justify-center items-center w-full bg-white h-[50vh] max-w-[70vw] md:max-w-auto">
+
+          <div className="relative flex flex-col justify-center items-center w-full bg-black h-[60vh] max-w-[65vw] md:max-w-auto">
             <Map
               foodBanks={filteredFoodBanks}
               selectedFoodBank={selectedFoodBank}
