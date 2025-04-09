@@ -21,15 +21,13 @@ export default function Profile() {
     const storedName = localStorage.getItem('name');
     const storedEmail = localStorage.getItem('email');
     const storedPhone = localStorage.getItem('phone_number');
-    const storedAddress = localStorage.getItem('address');
     const storedImageUrl = localStorage.getItem('image_url');
 
-    if (storedName || storedEmail || storedPhone || storedAddress || storedImageUrl) {
+    if (storedName || storedEmail || storedPhone || storedImageUrl) {
       setUser({
         name: storedName || '',
         email: storedEmail || '',
         phone: storedPhone || '',
-        address: storedAddress || '',
         image_url: storedImageUrl || '',
       });
     }
@@ -60,13 +58,11 @@ export default function Profile() {
         );
 
         const profileData = response.data;
-        console.log(profileData);
 
         // Update local storage with fetched user data
         localStorage.setItem('name', profileData.user.name);
         localStorage.setItem('email', profileData.user.email);
         localStorage.setItem('phone_number', profileData.user.phone_number);
-        localStorage.setItem('address', profileData.user.address);
         localStorage.setItem('image_url', profileData.user.image_url);
 
         // Set user state
@@ -74,7 +70,6 @@ export default function Profile() {
           name: profileData.user.name || '',
           email: profileData.user.email || '',
           phone: profileData.user.phone_number || '',
-          address: profileData.user.address || '',
           image_url: profileData.user.image_url || null,
         });
       } catch (error) {
@@ -124,7 +119,7 @@ export default function Profile() {
 
       // Prepare updated data
       const updatedData = {
-        description: user.name,
+        description: user.description || '',
         image_url: imageUrl,
         phone_number: user.phone,
       };
@@ -159,7 +154,6 @@ export default function Profile() {
       localStorage.setItem('name', profileData.user.name);
       localStorage.setItem('email', profileData.user.email);
       localStorage.setItem('phone_number', profileData.user.phone_number);
-      localStorage.setItem('address', profileData.user.address);
       localStorage.setItem('image_url', profileData.user.image_url);
       window.dispatchEvent(new Event('storage'));
       window.location.reload();
@@ -209,16 +203,7 @@ export default function Profile() {
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
             />
           </label>
-          <label className="block">
-            <span className="text-gray-700">Address</span>
-            <input
-              type="text"
-              name="address"
-              value={user.address}
-              disabled={true}
-              className="w-full mt-1 p-2 border rounded-md bg-gray-200 cursor-not-allowed"
-            />
-          </label>
+
           <label className="flex justify-center items-start flex-col">
             <span className="text-gray-700">Profile Picture</span>
             <input

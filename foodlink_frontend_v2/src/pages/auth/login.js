@@ -12,6 +12,9 @@ const LoginPage = () => {
     event.preventDefault();
     setError(''); // Clear any previous error
 
+    // Clear localStorage to remove old data
+    localStorage.clear();
+
     try {
       // Call the Next.js API route that handles authentication
       const response = await axios.post('/api/auth', { email, password });
