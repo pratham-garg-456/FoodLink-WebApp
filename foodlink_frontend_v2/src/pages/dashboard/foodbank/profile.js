@@ -20,6 +20,12 @@ export default function Profile() {
   const [profileImage, setProfileImage] = useState('/images/default-profile.png');
   const [imageFile, setImageFile] = useState(null);
   const addressInputRef = useRef(null);
+  const [phoneError, setPhoneError] = useState(''); // State to track phone validation error
+
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/; // Regex for 10-digit phone number
+    return phoneRegex.test(phone);
+  };
 
   useEffect(() => {
     const storedName = localStorage.getItem('name');
@@ -124,7 +130,17 @@ export default function Profile() {
   }, []);
 
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'phone') {
+      if (!validatePhoneNumber(value)) {
+        setPhoneError('Phone number must be 10 digits (e.g., 4379911301)');
+      } else {
+        setPhoneError('');
+      }
+    }
+
+    setUser({ ...user, [name]: value });
   };
 
   const handleImageChange = (e) => {
@@ -136,6 +152,11 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
+    if (phoneError) {
+      alert('Please fix the phone number validation error before saving.');
+      return;
+    }
+
     const updatedData = {
       description: user.description || '',
       phone_number: user.phone || '',
@@ -267,6 +288,7 @@ export default function Profile() {
               disabled={!isEditing}
               className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
             />
+            {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
           </label>
           <label className="block">
             <span className="text-gray-700">Location</span>

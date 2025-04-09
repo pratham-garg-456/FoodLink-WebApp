@@ -119,7 +119,7 @@ export default function Inventory() {
 
   // POST route: Add or increment stock
   const handleAddStock = async (foodName, quantity) => {
-    if (!isFoodInInventory(foodName)) {
+    if (!isFoodInInventory(foodName.trim())) {
       setNotification({
         message: `${foodName} is not in the inventory.`,
         type: 'error',
