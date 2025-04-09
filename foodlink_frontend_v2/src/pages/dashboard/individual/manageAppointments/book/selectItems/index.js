@@ -50,6 +50,8 @@ const FoodBankInventory = () => {
   useEffect(() => {
     if (cart.length > 0) {
       localStorage.setItem('cart', JSON.stringify(cart));
+    } else {
+      localStorage.removeItem('cart'); // Clear cart from localStorage when empty
     }
   }, [cart]);
 
