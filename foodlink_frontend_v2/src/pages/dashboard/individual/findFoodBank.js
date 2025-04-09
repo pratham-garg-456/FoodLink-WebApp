@@ -70,6 +70,7 @@ const FindBankPage = () => {
         const route = data.routes[0].geometry; // GeoJSON geometry of the route
         const steps = data.routes[0].legs[0].steps; // Navigation steps
         setDirections({ steps, route });
+        setSelectedFoodBank(foodBank)
 
         // Ensure the map and style are loaded before adding the route
         if (mapRef.current) {
