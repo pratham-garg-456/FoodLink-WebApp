@@ -8,6 +8,7 @@ const DonorDashboard = () => {
   const router = useRouter();
   const [userId, setUserId] = useState('');
   const [donorUsernames, setDonorUsernames] = useState('');
+  const [donationStats, setDonationStats] = useState({ count: 0, total: 0 });
 
   const getUsername = async (userId) => {
     try {
@@ -53,6 +54,34 @@ const DonorDashboard = () => {
     checkToken();
   }, [router]);
 
+  useEffect(() => {
+    const fetchDonationStats = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/donor/donations`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch donation stats');
+        }
+        const donations = await response.json();
+        const donationData = donations.donations; // Extract the 'donations' array from the response
+        const count = donationData.length;
+        const total = donationData.reduce((acc, donation) => acc + donation.amount, 0);
+
+        setDonationStats({ count, total });
+      } catch (error) {
+        console.error('Error fetching donation stats:', error);
+      }
+    };
+
+    fetchDonationStats();
+  }, []);
+
   return (
     <div className="flex flex-col items-center">
       <div className="flex flex-col justify-center items-center w-[70vw] md:flex-row md:justify-end md:w-[80vw] md:gap-2">
@@ -94,13 +123,10 @@ const DonorDashboard = () => {
 
           <div className="mt-8 text-md text-gray-800 flex flex-col items-center md:flex-row md:justify-start md:items-start md:gap-4">
             <p>
-              <strong>2.5k</strong> Donations Made
+              <strong>{donationStats.count}</strong> Donations Made
             </p>
             <p>
-              <strong>$5,000+</strong> Dollars Contributed
-            </p>
-            <p>
-              <strong>15k+</strong> Meals Supported
+              <strong>${donationStats.total}</strong> Dollars Contributed
             </p>
           </div>
         </div>
