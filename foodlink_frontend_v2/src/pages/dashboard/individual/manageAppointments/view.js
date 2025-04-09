@@ -152,7 +152,7 @@ const ViewAppointments = () => {
             <option value="">All</option>
             <option value="reschedule">Reschedule</option>
             <option value="scheduled">Scheduled</option>
-            <option value="completed">Completed</option>
+            <option value="picked">Completed</option>
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
@@ -204,15 +204,10 @@ const ViewAppointments = () => {
                   {sortedAppointments.map((appointment) => (
                     <tr key={appointment._id}>
                       <td className="py-2 px-4 border-b">
-                        {foodbankUsernames[appointment.foodbank_id] ||
-                          appointment.foodbank_id}
+                        {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
                       </td>
-                      <td className="py-2 px-4 border-b">
-                        {formatDate(appointment.start_time)}
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        {formatDate(appointment.end_time)}
-                      </td>
+                      <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
+                      <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
                       <td className="py-2 px-4 border-b">{appointment.status}</td>
                       <td className="py-2 px-4 border-b">
                         <button
@@ -231,22 +226,16 @@ const ViewAppointments = () => {
             {/* CARDS: visible on small screens */}
             <div className="block md:hidden space-y-4">
               {sortedAppointments.map((appointment) => (
-                <div
-                  key={appointment._id}
-                  className="border rounded p-4 shadow-sm"
-                >
+                <div key={appointment._id} className="border rounded p-4 shadow-sm">
                   <p className="mb-2">
                     <strong>Food Bank:</strong>{' '}
-                    {foodbankUsernames[appointment.foodbank_id] ||
-                      appointment.foodbank_id}
+                    {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
                   </p>
                   <p className="mb-2">
-                    <strong>Start Time:</strong>{' '}
-                    {formatDate(appointment.start_time)}
+                    <strong>Start Time:</strong> {formatDate(appointment.start_time)}
                   </p>
                   <p className="mb-2">
-                    <strong>End Time:</strong>{' '}
-                    {formatDate(appointment.end_time)}
+                    <strong>End Time:</strong> {formatDate(appointment.end_time)}
                   </p>
                   <p className="mb-2">
                     <strong>Status:</strong> {appointment.status}
@@ -284,17 +273,13 @@ const ViewAppointments = () => {
                 <ul className="mt-2">
                   {selectedAppointment.product.map((item, index) => (
                     <li key={index} className="text-xs text-gray-600 md:text-base">
-                      {item.food_name}: {item.quantity}{' '}
-                      {item.quantity > 1 ? 'items' : 'item'}
+                      {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="mt-4 text-right">
-                <button
-                  onClick={closeModal}
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                >
+                <button onClick={closeModal} className="bg-blue-500 text-white px-4 py-2 rounded">
                   Close
                 </button>
               </div>

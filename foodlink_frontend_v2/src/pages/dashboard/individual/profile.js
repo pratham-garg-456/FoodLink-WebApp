@@ -16,6 +16,12 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState('/images/default-profile.png');
   const [imageFile, setImageFile] = useState(null);
+  const [phoneError, setPhoneError] = useState(''); // State to track phone validation error
+
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/; // Regex for 10-digit phone number
+    return phoneRegex.test(phone);
+  };
 
   useEffect(() => {
     const storedName = localStorage.getItem('name');
@@ -81,7 +87,17 @@ export default function Profile() {
   }, []); // Empty dependency array to run only on mount
 
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'phone') {
+      if (!validatePhoneNumber(value)) {
+        setPhoneError('Phone number must be 10 digits (e.g., 1234567890)');
+      } else {
+        setPhoneError('');
+      }
+    }
+
+    setUser({ ...user, [name]: value });
   };
 
   const handleImageChange = (e) => {
@@ -93,6 +109,11 @@ export default function Profile() {
   };
 
   const handleSubmit = async () => {
+    if (phoneError) {
+      alert('Please fix the phone number validation error before saving.');
+      return;
+    }
+
     try {
       let imageUrl = user.image_url; // Default to the existing image URL
 
@@ -200,8 +221,11 @@ export default function Profile() {
               value={user.phone}
               onChange={handleChange}
               disabled={!isEditing}
-              className="w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              className={`w-full mt-1 p-2 border rounded-md focus:outline-none focus:ring ${
+                phoneError ? 'border-red-500' : 'focus:border-blue-300'
+              }`}
             />
+            {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
           </label>
 
           <label className="flex justify-center items-start flex-col">
