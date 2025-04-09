@@ -6,6 +6,7 @@ export default function EventList({ apiEndPoint }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({ message: '', type: '' });
+  const [timeLeft, setTimeLeft] = useState(120);
 
   // Helper function to get the appropriate color class for quantity
   const getQuantityColor = (quantity) => {
@@ -14,31 +15,46 @@ export default function EventList({ apiEndPoint }) {
     return 'bg-yellow-500';
   };
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get(apiEndPoint, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        if (response.data.status === 'success') {
-          setEvents(response.data.events);
-        } else {
-          setNotification({
-            message: 'Failed to fetch events.',
-            type: 'error',
-          });
-        }
-      } catch (err) {
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(apiEndPoint, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+      });
+      if (response.data.status === 'success') {
+        setEvents(response.data.events);
+      } else {
         setNotification({
-          message: err?.response?.data?.detail || 'Error fetching events.',
+          message: 'Failed to fetch events.',
           type: 'error',
         });
-        setEvents([]);
       }
-      setLoading(false);
-    };
+    } catch (err) {
+      setNotification({
+        message: err?.response?.data?.detail || 'Error fetching events.',
+        type: 'error',
+      });
+      setEvents([]);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
+    // Fetch events initially
     fetchEvents();
+
+    const interval = setInterval(() => {
+      fetchEvents();
+      setTimeLeft(120);
+    }, 120000);
+
+    const countDownInterval = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(countDownInterval);
+    };
   }, [apiEndPoint]);
 
   if (loading) return <p className="text-center">Loading events...</p>;
@@ -52,6 +68,12 @@ export default function EventList({ apiEndPoint }) {
           onClose={() => setNotification({ message: '', type: '' })}
         />
       )}
+      {/* Countdown Timer */}
+      <div className="text-center text-gray-600 mb-4">
+        <p>
+          Next refresh in: <strong>{timeLeft} seconds</strong>
+        </p>
+      </div>
       {events.map((event) => (
         <div key={event.id} className="bg-indigo-50 shadow-xl rounded-xl p-6">
           <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>

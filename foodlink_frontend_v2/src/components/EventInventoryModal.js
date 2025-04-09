@@ -55,11 +55,24 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const isFoodQuantityGreaterThanInventory = (foodName, quantity) => {
+    let isGreater = false;
+    eventInventory.stock.forEach((item) => {
+      if (item.food_name.toLowerCase() === foodName.toLowerCase()) {
+        if (Number(quantity) > item.quantity) {
+          isGreater = true;
+        }
+      }
+    });
+    return isGreater;
+  };
+
   // Handle adding/incrementing stock via POST route
   const handleAddStock = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setNotification({ message: '', type: '' });
+  
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${event.id}/inventory`,
@@ -85,6 +98,14 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
     e.preventDefault();
     setSubmitting(true);
     setNotification({ message: '', type: '' });
+    if (isFoodQuantityGreaterThanInventory(formData.food_name.trim(), formData.quantity)) {
+      setNotification({
+        message: `${formData.food_name}'s quantity is greater than the stock quantity`,
+        type: 'error',
+      });
+      setSubmitting(false);
+      return;
+    }
     try {
       const res = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${event.id}/inventory`,
