@@ -52,13 +52,6 @@ const AvailableJobs = () => {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
-  
-  const handleRowClick = (appId, job) => {
-    localStorage.setItem('selectedJob', JSON.stringify(job));
-    localStorage.setItem('previousPage', 'applied-jobs');
-    localStorage.setItem('selectedAppId', appId);
-    router.push(`/dashboard/volunteer/${appId}`);
-  };
 
   return (
     <div className="p-4 w-3/4">
