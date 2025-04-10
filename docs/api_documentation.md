@@ -304,6 +304,70 @@ This document provides details about the API endpoints available in the backend.
     }
     ```
 
+### Authentication
+
+- **POST** `/api/v1/foodlink/auth/register`
+  - **Summary**: Signup
+  - **Description**: Allow users to sign up their account to FoodLink.
+  - **Request Body**:
+    ```json
+    {
+      "name": "John Doe",
+      "email": "user@example.com",
+      "password": "password123",
+      "role": "volunteer"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "User registered successfully."
+    }
+    ```
+
+- **POST** `/api/v1/foodlink/auth/signin`
+  - **Summary**: Signin
+  - **Description**: Allow users to sign in to FoodLink.
+  - **Request Body**:
+    ```json
+    {
+      "email": "user@example.com",
+      "password": "password123"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "access_token": "<token>",
+      "token_type": "bearer"
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/auth/profile`
+  - **Summary**: Get Your Profile
+  - **Description**: Validate the given token and retrieve user profile information.
+  - **Headers**:
+    - `Authorization`: Bearer token
+  - **Response**:
+    ```json
+    {
+      "id": "<user_id>",
+      "name": "John Doe",
+      "email": "user@example.com",
+      "role": "volunteer"
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/authsignout`
+  - **Summary**: Signout
+  - **Description**: Allow users to sign out from the application.
+  - **Response**:
+    ```json
+    {
+      "message": "User signed out successfully."
+    }
+    ```
+
 ### Miscellaneous
 
 - **GET** `/api/v1/foodlink/misc/services`
@@ -371,5 +435,206 @@ This document provides details about the API endpoints available in the backend.
         "role": "volunteer"
       }
     ]
+    ```
+
+- **POST** `/api/v1/foodlink/misc/upload/`
+  - **Summary**: Upload Image
+  - **Description**: Allow users to upload an image.
+  - **Request Body**:
+    ```json
+    {
+      "file": "<binary_file>"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "Image uploaded successfully."
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/misc/optimize/{public_id}`
+  - **Summary**: Optimize Image
+  - **Description**: Optimize an image by its public ID.
+  - **Path Parameters**:
+    - `public_id`: The public ID of the image.
+  - **Response**:
+    ```json
+    {
+      "message": "Image optimized successfully."
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/misc/auto-crop/{public_id}`
+  - **Summary**: Auto Crop Image
+  - **Description**: Automatically crop an image by its public ID.
+  - **Path Parameters**:
+    - `public_id`: The public ID of the image.
+  - **Response**:
+    ```json
+    {
+      "message": "Image cropped successfully."
+    }
+    ```
+
+### Volunteer
+
+- **POST** `/api/v1/foodlink/volunteer/application/event`
+  - **Summary**: Apply Available Jobs For Event
+  - **Description**: Allow volunteers to submit an application for a specific event.
+  - **Request Body**:
+    ```json
+    {
+      "event_id": "<event_id>",
+      "volunteer_id": "<volunteer_id>"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "Application submitted successfully."
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/volunteer/jobs`
+  - **Summary**: Retrieve Available Jobs
+  - **Description**: Retrieve the list of available jobs for volunteers.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<job_id>",
+        "title": "Volunteer Coordinator",
+        "description": "Coordinate volunteer activities."
+      }
+    ]
+    ```
+
+- **GET** `/api/v1/foodlink/volunteer/activity`
+  - **Summary**: Retrieve Volunteer Activity
+  - **Description**: Retrieve the past activity of the volunteer.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<activity_id>",
+        "hours": 5,
+        "description": "Helped organize food donations."
+      }
+    ]
+    ```
+
+- **GET** `/api/v1/foodlink/volunteer/applied_job`
+  - **Summary**: Retrieve Applied Job
+  - **Description**: Retrieve the volunteer applied job based on volunteer ID.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<job_id>",
+        "title": "Volunteer Coordinator",
+        "status": "applied"
+      }
+    ]
+    ```
+
+### FoodBank
+
+- **POST** `/api/v1/foodlink/foodbank/inventory`
+  - **Summary**: Add Inventory
+  - **Description**: Allow food bank admins to add inventory items.
+  - **Request Body**:
+    ```json
+    {
+      "food_name": "Canned Beans",
+      "quantity": 100
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "Inventory item added successfully."
+    }
+    ```
+
+- **GET** `/api/v1/foodlink/foodbank/inventory`
+  - **Summary**: Get Inventory
+  - **Description**: Retrieve the list of inventory items.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<inventory_id>",
+        "food_name": "Canned Beans",
+        "quantity": 100
+      }
+    ]
+    ```
+
+- **GET** `/api/v1/foodlink/foodbank/donations`
+  - **Summary**: Get Donations For Foodbank
+  - **Description**: Retrieve all donations for the foodbank.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<donation_id>",
+        "amount": 100,
+        "status": "confirmed",
+        "donor_id": "<donor_id>",
+        "created_at": "2025-03-17T17:02:23.857Z"
+      }
+    ]
+    ```
+
+- **GET** `/api/v1/foodlink/foodbank/appointments`
+  - **Summary**: Get List Of Appointments
+  - **Description**: Retrieve the list of appointments for the foodbank.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "<appointment_id>",
+        "status": "confirmed",
+        "date": "2025-03-20T10:00:00Z"
+      }
+    ]
+    ```
+
+- **PUT** `/api/v1/foodlink/foodbank/appointment/{appointment_id}`
+  - **Summary**: Update Status Of Appointment
+  - **Description**: Update the status of a specific appointment.
+  - **Path Parameters**:
+    - `appointment_id`: The ID of the appointment.
+  - **Request Body**:
+    ```json
+    {
+      "status": "rescheduled"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "Appointment status updated successfully."
+    }
+    ```
+
+- **POST** `/api/v1/foodlink/foodbank/volunteer-activity/{application_id}`
+  - **Summary**: Add Volunteer Activity
+  - **Description**: Add contribution hours for a specific application.
+  - **Path Parameters**:
+    - `application_id`: The ID of the application.
+  - **Request Body**:
+    ```json
+    {
+      "hours": 5,
+      "description": "Helped organize food donations."
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "Volunteer activity added successfully."
+    }
     ```
 
