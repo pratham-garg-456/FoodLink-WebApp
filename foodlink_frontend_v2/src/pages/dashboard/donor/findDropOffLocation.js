@@ -40,11 +40,15 @@ const FindBankPage = () => {
     setCurrentStep(0); // Reset steps to the beginning
   };
 
+  const handleBookAppointment = (foodBank) => {
+    router.push(`/dashboard/individual/manageAppointments/book?foodBank=${foodBank.id}`);
+  };
+
   const getDirections = async (foodBank) => {
-    const targetFoodBank = foodBank || selectedFoodBank || foodBanks[0]; // Use the first food bank as fallback
+    const targetFoodBank = foodBank || selectedFoodBank;
 
     if (!targetFoodBank) {
-      alert('No food banks available to get directions.');
+      alert('Please select a food bank first!');
       return;
     }
 
@@ -66,7 +70,7 @@ const FindBankPage = () => {
         const route = data.routes[0].geometry; // GeoJSON geometry of the route
         const steps = data.routes[0].legs[0].steps; // Navigation steps
         setDirections({ steps, route });
-        setSelectedFoodBank(foodBank); // Set the selected food bank
+        setSelectedFoodBank(foodBank)
 
         // Ensure the map and style are loaded before adding the route
         if (mapRef.current) {
@@ -108,15 +112,9 @@ const FindBankPage = () => {
 
   useEffect(() => {
     if (userLocation) {
-      const mapContainer = document.getElementById('map');
-      if (!mapContainer) {
-        console.error('Map container not found.');
-        return;
-      }
-
       const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/streets-v11',
         center: userLocation,
         zoom: 12,
       });
@@ -131,12 +129,10 @@ const FindBankPage = () => {
             type: 'geojson',
             data: {
               type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  geometry: routeGeoJson,
-                },
-              ],
+              features: [{
+                type: 'Feature',
+                geometry: routeGeoJson,
+              }],
             },
           });
 
@@ -281,12 +277,18 @@ const FindBankPage = () => {
                     <p className="text-gray-600 my-2 text-center">{foodBank.address}</p>
                     <p className="text-gray-600 my-2 text-center">Hours: {foodBank.hours}</p>
                     <p className="text-gray-600 my-2 text-center">Phone: {foodBank.phone}</p>
-                    <div className="flex flex-col justify-center gap-1">
+                    <div className="flex flex-col gap-1">
                       <button
                         onClick={() => getDirections(foodBank)}
                         className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
                       >
                         Get Directions
+                      </button>
+                      <button
+                        onClick={() => handleBookAppointment(foodBank)}
+                        className="px-4 py-2 bg-gray-600 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
+                      >
+                        Book an Appointment
                       </button>
                     </div>
                   </div>
