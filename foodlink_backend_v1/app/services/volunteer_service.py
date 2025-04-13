@@ -177,16 +177,43 @@ async def retrieve_applied_job_in_db(volunteer_id: str):
             application = application.model_dump()
             application["id"] = str(application["id"])
 
-            # Retrieve foodbank information by using the ID
-            foodbank = await User.get(PydanticObjectId(application["foodbank_id"]))
-            foodbank = foodbank.model_dump()
+            # Log the application object for debugging
+            print(f"Processing application: {application}")
 
-            # Add the foodbank name to the list
-            application["foodbank_name"] = foodbank["name"]
+            # Handle cases where category is 'Event'
+            if application.get("category") == "Event":
+                print(f"Skipping foodbank query for Event application: {application}")
+                application["foodbank_name"] = "Not Applicable"
+                application_list.append(application)
+                continue
+
+            # Validate foodbank_id
+            foodbank_id = application.get("foodbank_id")
+            if not foodbank_id:
+                print(f"Missing foodbank_id in application: {application}")
+                application["foodbank_name"] = "Unknown"
+                application_list.append(application)
+                continue
+
+            # Log the foodbank_id being queried
+            print(f"Querying foodbank with ID: {foodbank_id}")
+
+            try:
+                foodbank = await User.get(PydanticObjectId(foodbank_id))
+                if foodbank:
+                    application["foodbank_name"] = foodbank.name
+                else:
+                    print(f"No foodbank found for ID: {foodbank_id}")
+                    application["foodbank_name"] = "Unknown"
+            except Exception as e:
+                print(f"Error retrieving foodbank with ID {foodbank_id}: {e}")
+                application["foodbank_name"] = "Unknown"
+
             application_list.append(application)
 
         return application_list
     except Exception as e:
+        print(f"Error while processing applications: {e}")
         raise HTTPException(
             status_code=400,
             detail=f"An error occurred while fetching a list of applied job in db: {e}",
