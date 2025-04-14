@@ -1,31 +1,41 @@
 # API Documentation
 
 ## Overview
+
 This document provides details about the API endpoints available in the backend.
 
 ## Endpoints
 
 ### User Management
+
 - **POST** `/auth/login`
   - **Description**: Logs in a user.
   - **Request Body**:
+
     ```json
     {
       "email": "user@example.com",
       "password": "password123"
     }
     ```
+
   - **Response**:
+
     ```json
     {
-      "access_token": "<token>",
-      "token_type": "bearer"
+    "status": "success",
+    "id": "<user-id>",
+    "role": "<userRole>",
+    "token": "jwt-token",
+    "issued_at": "2025-04-13T16:41:06.746329+00:00",
+    "expires_in": "2025-04-13T17:41:06.746336+00:00"
     }
     ```
 
 - **POST** `/auth/register`
   - **Description**: Registers a new user.
   - **Request Body**:
+
     ```json
     {
       "name": "John Doe",
@@ -34,20 +44,31 @@ This document provides details about the API endpoints available in the backend.
       "role": "volunteer"
     }
     ```
+
   - **Response**:
+
     ```json
     {
-      "id": "<user_id>",
-      "name": "John Doe",
-      "email": "user@example.com",
-      "role": "volunteer"
+    "status": "success",
+    "user": {
+        "id": "<userID>",
+        "name": "FoodBank A",
+        "role": "foodbank",
+        "email": "foodbankA@gmail.com",
+        "password": "$password",
+        "created_at": "2025-01-22T01:08:24.520702+00:00",
+        "updated_at": "2025-01-22T01:08:24.520710+00:00"
+    }
+
     }
     ```
 
 ### Donations
+
 - **GET** `/donations`
   - **Description**: Retrieves all donations.
   - **Response**:
+
     ```json
     [
       {
@@ -64,6 +85,7 @@ This document provides details about the API endpoints available in the backend.
 - **POST** `/donations`
   - **Description**: Creates a new donation.
   - **Request Body**:
+
     ```json
     {
       "donor_id": "<donor_id>",
@@ -71,7 +93,9 @@ This document provides details about the API endpoints available in the backend.
       "foodbank_id": "<foodbank_id>"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<donation_id>",
@@ -84,9 +108,11 @@ This document provides details about the API endpoints available in the backend.
     ```
 
 ### Appointments
+
 - **POST** `/appointments`
   - **Description**: Creates a new appointment.
   - **Request Body**:
+
     ```json
     {
       "individual_id": "<individual_id>",
@@ -96,7 +122,9 @@ This document provides details about the API endpoints available in the backend.
       "description": "Appointment for food pickup"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<appointment_id>",
@@ -108,6 +136,7 @@ This document provides details about the API endpoints available in the backend.
 - **GET** `/appointments`
   - **Description**: Retrieves all appointments for a user.
   - **Response**:
+
     ```json
     [
       {
@@ -122,9 +151,11 @@ This document provides details about the API endpoints available in the backend.
     ```
 
 ### Volunteer Applications
+
 - **POST** `/volunteer/applications`
   - **Description**: Submits a new volunteer application.
   - **Request Body**:
+
     ```json
     {
       "volunteer_id": "<volunteer_id>",
@@ -132,7 +163,9 @@ This document provides details about the API endpoints available in the backend.
       "foodbank_id": "<foodbank_id>"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<application_id>",
@@ -144,6 +177,7 @@ This document provides details about the API endpoints available in the backend.
 - **GET** `/volunteer/applications`
   - **Description**: Retrieves all applications for a volunteer.
   - **Response**:
+
     ```json
     [
       {
@@ -157,9 +191,11 @@ This document provides details about the API endpoints available in the backend.
     ```
 
 ### Jobs
+
 - **GET** `/jobs`
   - **Description**: Retrieves a list of all available jobs.
   - **Response**:
+
     ```json
     [
       {
@@ -178,6 +214,7 @@ This document provides details about the API endpoints available in the backend.
 - **POST** `/jobs`
   - **Description**: Creates a new job posting.
   - **Request Body**:
+
     ```json
     {
       "foodbank_id": "<foodbank_id>",
@@ -188,7 +225,9 @@ This document provides details about the API endpoints available in the backend.
       "deadline": "2025-03-20T10:00:00Z"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<job_id>",
@@ -199,9 +238,11 @@ This document provides details about the API endpoints available in the backend.
     ```
 
 ### Events
+
 - **GET** `/events`
   - **Description**: Retrieves a list of all events.
   - **Response**:
+
     ```json
     [
       {
@@ -220,6 +261,7 @@ This document provides details about the API endpoints available in the backend.
 - **POST** `/events`
   - **Description**: Creates a new event.
   - **Request Body**:
+
     ```json
     {
       "foodbank_id": "<foodbank_id>",
@@ -231,7 +273,9 @@ This document provides details about the API endpoints available in the backend.
       "location": "Community Center, City"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<event_id>",
@@ -249,13 +293,16 @@ This document provides details about the API endpoints available in the backend.
   - **Headers**:
     - `Authorization`: Bearer token
   - **Request Body**:
+
     ```json
     {
       "amount": 100,
       "foodbank_id": "<foodbank_id>"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<donation_id>",
@@ -272,6 +319,7 @@ This document provides details about the API endpoints available in the backend.
   - **Headers**:
     - `Authorization`: Bearer token
   - **Response**:
+
     ```json
     [
       {
@@ -290,6 +338,7 @@ This document provides details about the API endpoints available in the backend.
   - **Headers**:
     - `Authorization`: Bearer token
   - **Request Body**:
+
     ```json
     {
       "image_url": "https://example.com/image.jpg",
@@ -297,7 +346,9 @@ This document provides details about the API endpoints available in the backend.
       "phone_number": "123-456-7890"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Donor metadata updated successfully."
@@ -310,6 +361,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Signup
   - **Description**: Allow users to sign up their account to FoodLink.
   - **Request Body**:
+
     ```json
     {
       "name": "John Doe",
@@ -318,7 +370,9 @@ This document provides details about the API endpoints available in the backend.
       "role": "volunteer"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "User registered successfully."
@@ -329,13 +383,16 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Signin
   - **Description**: Allow users to sign in to FoodLink.
   - **Request Body**:
+
     ```json
     {
       "email": "user@example.com",
       "password": "password123"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "access_token": "<token>",
@@ -349,6 +406,7 @@ This document provides details about the API endpoints available in the backend.
   - **Headers**:
     - `Authorization`: Bearer token
   - **Response**:
+
     ```json
     {
       "id": "<user_id>",
@@ -362,6 +420,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Signout
   - **Description**: Allow users to sign out from the application.
   - **Response**:
+
     ```json
     {
       "message": "User signed out successfully."
@@ -374,6 +433,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Retrieve A List Of Services
   - **Description**: Allow FoodLink admin to get the list of services in the database.
   - **Response**:
+
     ```json
     [
       {
@@ -388,13 +448,16 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Add Available Services
   - **Description**: Allow FoodLink admin to add available services of the app.
   - **Request Body**:
+
     ```json
     {
       "title": "Food Distribution",
       "description": "Providing food to those in need."
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "id": "<service_id>",
@@ -407,6 +470,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Submit Question
   - **Description**: Allow users to submit a question to FoodLink.
   - **Request Body**:
+
     ```json
     {
       "name": "John Doe",
@@ -415,7 +479,9 @@ This document provides details about the API endpoints available in the backend.
       "message": "Can you provide more details about food distribution?"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Your question has been submitted."
@@ -426,6 +492,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Retrieve List Of Users
   - **Description**: Allow retrieval of the list of users in the database.
   - **Response**:
+
     ```json
     [
       {
@@ -441,12 +508,15 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Upload Image
   - **Description**: Allow users to upload an image.
   - **Request Body**:
+
     ```json
     {
       "file": "<binary_file>"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Image uploaded successfully."
@@ -459,6 +529,7 @@ This document provides details about the API endpoints available in the backend.
   - **Path Parameters**:
     - `public_id`: The public ID of the image.
   - **Response**:
+
     ```json
     {
       "message": "Image optimized successfully."
@@ -471,6 +542,7 @@ This document provides details about the API endpoints available in the backend.
   - **Path Parameters**:
     - `public_id`: The public ID of the image.
   - **Response**:
+
     ```json
     {
       "message": "Image cropped successfully."
@@ -483,13 +555,16 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Apply Available Jobs For Event
   - **Description**: Allow volunteers to submit an application for a specific event.
   - **Request Body**:
+
     ```json
     {
       "event_id": "<event_id>",
       "volunteer_id": "<volunteer_id>"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Application submitted successfully."
@@ -500,6 +575,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Retrieve Available Jobs
   - **Description**: Retrieve the list of available jobs for volunteers.
   - **Response**:
+
     ```json
     [
       {
@@ -514,6 +590,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Retrieve Volunteer Activity
   - **Description**: Retrieve the past activity of the volunteer.
   - **Response**:
+
     ```json
     [
       {
@@ -528,6 +605,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Retrieve Applied Job
   - **Description**: Retrieve the volunteer applied job based on volunteer ID.
   - **Response**:
+
     ```json
     [
       {
@@ -544,13 +622,16 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Add Inventory
   - **Description**: Allow food bank admins to add inventory items.
   - **Request Body**:
+
     ```json
     {
       "food_name": "Canned Beans",
       "quantity": 100
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Inventory item added successfully."
@@ -561,6 +642,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Get Inventory
   - **Description**: Retrieve the list of inventory items.
   - **Response**:
+
     ```json
     [
       {
@@ -575,6 +657,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Get Donations For Foodbank
   - **Description**: Retrieve all donations for the foodbank.
   - **Response**:
+
     ```json
     [
       {
@@ -591,6 +674,7 @@ This document provides details about the API endpoints available in the backend.
   - **Summary**: Get List Of Appointments
   - **Description**: Retrieve the list of appointments for the foodbank.
   - **Response**:
+
     ```json
     [
       {
@@ -607,12 +691,15 @@ This document provides details about the API endpoints available in the backend.
   - **Path Parameters**:
     - `appointment_id`: The ID of the appointment.
   - **Request Body**:
+
     ```json
     {
       "status": "rescheduled"
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Appointment status updated successfully."
@@ -625,16 +712,18 @@ This document provides details about the API endpoints available in the backend.
   - **Path Parameters**:
     - `application_id`: The ID of the application.
   - **Request Body**:
+
     ```json
     {
       "hours": 5,
       "description": "Helped organize food donations."
     }
     ```
+
   - **Response**:
+
     ```json
     {
       "message": "Volunteer activity added successfully."
     }
     ```
-
