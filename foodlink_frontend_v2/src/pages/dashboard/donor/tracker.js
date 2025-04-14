@@ -239,7 +239,7 @@ export default function DonationTracker() {
                   <td className="border p-2 text-l">
                     {new Date(donation.created_at).toDateString()}
                   </td>
-                  <td className="border p-2 text-l">{formatTime(donation.created_at)}</td>
+                  <td className="border p-2 text-l">{new Date(donation.created_at).toLocaleTimeString()}</td>
                 </tr>
               ))
             ) : (
