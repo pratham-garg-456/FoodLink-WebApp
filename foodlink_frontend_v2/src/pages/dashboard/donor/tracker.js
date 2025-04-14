@@ -147,6 +147,16 @@ export default function DonationTracker() {
       </div>
     );
 
+  const formatDateToLocal = (isoString) => {
+    if (!isoString) return 'N/A';
+    const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
+    return utcDate.toLocaleString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   return (
     <div className="container mx-auto p-4 sm:p-6 w-full md:w-[70vw] flex flex-col min-h-[70vh]">
       <h1 className="text-5xl font-bold mb-4 text-center">DONATIONS</h1>
@@ -233,7 +243,9 @@ export default function DonationTracker() {
                   <td className="border p-2 text-l">
                     {new Date(donation.created_at).toDateString()}
                   </td>
-                  <td className="border p-2 text-l">{new Date(donation.created_at).toLocaleTimeString()}</td>
+                  <td className="border p-2 text-l">
+                    {formatDateToLocal(donation.created_at)}
+                  </td>
                 </tr>
               ))
             ) : (
