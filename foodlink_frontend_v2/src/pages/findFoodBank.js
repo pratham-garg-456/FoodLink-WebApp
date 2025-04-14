@@ -108,6 +108,11 @@ const FindBankPage = () => {
 
   useEffect(() => {
     if (userLocation) {
+      const mapContainer = document.getElementById('map');
+      if (!mapContainer) {
+        console.error("Map container not found.");
+        return;
+      }
       const map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v12',
