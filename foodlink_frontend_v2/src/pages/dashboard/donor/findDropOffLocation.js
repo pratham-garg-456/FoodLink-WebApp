@@ -39,12 +39,12 @@ const FindBankPage = () => {
     setCurrentStep(0); // Reset steps to the beginning
   };
 
-  const handleBookAppointment = (foodBank) => {
-    router.push(`/dashboard/individual/manageAppointments/book?foodBank=${foodBank.id}`);
-  };
+  // const handleBookAppointment = (foodBank) => {
+  //   router.push(`/dashboard/individual/manageAppointments/book?foodBank=${foodBank.id}`);
+  // };
 
   const getDirections = async (foodBank) => {
-    const targetFoodBank = foodBank || selectedFoodBank;
+    const targetFoodBank = foodBank || selectedFoodBank || foodBanks[0]; // Use the first food bank as fallback
 
     if (!targetFoodBank) {
       alert('Please select a food bank first!');
@@ -69,7 +69,7 @@ const FindBankPage = () => {
         const route = data.routes[0].geometry; // GeoJSON geometry of the route
         const steps = data.routes[0].legs[0].steps; // Navigation steps
         setDirections({ steps, route });
-        setSelectedFoodBank(foodBank)
+        setSelectedFoodBank(foodBank);
 
         // Ensure the map and style are loaded before adding the route
         if (mapRef.current) {
@@ -118,7 +118,7 @@ const FindBankPage = () => {
       }
       const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: userLocation,
         zoom: 12,
       });
@@ -287,12 +287,6 @@ const FindBankPage = () => {
                         className="px-4 py-2 bg-black text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
                       >
                         Get Directions
-                      </button>
-                      <button
-                        onClick={() => handleBookAppointment(foodBank)}
-                        className="px-4 py-2 bg-gray-600 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
-                      >
-                        Book an Appointment
                       </button>
                     </div>
                   </div>
