@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { OrbitProgress } from 'react-loading-indicators';
 
 export default function VolunteerDashboard() {
   const [activities, setActivities] = useState([]);
   const [totalHours, setTotalHours] = useState(0);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -38,11 +39,17 @@ export default function VolunteerDashboard() {
       } catch (error) {
         console.error('Error fetching activities:', error);
       }
+      setLoading(false);
     };
 
     fetchActivities();
   }, []);
-
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
   return (
     <div className="p-4 flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-8">
       {/* Left Side - Table */}
@@ -65,13 +72,8 @@ export default function VolunteerDashboard() {
                 const duration = ((endTime - startTime) / (1000 * 60 * 60)).toFixed(2);
 
                 return (
-                  <tr
-                    key={index}
-                    className="border-b hover:bg-gray-100 text-sm md:text-base"
-                  >
-                    <td className="p-2">
-                      {startTime.toISOString().split('T')[0]}
-                    </td>
+                  <tr key={index} className="border-b hover:bg-gray-100 text-sm md:text-base">
+                    <td className="p-2">{startTime.toISOString().split('T')[0]}</td>
                     <td className="p-2">{activity.category}</td>
                     <td className="p-2">{activity.foodbank_name}</td>
                     <td className="p-2">{duration} hrs</td>
@@ -86,9 +88,7 @@ export default function VolunteerDashboard() {
       {/* Right Side - Total Hours Circle */}
       <div className="lg:w-1/4 flex flex-col items-center">
         <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex justify-center items-center border-4 border-green-700 rounded-full">
-          <span className="text-lg sm:text-2xl font-bold">
-            {totalHours.toFixed(2)} hrs
-          </span>
+          <span className="text-lg sm:text-2xl font-bold">{totalHours.toFixed(2)} hrs</span>
         </div>
         <p className="mt-4 text-base sm:text-lg font-semibold text-gray-700 text-center">
           The total hours for activities is{' '}

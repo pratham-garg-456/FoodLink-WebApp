@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import FoodBankList from '@/components/FoodBankList';
 import Map from '@/components/Map';
 import mapboxgl from 'mapbox-gl';
 import { useRouter } from 'next/router';

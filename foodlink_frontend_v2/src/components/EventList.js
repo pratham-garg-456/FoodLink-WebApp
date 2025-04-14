@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Notification from './Notification';
 import axios from 'axios';
-
+import { OrbitProgress } from 'react-loading-indicators';
 export default function EventList({ apiEndPoint }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,31 @@ export default function EventList({ apiEndPoint }) {
     };
   }, [apiEndPoint]);
 
-  if (loading) return <p className="text-center">Loading events...</p>;
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
+
+  const formatTime = (isoString) => {
+    const date = new Date(isoString);
+    date.setHours(date.getHours() + 4);
+    return date.toTimeString().split(' ')[0].slice(0, 5);
+  };
+
+  const formatDateToLocal = (isoString) => {
+    if (!isoString) return 'N/A';
+    const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
+    return utcDate.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -79,16 +103,8 @@ export default function EventList({ apiEndPoint }) {
           <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
           <p className="text-gray-700 text-xl mb-2">{event.description}</p>
           <p className="text-lg text-gray-600">
-            Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
-            {new Date(event.start_time).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}{' '}
-            | To:{' '}
-            {new Date(event.end_time).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
+            Date: {new Date(event.date).toLocaleDateString()} | From: {formatTime(event.start_time)}{' '}
+            | To: {formatTime(event.end_time)}
           </p>
           <p className="text-lg text-gray-600">Location: {event.location}</p>
           <p className="text-lg text-gray-600">Status: {event.status}</p>
@@ -109,7 +125,7 @@ export default function EventList({ apiEndPoint }) {
                 ))}
               </ul>
               <p className="text-sm text-gray-500">
-                Last Updated: {new Date(event.event_inventory.last_updated).toLocaleString()}
+                Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
               </p>
             </div>
           )}

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import validateToken from '../../../utils/validateToken';
 import Image from 'next/image';
 import foodbank from '../../../../public/images/food-bank2.jpg';
+import { OrbitProgress } from 'react-loading-indicators';
 
 const IndividualDashboard = () => {
   const router = useRouter();
@@ -156,7 +157,7 @@ const IndividualDashboard = () => {
           <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Upcoming Appointments</h2>
             {loading ? (
-              <p className="text-gray-600">Loading...</p>
+              <OrbitProgress color="#000000" size="large" text="" textColor="" />
             ) : error ? (
               <p className="text-red-500">{error}</p>
             ) : appointments.length > 0 ? (

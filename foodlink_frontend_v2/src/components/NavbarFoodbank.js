@@ -208,7 +208,7 @@ const NavbarFoodbank = () => {
             <div>
               <Link
                 className={`md:hover:text-gray-700 hover:text-gray-300 transition-colors ease-linear md:px-3 flex items-center`}
-                href="/dashboard/foodbank/donations"
+                href="/dashboard/foodbank/manageDonations"
               >
                 Track Donations
               </Link>

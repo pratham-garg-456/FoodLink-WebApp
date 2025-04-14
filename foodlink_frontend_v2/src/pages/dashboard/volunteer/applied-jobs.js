@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import validateToken from '@/utils/validateToken';
+import { OrbitProgress } from 'react-loading-indicators';
 
 const AvailableJobs = () => {
   const [applications, setApplications] = useState([]);
@@ -9,6 +10,7 @@ const AvailableJobs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 8;
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -30,6 +32,7 @@ const AvailableJobs = () => {
   }, [currentPage]);
 
   async function fetchApplications() {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/applied_job`,
@@ -74,6 +77,7 @@ const AvailableJobs = () => {
     } catch (error) {
       console.error('Error fetching applications:', error);
     }
+    setLoading(false);
   }
 
   const handleRowClick = (appId, job) => {
@@ -88,6 +92,13 @@ const AvailableJobs = () => {
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = applications.slice(indexOfFirstJob, indexOfLastJob);
+
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
 
   return (
     <div className="p-4 w-3/4">
