@@ -84,6 +84,7 @@ const AvailableJobs = () => {
   };
 
   // Pagination logic
+  const totalPages = Math.ceil(applications.length / jobsPerPage);
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = applications.slice(indexOfFirstJob, indexOfLastJob);
@@ -106,14 +107,9 @@ const AvailableJobs = () => {
             {currentJobs.map((app) => {
               const job = jobDetails[app.job_id];
 
-              if (job === undefined || job === null) {
-                // Still fetching => skip or show a "Loading..." row
-                return null;
-              }
+              // If still fetching or job not found, skip
+              if (!job) return null;
 
-        
-
-              // Render valid job
               return (
                 <tr
                   key={app.job_id}
@@ -144,13 +140,8 @@ const AvailableJobs = () => {
       <div className="block md:hidden space-y-2">
         {currentJobs.map((app) => {
           const job = jobDetails[app.job_id];
+          if (!job) return null;
 
-          if (job === undefined || job === null) {
-            // Still fetching => skip or show "Loading..."
-            return null;
-          }
-
-          // Render valid job as a card
           return (
             <div
               key={app.job_id}
@@ -188,7 +179,8 @@ const AvailableJobs = () => {
         >
           &lt;
         </button>
-        {[1, 2, 3, 4, 5].map((page) => (
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <button
             key={page}
             className={`border p-2 ${currentPage === page ? 'bg-black text-white' : ''}`}
@@ -197,9 +189,10 @@ const AvailableJobs = () => {
             {page}
           </button>
         ))}
+
         <button
           className="border p-2"
-          disabled={currentPage === Math.ceil(applications.length / jobsPerPage)}
+          disabled={currentPage === totalPages}
           onClick={() => setCurrentPage(currentPage + 1)}
         >
           &gt;
