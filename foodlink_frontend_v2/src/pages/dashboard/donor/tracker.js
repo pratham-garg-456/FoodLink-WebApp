@@ -140,12 +140,6 @@ export default function DonationTracker() {
     (donation) => donation.status === 'confirmed'
   ).length;
 
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    date.setHours(date.getHours() + 4);
-    return date.toTimeString().split(' ')[0].slice(0, 5);
-  };
-
   if (loading)
     return (
       <div class="flex items-center justify-center">
