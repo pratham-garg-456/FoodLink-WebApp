@@ -288,12 +288,6 @@ const FindBankPage = () => {
                       >
                         Get Directions
                       </button>
-                      // <button
-                      //   onClick={() => handleBookAppointment(foodBank)}
-                      //   className="px-4 py-2 bg-gray-600 text-white border-none rounded-md cursor-pointer shadow-sm transform transition duration-200 hover:scale-105"
-                      // >
-                      //   Book an Appointment
-                      // </button>
                     </div>
                   </div>
                 ))}
