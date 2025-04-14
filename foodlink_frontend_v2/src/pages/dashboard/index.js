@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { jwtDecode } from 'jwt-decode';
-
+import { OrbitProgress } from 'react-loading-indicators';
 const Dashboard = () => {
   const router = useRouter();
   const [userRole, setUserRole] = useState('');
@@ -41,11 +41,7 @@ const Dashboard = () => {
     }
   });
 
-  return (
-    <div>
-      <h1>Loading your dashboard....</h1>
-    </div>
-  );
+  return <OrbitProgress color="#000000" size="large" text="" textColor="" />;
 };
 
 export default Dashboard;

@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import validateToken from '@/utils/validateToken';
+import { OrbitProgress } from 'react-loading-indicators';
 
 const ViewAppointments = () => {
   const router = useRouter();
   const [allAppointments, setAllAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [foodbankUsernames, setFoodbankUsernames] = useState({});
   const [individualUsernames, setIndividualUsernames] = useState({});
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -187,7 +187,7 @@ const ViewAppointments = () => {
   };
 
   return (
-    <div className="bg-white p-8 shadow-lg">
+    <div className="bg-white p-8 shadow-lg w-3/4">
       <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Manage Appointments</h1>
 
       {/* Status Filter */}
@@ -203,7 +203,9 @@ const ViewAppointments = () => {
 
       {/* Loading / Error / Table & Cards */}
       {loading ? (
-        <p className="text-center text-gray-600">Loading...</p>
+        <div class="flex items-center justify-center">
+          <OrbitProgress color="#000000" size="large" text="" textColor="" />
+        </div>
       ) : errorMessage ? (
         <p className="text-center text-red-500">{errorMessage}</p>
       ) : filteredAppointments.length === 0 ? (

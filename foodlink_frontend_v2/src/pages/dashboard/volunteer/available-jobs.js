@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import validateToken from '@/utils/validateToken';
-
+import { OrbitProgress } from 'react-loading-indicators';
 const AvailableJobs = () => {
   const [jobs, setJobs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 8;
   const [volunteerId, setVolunteerId] = useState([]);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkToken = async () => {
@@ -30,6 +31,7 @@ const AvailableJobs = () => {
     checkToken();
   }, [currentPage]);
   async function fetchJobs() {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/jobs`,
@@ -44,15 +46,22 @@ const AvailableJobs = () => {
         setJobs(data.jobs);
       }
     } catch (error) {
+      setJobs([]);
       console.error('Error fetching jobs:', error);
     }
+    setLoading(false);
   }
   // Pagination logic
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
-
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
   return (
     <div className="p-4 w-3/4">
       {/* TABLE VIEW for md+ screens */}

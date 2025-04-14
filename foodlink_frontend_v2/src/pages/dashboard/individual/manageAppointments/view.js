@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import { OrbitProgress } from 'react-loading-indicators';
 const ViewAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [foodbankUsernames, setFoodbankUsernames] = useState({});
@@ -159,7 +159,9 @@ const ViewAppointments = () => {
 
         {/* Loading/Error */}
         {loading ? (
-          <p className="text-center text-gray-600">Loading...</p>
+          <div class="flex items-center justify-center">
+            <OrbitProgress color="#000000" size="large" text="" textColor="" />
+          </div>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : sortedAppointments.length > 0 ? (

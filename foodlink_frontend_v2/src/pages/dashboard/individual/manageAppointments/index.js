@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import validateToken from '@/utils/validateToken';
+import { OrbitProgress } from 'react-loading-indicators';
 
 const IndividualDashboard = () => {
   const router = useRouter();
@@ -106,7 +107,7 @@ const IndividualDashboard = () => {
           </h1>
 
           {loading ? (
-            <p className="text-center text-gray-600">Loading...</p>
+            <OrbitProgress color="#000000" size="large" text="" textColor="" />
           ) : error ? (
             <p className="text-center text-red-500">{error}</p>
           ) : appointments.length > 0 ? (

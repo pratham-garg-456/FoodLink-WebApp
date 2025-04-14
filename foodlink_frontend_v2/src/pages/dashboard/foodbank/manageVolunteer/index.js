@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { OrbitProgress } from 'react-loading-indicators';
 
 export default function ManageVolunteers() {
   // state to track applications, selected application, volunteer details, and loading states
@@ -10,6 +11,8 @@ export default function ManageVolunteers() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   // state for filtering application status: "pending" or "approved"
   const [filterStatus, setFilterStatus] = useState('pending');
+
+  const [loadingStatusSwitch, setLoadingStatusSwitch] = useState(false);
 
   // State for volunteer activity form
   const [activityForm, setActivityForm] = useState({
@@ -26,6 +29,7 @@ export default function ManageVolunteers() {
   }, [filterStatus]);
 
   const fetchApplications = async () => {
+    setLoadingStatusSwitch(true); // Start loading indicator
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/volunteer-applications?status=${filterStatus}`,
@@ -40,6 +44,7 @@ export default function ManageVolunteers() {
       // console.error("Error fetching applications:", error);
       setApplications([]);
     }
+    setLoadingStatusSwitch(false); // end loading indicator
   };
 
   const fetchVolunteerDetails = async (volunteer_id) => {
@@ -174,121 +179,125 @@ export default function ManageVolunteers() {
           </button>
         </div>
 
-        {/* List of Applications */}
-        {!selectedApplication && (
-          <div className="bg-white shadow rounded-lg w-full">
-            {applications.length === 0 ? (
-              <div className="p-6 text-center bg-gray-100 text-gray-600">
-                There are no applications now.
-              </div>
-            ) : (
-              <>
-                {/* TABLE (hidden on small screens) */}
-                <div className="hidden md:block overflow-x-auto rounded-lg">
-                  <table className="w-full table-auto divide-y divide-gray-200">
-                    {filterStatus === 'pending' ? (
-                      <thead className="bg-yellow-400">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Volunteer Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Job Title
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Job Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Applied At
-                          </th>
-                        </tr>
-                      </thead>
-                    ) : (
-                      <thead className="bg-green-600">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Volunteer Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Job Title
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Job Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Category
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-md font-medium text-white">
-                            Applied At
-                          </th>
-                        </tr>
-                      </thead>
-                    )}
+        {/* Loading Indicator */}
+        {loadingStatusSwitch ? (
+          <div className="flex justify-center items-center">
+            <OrbitProgress color="#000000" size="large" text="" />
+          </div>
+        ) : (
+          <>
+            {/* List of Applications */}
+            {!selectedApplication && (
+              <div className="bg-white shadow rounded-lg w-full">
+                {applications.length === 0 ? (
+                  <p className="text-center text-gray-600 py-4">No applications found.</p>
+                ) : (
+                  <>
+                    {/* TABLE (hidden on small screens) */}
+                    <div className="hidden md:block overflow-x-auto rounded-lg">
+                      <table className="w-full table-auto divide-y divide-gray-200">
+                        {filterStatus === 'pending' ? (
+                          <thead className="bg-yellow-400">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Volunteer Name
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Job Title
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Job Category
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Category
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Status
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Applied At
+                              </th>
+                            </tr>
+                          </thead>
+                        ) : (
+                          <thead className="bg-green-600">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Volunteer Name
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Job Title
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Job Category
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Category
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Status
+                              </th>
+                              <th className="px-6 py-3 text-left text-md font-medium text-white">
+                                Applied At
+                              </th>
+                            </tr>
+                          </thead>
+                        )}
 
-                    <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {applications.map((app) => (
+                            <tr
+                              key={app.id}
+                              className="cursor-pointer hover:bg-gray-100"
+                              onClick={() => handleApplicationClick(app)}
+                            >
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {app.volunteer_name}
+                              </td>
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {app.job_name}
+                              </td>
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {app.job_category}
+                              </td>
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {app.category}
+                              </td>
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {app.status}
+                              </td>
+                              <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
+                                {formatDateToLocal(app.applied_at)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* CARD VIEW (visible on small screens) */}
+                    <div className="block md:hidden space-y-2">
                       {applications.map((app) => (
-                        <tr
+                        <div
                           key={app.id}
-                          className="cursor-pointer hover:bg-gray-100"
+                          className="border p-4 shadow-sm cursor-pointer hover:bg-gray-50"
                           onClick={() => handleApplicationClick(app)}
                         >
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {app.volunteer_name}
-                          </td>
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {app.job_name}
-                          </td>
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {app.job_category}
-                          </td>
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {app.category}
-                          </td>
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {app.status}
-                          </td>
-                          <td className="px-6 py-4 text-2xl text-gray-800 whitespace-nowrap">
-                            {formatDateToLocal(app.applied_at)}
-                          </td>
-                        </tr>
+                          <p className="font-semibold">Volunteer Name: {app.volunteer_name}</p>
+                          <p>Job Title: {app.job_name}</p>
+                          <p>Job Category: {app.job_category}</p>
+                          <p>Category: {app.category}</p>
+                          <p>Status: {app.status}</p>
+                          <p>Applied At: {formatDateToLocal(app.applied_at)}</p>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* CARD VIEW (visible on small screens) */}
-                <div className="block md:hidden space-y-2">
-                  {applications.map((app) => (
-                    <div
-                      key={app.id}
-                      className="border p-4 shadow-sm cursor-pointer hover:bg-gray-50"
-                      onClick={() => handleApplicationClick(app)}
-                    >
-                      <p className="font-semibold">
-                        Volunteer Name: {app.volunteer_name}
-                      </p>
-                      <p>Job Title: {app.job_name}</p>
-                      <p>Job Category: {app.job_category}</p>
-                      <p>Category: {app.category}</p>
-                      <p>Status: {app.status}</p>
-                      <p>Applied At: {formatDateToLocal(app.applied_at)}</p>
                     </div>
-                  ))}
-                </div>
-              </>
+                  </>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
-
         {/* Volunteer Details View */}
         {selectedApplication && volunteerDetails && (
           <div className="bg-white shadow rounded-lg p-6 mt-4">
@@ -303,7 +312,7 @@ export default function ManageVolunteers() {
             </button>
             <h2 className="text-2xl font-bold mb-4">Volunteer Details</h2>
             {loadingDetails ? (
-              <p>Loading...</p>
+              <OrbitProgress color="#000000" size="large" text="" />
             ) : (
               <div className="space-y-2">
                 <p>
@@ -336,7 +345,7 @@ export default function ManageVolunteers() {
                 <button
                   onClick={() => updateApplicationStatus(selectedApplication.id, 'rejected')}
                   disabled={updatingStatus}
-                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+                  className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
                 >
                   Reject
                 </button>
@@ -399,7 +408,7 @@ export default function ManageVolunteers() {
                   <button
                     type="submit"
                     disabled={submittingActivity}
-                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                    className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg"
                   >
                     {submittingActivity ? 'Submitting...' : 'Submit Activity Hours'}
                   </button>

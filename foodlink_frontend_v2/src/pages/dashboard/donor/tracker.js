@@ -35,6 +35,7 @@ export default function DonationTracker() {
   const [trendChartData, setTrendChartData] = useState(null);
   const [filter, setFilter] = useState({ status: '', startDate: '', endDate: '' });
   const [sortOrder, setSortOrder] = useState('desc');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const checkTokenAndFetchDonations = async () => {
@@ -139,12 +140,25 @@ export default function DonationTracker() {
     (donation) => donation.status === 'confirmed'
   ).length;
 
+  const formatTime = (isoString) => {
+    const date = new Date(isoString);
+    date.setHours(date.getHours() + 4);
+    return date.toTimeString().split(' ')[0].slice(0, 5);
+  };
+
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
+
   return (
     <div className="container mx-auto p-4 sm:p-6 w-full md:w-[70vw] flex flex-col min-h-[70vh]">
       <h1 className="text-5xl font-bold mb-4 text-center">DONATIONS</h1>
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       {/* Summary Section */}
-      <div className="summary-section bg-gray-100 p-4 rounded mb-6">
+      <div className="summary-section bg-gray-100 p-4 rounded-lg shadow-lg mb-6 flex flex-row justify-between">
         <p className="text-xl">Total Donations: {donations.length}</p>
         <p className="text-xl">Total Amount: ${totalAmount.toFixed(2)}</p>
         <p className="text-xl">Successful Donations: {successfulDonations}</p>
@@ -175,7 +189,7 @@ export default function DonationTracker() {
         >
           <option value="">All Statuses</option>
           <option value="confirmed">Successful</option>
-          <option value="Failed">Failed</option>
+          <option value="failed">Failed</option>
         </select>
         <input
           type="date"
@@ -217,13 +231,15 @@ export default function DonationTracker() {
               sortedDonations.map((donation, index) => (
                 <tr key={donation.id} className={index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}>
                   <td className="border p-2 text-l">${donation.amount.toFixed(2)}</td>
-                  <td className="border p-2 text-l">{donation.status}</td>
+                  <td
+                    className={`border p-2 text-l ${donation?.status === 'confirmed' ? 'text-green-500 font-bold' : 'text-red-300'}`}
+                  >
+                    {donation.status}
+                  </td>
                   <td className="border p-2 text-l">
                     {new Date(donation.created_at).toDateString()}
                   </td>
-                  <td className="border p-2 text-l">
-                    {new Date(donation.created_at).toLocaleTimeString()}
-                  </td>
+                  <td className="border p-2 text-l">{formatTime(donation.created_at)}</td>
                 </tr>
               ))
             ) : (
@@ -251,7 +267,14 @@ export default function DonationTracker() {
                 <strong>Amount ($):</strong> ${donation.amount.toFixed(2)}
               </p>
               <p>
-                <strong>Status:</strong> {donation.status}
+                <strong>Status:</strong>{' '}
+                <span
+                  className={
+                    donation?.status === 'confirmed' ? 'text-green-500 font-bold' : 'text-red-300'
+                  }
+                >
+                  {donation.status}
+                </span>
               </p>
               <p>
                 <strong>Timestamp:</strong> {new Date(donation.created_at).toLocaleString()}

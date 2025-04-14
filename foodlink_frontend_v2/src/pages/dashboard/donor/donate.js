@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useAtom } from 'jotai';
 import donateNow from '../../../../public/images/Donatenow.jpg';
 import { selectedFoodbankAtom } from '../../../../store';
+import { OrbitProgress } from 'react-loading-indicators';
 
 export default function DonatePage() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function DonatePage() {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchFoodbanks = async () => {
@@ -38,7 +41,7 @@ export default function DonatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-
+    setLoading(true);
     // Validate Inputs
     if (amount <= 0) {
       setErrorMessage('Donation amount must be greater than zero.');
@@ -91,7 +94,15 @@ export default function DonatePage() {
         error.response?.data?.detail || 'An error occurred while creating your donation.'
       );
     }
+    setLoading(false);
   };
+
+  if (loading)
+    return (
+      <div class="flex items-center justify-center">
+        <OrbitProgress color="#000000" size="large" text="" textColor="" />
+      </div>
+    );
 
   return (
     <div

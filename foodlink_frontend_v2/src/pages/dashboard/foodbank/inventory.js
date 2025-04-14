@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import validateToken from '@/utils/validateToken';
 import Notification from '@/components/Notification';
+import { OrbitProgress } from 'react-loading-indicators';
 
 export default function Inventory() {
   const router = useRouter();
@@ -256,7 +257,7 @@ export default function Inventory() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Available Food Items</h2>
         <button
-          className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+          className="bg-lime-700 text-white px-3 py-1 rounded text-sm"
           onClick={() => setShowFoodItemModal(true)}
         >
           + Add Food Item
@@ -264,9 +265,11 @@ export default function Inventory() {
       </div>
 
       {loadingFoodItems ? (
-        <p>Loading food items...</p>
+        <div className="flex justify-between items-center">
+          <OrbitProgress color="#000000" size="large" text="" textColor="" />
+        </div>
       ) : (
-        <div className="bg-white shadow-md rounded p-4">
+        <div className="bg-white shadow-lg rounded-xl p-4">
           {foodItems.length > 0 ? (
             <>
               {/* TABLE (hidden on small screens) */}
@@ -330,9 +333,11 @@ export default function Inventory() {
       <div className="mt-8">
         <h1 className="text-2xl font-bold mb-4">Inventory</h1>
         {loading ? (
-          <p>Loading inventory...</p>
+          <div className="flex items-center justify-between">
+            <OrbitProgress color="#000000" size="large" text="" textColor="" />
+          </div>
         ) : (
-          <div className="bg-white shadow-md rounded p-4">
+          <div className="bg-white shadow-lg rounded-xl p-4">
             {inventory.length > 0 ? (
               <>
                 {inventory.map((inv) => (
@@ -399,7 +404,7 @@ export default function Inventory() {
                 const quantity = e.target.quantity.value;
                 handleAddStock(foodName, quantity);
               }}
-              className="bg-green-100 p-4 rounded"
+              className="bg-green-200 p-4 rounded-2xl shadow-xl"
             >
               <input
                 type="text"
@@ -432,7 +437,7 @@ export default function Inventory() {
                 const quantity = e.target.quantity.value;
                 handleRemoveStock(foodName, quantity);
               }}
-              className="bg-red-100 p-4 rounded"
+              className="bg-red-200 p-4 rounded-2xl shadow-xl"
             >
               <input
                 type="text"
