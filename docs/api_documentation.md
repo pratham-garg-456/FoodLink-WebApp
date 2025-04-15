@@ -416,17 +416,6 @@ This document provides details about the API endpoints available in the backend.
     }
     ```
 
-- **GET** `/api/v1/foodlink/authsignout`
-  - **Summary**: Signout
-  - **Description**: Allow users to sign out from the application.
-  - **Response**:
-
-    ```json
-    {
-      "message": "User signed out successfully."
-    }
-    ```
-
 ### Miscellaneous
 
 - **GET** `/api/v1/foodlink/misc/services`
