@@ -49,7 +49,9 @@ const Events = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setNotification({ message: '', type: '' });
+
     const requestBody = { ...eventData };
+
     try {
       if (editingEventId) {
         await axios.put(
@@ -97,7 +99,7 @@ const Events = () => {
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
-    date.setHours(date.getHours() + 4);
+    // date.setHours(date.getHours() + 4);
     return date.toTimeString().split(' ')[0].slice(0, 5);
   };
 
@@ -148,7 +150,7 @@ const Events = () => {
   return (
     <div className="container mx-auto p-4">
       {loading ? (
-        <div class="flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <OrbitProgress color="#000000" size="large" text="" textColor="" />
         </div>
       ) : (
@@ -309,10 +311,10 @@ const Events = () => {
                           <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
                         </p>
                         <p>
-                          <strong>From:</strong> {formatTime(event.start_time)}
+                          <strong>From:</strong> {new Date(event.start_time).toLocaleTimeString()}
                         </p>
                         <p>
-                          <strong>To:</strong> {formatTime(event.end_time)}
+                          <strong>To:</strong> {new Date(event.end_time).toLocaleTimeString()}
                         </p>
                         <p>
                           <strong>Location:</strong> {event.location}

@@ -11,7 +11,7 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
     """
     Create an event for upcoming events
     :param event_data: A detailed event including name, optional description, date, start_time, end_time, location, list of food services, and event MainInventory
-    """
+    """    
     try:
         # Convert datetime fields
         date = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
@@ -19,22 +19,25 @@ async def create_an_event_in_db(foodbank_id: str, event_data: dict):
         start = convert_string_time_to_iso(event_data["date"], event_data["start_time"])
 
         end = convert_string_time_to_iso(event_data["date"], event_data["end_time"])
-
+        
+        event_data["date"] = date
+        event_data["start_time"] = start
+        event_data["end_time"] = end
+        
         # Create the event
         new_event = Event(
             foodbank_id=foodbank_id,
             event_name=event_data["event_name"],
             description=event_data["description"],
-            date=date,
-            start_time=start,
-            end_time=end,
+            date=event_data["date"],
+            start_time=event_data["start_time"],
+            end_time=event_data["end_time"],
             location=event_data["location"],
             status=event_data["status"],
         )
         await new_event.insert()
         new_event = new_event.model_dump()
         new_event["id"] = str(new_event["id"])
-
         return new_event
 
     except ValueError as ve:
@@ -60,6 +63,8 @@ async def get_list_of_events(foodbank_id: str):
         for event in events:
             event = event.model_dump()
             event["id"] = str(event["id"])
+            event["start_time"] = str(event["start_time"]) + "Z"
+            event["end_time"] = str(event["end_time"]) + "Z"
             event_list.append(event)
 
         return event_list
