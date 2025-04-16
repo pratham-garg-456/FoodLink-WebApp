@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
@@ -7,6 +7,13 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    // Extract email from query parameters and set it as the initial value
+    if (router.query.email) {
+      setEmail(router.query.email);
+    }
+  }, [router.query.email]);
 
   const handleLogin = async (event) => {
     event.preventDefault();

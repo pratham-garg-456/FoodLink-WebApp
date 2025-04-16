@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router'; // Import useRouter
 import axios from 'axios';
 
 const RegisterPage = () => {
@@ -9,6 +10,8 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const router = useRouter(); // Initialize useRouter
 
   const handleRegister = async (event) => {
     event.preventDefault();
@@ -17,6 +20,7 @@ const RegisterPage = () => {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
+      setShowModal(true); // Show the modal for errors
       return;
     }
 
@@ -34,14 +38,8 @@ const RegisterPage = () => {
         }
       );
       console.log('Response received:', response.data);
-      setSuccessMessage('Registration successful! Please log in.');
-      console.log('Registration successful:', response.data);
-      // Clear form fields
-      setName('');
-      setRole('donor');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+      setSuccessMessage('Registration successful!');
+      setShowModal(true); // Show the modal for success
     } catch (error) {
       console.error('Registration failed:', error);
       if (error.response && error.response.data && error.response.data.message) {
@@ -49,6 +47,14 @@ const RegisterPage = () => {
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
+      setShowModal(true); // Show the modal for errors
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false); // Hide the modal
+    if (successMessage) {
+      router.push(`/auth/login?email=${encodeURIComponent(email)}`); // Redirect to login page if successful
     }
   };
 
@@ -56,10 +62,6 @@ const RegisterPage = () => {
     <div className="flex items-center justify-center ">
       <div className="w-80 md:w-96 p-8 bg-white rounded-2xl shadow-lg">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
-        {error && <p className="text-sm text-red-500 text-center mb-4">{error}</p>}
-        {successMessage && (
-          <p className="text-sm text-green-500 text-center mb-4">{successMessage}</p>
-        )}
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-600">
@@ -147,6 +149,31 @@ const RegisterPage = () => {
           </a>
         </p>
       </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-80 text-center">
+            {successMessage ? (
+              <>
+                <h3 className="text-lg font-bold mb-4 text-center">Registration Successful</h3>
+                <p className="mb-4">{successMessage}</p>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold mb-4 text-red-500">Registration Failed</h3>
+                <p className="mb-4">{error}</p>
+              </>
+            )}
+            <button
+              onClick={handleModalClose}
+              className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
