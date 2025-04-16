@@ -5,7 +5,7 @@ Welcome to the Team-08 PRJ666 Winter 2025 project repository. This repository co
 ## Documentation
 All project-related documentation is now located in the `docs/` directory. You can find the following files there:
 
-- [API Documentation](docs/api_documentation.md)
+- [API Documentation](https://www.postman.com/lunar-shadow-698017/foodlink-backend-v2/overview)
 - [System Architecture](docs/system_architecture.md)
 - [Database Schema](docs/database_schema.md)
 
@@ -50,7 +50,7 @@ The frontend is built using Next.js and is located in the foodlink_frontend_v2 d
 ### Steps to Set Up Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo-url.git
+   git clone https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025.git
    cd Team-08-PRJ666-Winter-2025
    ```
 
@@ -94,13 +94,6 @@ The frontend is built using Next.js and is located in the foodlink_frontend_v2 d
 - **Individual**:
   - Username: `individual@gmail.com`
   - Password: `12345`
-
-## Technical Documents
-All project-related documentation is now located in the `docs/` directory. You can find the following files there:
-
-- [API Documentation](docs/api_documentation.md)
-- [System Architecture](docs/system_architecture.md)
-- [Database Schema](docs/database_schema.md)
 
 ## Deviations from PRJ566
 See `deviations.md` for a list of changes from the original proposal.

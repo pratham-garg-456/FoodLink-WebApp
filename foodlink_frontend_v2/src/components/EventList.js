@@ -74,12 +74,6 @@ export default function EventList({ apiEndPoint }) {
       </div>
     );
 
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    date.setHours(date.getHours() + 4);
-    return date.toTimeString().split(' ')[0].slice(0, 5);
-  };
-
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
     const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
@@ -129,29 +123,34 @@ export default function EventList({ apiEndPoint }) {
                   Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
                   {formatTime(event.start_time)} | To: {formatTime(event.end_time)}
                 </p>
-                <p className="text-base text-gray-600">Location: {event.location}</p>
-                <p className="text-base text-gray-600">Status: {event.status}</p>
-                {event.event_inventory && (
+                <p className="text-lg text-gray-600">Location: {event.location}</p>
+                <p className="text-lg text-gray-600">Status: {event.status}</p>
+                {event?.event_inventory.length !== 0 ? (
                   <div className="mt-4">
                     <h3 className="text-2xl font-semibold">Event Inventory</h3>
                     <ul className="list-disc ml-5">
                       {event.event_inventory.stock.map((item, idx) => (
-                        <li key={idx} className="flex items-center space-x-2 text-base">
+                        <li key={idx} className="flex items-center space-x-2 text-xl">
                           {/* Inventory icon */}
                           <span
                             className={`inline-block w-3 h-3 rounded-full ${getQuantityColor(item.quantity)}`}
                           ></span>
-                          <span className="text-gray-700 text-sm">
+                          <span>
                             {item.food_name} - Quantity: <strong>{item.quantity}</strong>
                           </span>
                         </li>
                       ))}
                     </ul>
                   </div>
+                ) : (
+                  <div className="mt-4">
+                    <h3 className="text-2xl font-semibold">Event Inventory</h3>
+                    <p className="text-red-600">No inventory available for this event.</p>
+                  </div>
                 )}
               </div>
             </div>
-            <p className="text-sm pl-6 pb-4 text-gray-500">
+            <p className="text-sm text-gray-500">
               Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
             </p>
           </div>

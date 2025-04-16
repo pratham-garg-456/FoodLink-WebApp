@@ -183,7 +183,7 @@ export default function JobsPage() {
           ) : (
             <>
               {/* TABLE for md+ screens */}
-              <div className="hidden md:block bg-white shadow-lg rounded-lg overflow-x-auto">
+              <div className="hidden md:block bg-white shadow-xl rounded-2xl overflow-x-auto">
                 <table className="w-full table-auto divide-y divide-gray-200">
                   <thead className="bg-gray-600 text-md">
                     <tr>
