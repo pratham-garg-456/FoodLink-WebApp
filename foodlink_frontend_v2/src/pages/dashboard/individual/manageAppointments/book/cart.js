@@ -1,23 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAtom } from 'jotai';
-import {
-  cartAtom,
-  cartErrorAtom,
-  appointmentAtom,
-  selectedFoodbankAtom,
-  appointmentDateAtom,
-  appointmentTimeAtom,
-} from '../../../../../../store'; // Adjust import path if needed
-import validateToken from '@/utils/validateToken';
 
 const CartPage = () => {
   const router = useRouter();
-  const [cart, setCart] = useAtom(cartAtom);
-  const [cartError, setCartError] = useAtom(cartErrorAtom);
-  const [selectedFoodbank, setSelectedFoodbank] = useAtom(selectedFoodbankAtom);
-  const [appointmentDate, setAppointmentDate] = useAtom(appointmentDateAtom);
-  const [appointmentTime, setAppointmentTime] = useAtom(appointmentTimeAtom);
+  const [cart, setCart] = useState([]);
+  const [cartError, setCartError] = useState('');
+  const [selectedFoodbank, setSelectedFoodbank] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentTime, setAppointmentTime] = useState('');
+  const [foodbankName, setFoodbankName] = useState('Guest'); // Default username
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,6 +16,22 @@ const CartPage = () => {
   const [startTime, setStartTime] = useState('');
   const [description] = useState('Request for food assistance'); // Default description
   const [showModal, setShowModal] = useState(false); // Modal state
+
+  const getUsername = async (userId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/misc/users`
+      );
+      if (!response.ok) throw new Error('Failed to fetch users');
+
+      const data = await response.json();
+      const matchedUser = data.users.find((user) => user.id === userId);
+      return matchedUser ? matchedUser.name : userId.slice(0, 5);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return 'Guest';
+    }
+  };
 
   useEffect(() => {
     // Retrieve values from localStorage
@@ -43,8 +50,11 @@ const CartPage = () => {
 
     if (storedDate) setAppointmentDate(storedDate);
     if (storedTime) setAppointmentTime(storedTime);
-    if (storedFoodbank) setSelectedFoodbank(storedFoodbank);
-  }, [setCart, setAppointmentDate, setAppointmentTime, setSelectedFoodbank]);
+    if (storedFoodbank) {
+      setSelectedFoodbank(storedFoodbank);
+      getUsername(storedFoodbank).then((name) => setFoodbankName(name));
+    }
+  }, [setCart, setAppointmentDate, setAppointmentTime, setSelectedFoodbank, setFoodbankName]);
 
   useEffect(() => {
     if (appointmentDate && appointmentTime) {
@@ -55,6 +65,12 @@ const CartPage = () => {
       setEndTime(endDateTime.toLocaleString());
     }
   }, [appointmentDate, appointmentTime]);
+
+  const calculateAppointmentTimes = (date, time) => {
+    const start = new Date(`${date}T${time}:00`);
+    const end = new Date(start.getTime() + 10 * 60000);
+    return { start, end };
+  };
 
   const handleSubmit = async () => {
     if (!appointmentDate || !appointmentTime || !selectedFoodbank) {
@@ -71,20 +87,19 @@ const CartPage = () => {
     setError(null);
 
     const token = localStorage.getItem('accessToken');
-
     if (!token) {
       setError('Authentication required.');
       router.push('/auth/login');
       return;
     }
 
+    const { start, end } = calculateAppointmentTimes(appointmentDate, appointmentTime);
+
     const appointmentData = {
       foodbank_id: selectedFoodbank,
       description,
-      start_time: new Date(`${appointmentDate}T${appointmentTime}:00`).toISOString(),
-      end_time: new Date(
-        new Date(`${appointmentDate}T${appointmentTime}:00`).getTime() + 10 * 60000
-      ).toISOString(),
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
       product: cart.map((item) => ({
         food_name: item.food_name,
         quantity: item.quantity,
@@ -109,11 +124,10 @@ const CartPage = () => {
       const data = await response.json();
       console.log(data);
 
-      setShowModal(true); // Show confirmation modal
-      localStorage.removeItem('cart');
-      localStorage.removeItem('appointmentDate');
-      localStorage.removeItem('appointmentTime');
-      localStorage.removeItem('selectedFoodbank');
+      setShowModal(true);
+      ['cart', 'appointmentDate', 'appointmentTime', 'selectedFoodbank'].forEach((key) =>
+        localStorage.removeItem(key)
+      );
     } catch (err) {
       setError(err.message);
     } finally {
@@ -148,7 +162,7 @@ const CartPage = () => {
           <strong>End Time:</strong> {endTime}
         </p>
         <p>
-          <strong>Food Bank:</strong> {selectedFoodbank || 'Not Selected'}
+          <strong>Food Bank:</strong> {foodbankName || 'Not Selected'}
         </p>
       </div>
 
@@ -185,6 +199,7 @@ const CartPage = () => {
             </p>
             <button
               onClick={() => {
+                localStorage.removeItem('cart'); // Clear the cart from local storage
                 setShowModal(false);
                 router.push('/dashboard/individual/manageAppointments/');
               }}
