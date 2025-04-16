@@ -171,86 +171,223 @@ const FoodBankInventory = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full min-h-screen flex flex-col">
-      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Food Bank Inventory</h1>
+    <div className=" min-h-screen pb-[calc(4rem+env(safe-area-inset-bottom))]">
+      <div
+        className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${cart.length > 0 ? 'mb-[calc(12rem+env(safe-area-inset-bottom))] sm:mb-32' : ''}`}
+      >
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 text-center mb-4">Food Bank Inventory</h1>
 
-      <p className="text-sm text-gray-700 mb-4 text-center">
-        ⚠️ You can select a **maximum of 5 items** in total, with a **limit of 2 per item**.
-      </p>
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Select up to <span className="font-semibold">5 items</span> in total, with a
+                  maximum of <span className="font-semibold">2 per item</span>.
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {error && <p className="text-red-500 text-center mb-5">Error: {error}</p>}
-      {cartError && <p className="text-red-500 text-center mb-5">{cartError}</p>}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
-      {loading ? (
-        <p className="text-center">Loading inventory...</p>
-      ) : (
-        <div
-          className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 justify-center mb-${cart.length > 0 ? '48' : '0'}`}
-        >
-          {inventory.length === 0 ? (
-            <p className="text-center col-span-full">No items available.</p>
+          {cartError && (
+            <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-yellow-700">{cartError}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="flex justify-center items-center min-h-[400px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
           ) : (
-            inventory.map((item) => (
-              <div
-                key={`${item.food_name ?? 'unknown'}-${item.quantity}`}
-                className="border p-4 rounded-lg shadow-md flex flex-col items-center text-center max-w-[300px] w-full mx-auto justify-space-between"
-              >
-                <h3 className="text-lg font-semibold">{item.food_name ?? 'Unnamed Food Item'}</h3>
-                <p className="text-gray-600">{item.description ?? 'No description available'}</p>
-                <div className="flex flex-col justify-start mt-2">
-                  <p>Available: {item.quantity ?? 0}</p>
+            <div className="flex justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-7xl justify-items-center">
+                {inventory.length === 0 ? (
+                  <div className="col-span-full text-center py-12">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                      />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No items available</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Check back later for available items.
+                    </p>
+                  </div>
+                ) : (
+                  inventory.map((item) => (
+                    <div
+                      key={`${item.food_name ?? 'unknown'}-${item.quantity}`}
+                      className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 w-full max-w-sm"
+                    >
+                      <div className="p-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {item.food_name ?? 'Unnamed Food Item'}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4">
+                          {item.description ?? 'No description available'}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              item.quantity > 5
+                                ? 'bg-green-100 text-green-800'
+                                : item.quantity > 0
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}
+                          >
+                            {item.quantity > 0 ? `${item.quantity} available` : 'Out of stock'}
+                          </span>
+                          <button
+                            onClick={() => addItemToCart(item)}
+                            disabled={item.quantity <= 0}
+                            className={`ml-4 inline-flex items-center px-4 py-2 border rounded-md text-sm font-medium shadow-sm
+                              ${
+                                item.quantity <= 0
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                              }`}
+                          >
+                            Add to Cart
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {cart.length > 0 && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10 pb-[env(safe-area-inset-bottom)]">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between">
+                <div className="flex-1 min-w-0 mb-4 sm:mb-0">
+                  <h2 className="text-lg font-medium text-gray-900 text-center sm:text-left">
+                    Shopping Cart ({getTotalItems()} items)
+                  </h2>
+                  <div className="mt-2 flow-root">
+                    <div className="-my-2">
+                      {cart.map((item) => (
+                        <div key={item.food_name} className="flex items-center py-2">
+                          <span className="flex-1 text-sm text-gray-700">{item.food_name}</span>
+                          <div className="flex items-center">
+                            <button
+                              onClick={() => decrementQuantity(item.food_name)}
+                              className="inline-flex items-center p-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-full hover:bg-red-100"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M20 12H4"
+                                />
+                              </svg>
+                            </button>
+                            <span className="mx-3 text-sm font-medium text-gray-900">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => incrementQuantity(item.food_name)}
+                              className="inline-flex items-center p-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <button
-                    onClick={() => addItemToCart(item)}
-                    className="bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-600 transition"
+                    onClick={() => router.back()}
+                    className="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
-                    +
+                    Go Back
+                  </button>
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Proceed to Checkout
                   </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {cart.length > 0 && (
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg p-4 border-t border-gray-200">
-          <h2 className="text-xl font-semibold text-center">Cart</h2>
-          <ul className="max-w-md mx-auto">
-            {cart.map((item) => (
-              <li key={item.food_name} className="flex justify-between items-center mt-2">
-                <span>{item.food_name}</span>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => decrementQuantity(item.food_name)}
-                    className="bg-red-500 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition"
-                  >
-                    -
-                  </button>
-                  <span className="mx-2">{item.quantity}</span>
-                  <button
-                    onClick={() => incrementQuantity(item.food_name)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition"
-                  >
-                    +
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={handleCheckout}
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition mt-4"
-          >
-            Go to Checkout
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition mt-4"
-          >
-            Go Back
-          </button>
-        </div>
-      )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
