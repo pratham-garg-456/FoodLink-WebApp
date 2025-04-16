@@ -136,85 +136,132 @@ const ViewAppointments = () => {
 
   return (
     <div className="flex flex-col my-16 w-[90vw] justify-center items-center md:my-24 h-full">
-      <h1 className="text-center text-4xl font-bold mb-4">Appointments History</h1>
-      <div className="bg-white p-8 shadow-xl md:w-[80vw] w-full text-xs md:text-base">
-        {/* Filter Section */}
-        <div className="mb-4">
-          <label htmlFor="statusFilter" className="mr-2">
-            Filter by Status:
-          </label>
-          <select
-            id="statusFilter"
-            value={filterStatus}
-            onChange={handleFilterChange}
-            className="border rounded px-2 py-1"
-          >
-            <option value="">All</option>
-            <option value="reschedule">Reschedule</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="picked">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+      <h1 className="text-center text-4xl font-bold mb-8 text-gray-800">Appointments History</h1>
+      <div className="bg-white p-8 rounded-lg shadow-2xl md:w-[80vw] w-full text-xs md:text-base">
+        {/* Filter and Sort Controls */}
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50 p-4 rounded-lg">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <label
+                htmlFor="statusFilter"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Filter by Status
+              </label>
+              <select
+                id="statusFilter"
+                value={filterStatus}
+                onChange={handleFilterChange}
+                className="block w-48 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">All Appointments</option>
+                <option value="scheduled" className="text-blue-600">
+                  Scheduled
+                </option>
+                <option value="reschedule" className="text-orange-600">
+                  Reschedule
+                </option>
+                <option value="picked" className="text-green-600">
+                  Completed
+                </option>
+                <option value="cancelled" className="text-red-600">
+                  Cancelled
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Total: {sortedAppointments.length}</span>
+          </div>
         </div>
 
-        {/* Loading/Error */}
+        {/* Loading/Error States */}
         {loading ? (
-          <div class="flex items-center justify-center">
-            <OrbitProgress color="#000000" size="large" text="" textColor="" />
+          <div className="flex items-center justify-center h-64">
+            <OrbitProgress color="#3B82F6" size="large" text="" textColor="" />
           </div>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <div className="text-center py-8">
+            <p className="text-red-500 font-medium">{error}</p>
+          </div>
         ) : sortedAppointments.length > 0 ? (
           <>
             {/* TABLE: visible on md+ screens */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full border-collapse">
-                <thead>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
                     <th
-                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('foodbank')}
                     >
-                      Food Bank
-                      {sortColumn === 'foodbank' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                      <div className="flex items-center gap-2">
+                        Food Bank
+                        <span className="text-gray-400">
+                          {sortColumn === 'foodbank' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </span>
+                      </div>
                     </th>
                     <th
-                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('start_time')}
                     >
-                      Start Time
-                      {sortColumn === 'start_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                      <div className="flex items-center gap-2">
+                        Start Time
+                        <span className="text-gray-400">
+                          {sortColumn === 'start_time' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </span>
+                      </div>
                     </th>
                     <th
-                      className="py-2 px-4 border-b text-left cursor-pointer"
+                      className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
                       onClick={() => handleSort('end_time')}
                     >
-                      End Time
-                      {sortColumn === 'end_time' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                      <div className="flex items-center gap-2">
+                        End Time
+                        <span className="text-gray-400">
+                          {sortColumn === 'end_time' && (sortOrder === 'asc' ? '↑' : '↓')}
+                        </span>
+                      </div>
                     </th>
-                    <th
-                      className="py-2 px-4 border-b text-left cursor-pointer"
-                      onClick={() => handleSort('status')}
-                    >
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
-                      {sortColumn === 'status' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
                     </th>
-                    <th className="py-2 px-4 border-b text-left">Actions</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-200">
                   {sortedAppointments.map((appointment) => (
-                    <tr key={appointment._id}>
-                      <td className="py-2 px-4 border-b">
-                        {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
+                    <tr key={appointment._id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
+                        </div>
                       </td>
-                      <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
-                      <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
-                      <td className="py-2 px-4 border-b">{appointment.status}</td>
-                      <td className="py-2 px-4 border-b">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(appointment.start_time)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(appointment.end_time)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                          ${appointment.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : ''}
+                          ${appointment.status === 'picked' ? 'bg-green-100 text-green-800' : ''}
+                          ${appointment.status === 'reschedule' ? 'bg-orange-100 text-orange-800' : ''}
+                          ${appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' : ''}`}
+                        >
+                          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => handleViewDetail(appointment)}
-                          className="text-blue-500 hover:underline"
+                          className="text-blue-600 hover:text-blue-900 font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
                         >
                           View Details
                         </button>
@@ -226,25 +273,38 @@ const ViewAppointments = () => {
             </div>
 
             {/* CARDS: visible on small screens */}
-            <div className="block md:hidden space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:hidden">
               {sortedAppointments.map((appointment) => (
-                <div key={appointment._id} className="border rounded p-4 shadow-sm">
-                  <p className="mb-2">
-                    <strong>Food Bank:</strong>{' '}
-                    {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Start Time:</strong> {formatDate(appointment.start_time)}
-                  </p>
-                  <p className="mb-2">
-                    <strong>End Time:</strong> {formatDate(appointment.end_time)}
-                  </p>
-                  <p className="mb-2">
-                    <strong>Status:</strong> {appointment.status}
-                  </p>
+                <div
+                  key={appointment._id}
+                  className="bg-white border rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="font-medium text-gray-900">
+                      {foodbankUsernames[appointment.foodbank_id] || appointment.foodbank_id}
+                    </div>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                      ${appointment.status === 'scheduled' ? 'bg-blue-100 text-blue-800' : ''}
+                      ${appointment.status === 'picked' ? 'bg-green-100 text-green-800' : ''}
+                      ${appointment.status === 'reschedule' ? 'bg-orange-100 text-orange-800' : ''}
+                      ${appointment.status === 'cancelled' ? 'bg-red-100 text-red-800' : ''}`}
+                    >
+                      {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm text-gray-500">
+                    <p>
+                      <span className="font-medium">Start:</span>{' '}
+                      {formatDate(appointment.start_time)}
+                    </p>
+                    <p>
+                      <span className="font-medium">End:</span> {formatDate(appointment.end_time)}
+                    </p>
+                  </div>
                   <button
                     onClick={() => handleViewDetail(appointment)}
-                    className="text-blue-500 hover:underline"
+                    className="mt-3 w-full text-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     View Details
                   </button>
@@ -253,37 +313,81 @@ const ViewAppointments = () => {
             </div>
           </>
         ) : (
-          <p className="text-center text-gray-600">No appointments found.</p>
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No appointments found.</p>
+          </div>
         )}
 
         {/* Modal */}
         {isModalOpen && selectedAppointment && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[90vw] sm:w-96 max-h-[80vh] overflow-y-auto">
-              <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
-              <p>
-                <strong>Description:</strong> {selectedAppointment.description}
-              </p>
-              <p>
-                <strong>Start Time:</strong> {formatDate(selectedAppointment.start_time)}
-              </p>
-              <p>
-                <strong>End Time:</strong> {formatDate(selectedAppointment.end_time)}
-              </p>
-              <div className="mt-4">
-                <strong className="text-gray-800">Products:</strong>
-                <ul className="mt-2">
-                  {selectedAppointment.product.map((item, index) => (
-                    <li key={index} className="text-xs text-gray-600 md:text-base">
-                      {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-4 text-right">
-                <button onClick={closeModal} className="bg-blue-500 text-white px-4 py-2 rounded">
-                  Close
-                </button>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl w-[90vw] sm:w-[500px] max-h-[80vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">Appointment Details</h2>
+                  <button
+                    onClick={closeModal}
+                    className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                  >
+                    <span className="sr-only">Close</span>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Description</h3>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {selectedAppointment.description || 'No description provided'}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Time Details</h3>
+                    <div className="mt-1 grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Start Time</p>
+                        <p className="text-sm text-gray-900">
+                          {formatDate(selectedAppointment.start_time)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">End Time</p>
+                        <p className="text-sm text-gray-900">
+                          {formatDate(selectedAppointment.end_time)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500">Products</h3>
+                    <ul className="mt-2 divide-y divide-gray-200">
+                      {selectedAppointment.product.map((item, index) => (
+                        <li key={index} className="py-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-900">{item.food_name}</span>
+                            <span className="text-sm text-gray-500">
+                              {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <button
+                    onClick={closeModal}
+                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
