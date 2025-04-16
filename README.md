@@ -50,7 +50,7 @@ The frontend is built using Next.js and is located in the foodlink_frontend_v2 d
 ### Steps to Set Up Locally
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo-url.git
+   git clone https://github.com/pratham-garg-456/Team-08-PRJ666-Winter-2025.git
    cd Team-08-PRJ666-Winter-2025
    ```
 
