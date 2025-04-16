@@ -73,6 +73,7 @@ const FoodbankDashboard = ({ userRole }) => {
       }
 
       const decodedToken = await validateToken(token);
+      console.log('Decoded Token:', decodedToken);
       if (decodedToken.error) {
         console.error('Invalid token: ', decodedToken.error);
         router.push('/auth/login');
@@ -118,6 +119,8 @@ const FoodbankDashboard = ({ userRole }) => {
         }
       } catch (error) {
         console.error('Error validating token:', error);
+        router.push('/auth/login');
+        return;
       }
     };
     checkToken();

@@ -128,96 +128,211 @@ const ViewDonations = () => {
     return date.toTimeString().split(' ')[0].slice(0, 5);
   };
   return (
-    <div className="container mx-auto p-6 w-[70vw] flex flex-col justify-start h-[75vh]">
+    <div className="container mx-auto p-8 w-full md:w-[80vw] flex flex-col justify-start min-h-screen ">
       {loading ? (
-        <div class="flex items-center justify-center">
-          <OrbitProgress color="#000000" size="large" text="" textColor="" />
+        <div className="flex items-center justify-center h-[50vh]">
+          <OrbitProgress color="#3B82F6" size="large" text="" textColor="" />
         </div>
       ) : (
         <>
-          <h1 className="text-2xl font-bold mb-4 flex justify-center">Manage Donations</h1>
-          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-          <div className="mb-4 flex justify-between">
-            <button
-              onClick={() => setSearchModalIsOpen(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-            >
-              Search
-            </button>
-            <button
-              onClick={handleReset}
-              className="ml-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300"
-            >
-              Reset
-            </button>
-          </div>
-          <div className="overflow-auto h-[80vh]">
-            <table className="w-full border-collapse border border-gray-300">
-              <thead className="sticky-header" style={{ position: 'sticky', top: 0 }}>
-                <tr className="bg-gray-200">
-                  <th className="border p-2 cursor-pointer" onClick={() => handleSort('id')}>
-                    Donation ID
-                  </th>
-                  <th className="border p-2 cursor-pointer" onClick={() => handleSort('donor_id')}>
-                    Donor ID
-                  </th>
-                  <th className="border p-2 cursor-pointer" onClick={() => handleSort('amount')}>
-                    Amount ($)
-                  </th>
-                  <th className="border p-2 cursor-pointer" onClick={() => handleSort('status')}>
-                    Status
-                  </th>
-                  <th
-                    className="border p-2 cursor-pointer"
-                    onClick={() => handleSort('created_at')}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 border-b pb-4">
+              Manage Donations
+            </h1>
+
+            {errorMessage && (
+              <div
+                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6"
+                role="alert"
+              >
+                <p>{errorMessage}</p>
+              </div>
+            )}
+
+            <div className="mb-6 flex justify-between items-center">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setSearchModalIsOpen(true)}
+                  className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center gap-2 shadow-md"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    Timestamp
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedDonations.length > 0 ? (
-                  sortedDonations.map((donation, index) => (
-                    <tr key={index} className="border">
-                      <td className="border p-2">{donation.id}</td>
-                      <td className="border p-2">{donation.donor_id}</td>
-                      <td className="border p-2">${donation.amount.toFixed(2)}</td>
-                      <td className="border p-2">
-                        <span className="font-bold text-blue-500">{donation.status}</span>
-                      </td>
-                      <td className="border p-2">
-                        {new Date(donation.updated_at).toLocaleString()}
-                      </td>
+                    <path
+                      fillRule="evenodd"
+                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Search
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="bg-gray-600 text-white px-6 py-2.5 rounded-lg hover:bg-gray-700 transition duration-300 flex items-center gap-2 shadow-md"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-lg shadow ring-1 ring-black ring-opacity-5">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('id')}
+                      >
+                        Donation ID
+                        {sortConfig.key === 'id' && (
+                          <span className="ml-2">
+                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('donor_id')}
+                      >
+                        Donor ID
+                        {sortConfig.key === 'donor_id' && (
+                          <span className="ml-2">
+                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('amount')}
+                      >
+                        Amount ($)
+                        {sortConfig.key === 'amount' && (
+                          <span className="ml-2">
+                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('status')}
+                      >
+                        Status
+                        {sortConfig.key === 'status' && (
+                          <span className="ml-2">
+                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
+                      <th
+                        className="px-6 py-3 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => handleSort('created_at')}
+                      >
+                        Timestamp
+                        {sortConfig.key === 'created_at' && (
+                          <span className="ml-2">
+                            {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center p-4">
-                      No donations found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {sortedDonations.length > 0 ? (
+                      sortedDonations.map((donation, index) => (
+                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                            {donation.id}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                            {donation.donor_id}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                            ${donation.amount.toFixed(2)}
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                              ${
+                                donation.status === 'completed'
+                                  ? 'bg-green-100 text-green-800'
+                                  : donation.status === 'pending'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-gray-100 text-gray-800'
+                              }`}
+                            >
+                              {donation.status}
+                            </span>
+                          </td>
+                          <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            {new Date(donation.updated_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="5"
+                          className="px-6 py-8 text-center text-sm text-gray-500 bg-gray-50"
+                        >
+                          No donations found
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <Modal
             isOpen={searchModalIsOpen}
             onRequestClose={() => setSearchModalIsOpen(false)}
             contentLabel="Search Donations"
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+            className="fixed inset-0 flex items-center justify-center"
             overlayClassName="fixed inset-0 bg-black bg-opacity-50"
           >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h2 className="text-xl font-bold mb-4">Search Donations</h2>
+            <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Search Donations</h2>
+                <button
+                  onClick={() => setSearchModalIsOpen(false)}
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSearch();
                 }}
+                className="space-y-6"
               >
-                <div className="mb-4">
-                  <label htmlFor="donor_id" className="block text-sm font-medium text-gray-600">
+                <div>
+                  <label htmlFor="donor_id" className="block text-sm font-medium text-gray-700">
                     Donor ID
                   </label>
                   <input
@@ -225,11 +340,12 @@ const ViewDonations = () => {
                     type="text"
                     value={searchParams.donor_id}
                     onChange={(e) => setSearchParams({ ...searchParams, donor_id: e.target.value })}
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="donation_id" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="donation_id" className="block text-sm font-medium text-gray-700">
                     Donation ID
                   </label>
                   <input
@@ -239,11 +355,12 @@ const ViewDonations = () => {
                     onChange={(e) =>
                       setSearchParams({ ...searchParams, donation_id: e.target.value })
                     }
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="start_time" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="start_time" className="block text-sm font-medium text-gray-700">
                     Start Time
                   </label>
                   <input
@@ -253,11 +370,12 @@ const ViewDonations = () => {
                     onChange={(e) =>
                       setSearchParams({ ...searchParams, start_time: e.target.value })
                     }
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="end_time" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="end_time" className="block text-sm font-medium text-gray-700">
                     End Time
                   </label>
                   <input
@@ -265,60 +383,72 @@ const ViewDonations = () => {
                     type="datetime-local"
                     value={searchParams.end_time}
                     onChange={(e) => setSearchParams({ ...searchParams, end_time: e.target.value })}
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="status" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                     Status
                   </label>
-                  <input
+                  <select
                     id="status"
-                    type="text"
                     value={searchParams.status}
                     onChange={(e) => setSearchParams({ ...searchParams, status: e.target.value })}
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-                  />
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  >
+                    <option value="">All</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="min_amount" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="min_amount" className="block text-sm font-medium text-gray-700">
                     Min Amount ($)
                   </label>
                   <input
                     id="min_amount"
                     type="number"
+                    min="0"
+                    step="0.01"
                     value={searchParams.min_amount}
                     onChange={(e) =>
                       setSearchParams({ ...searchParams, min_amount: e.target.value })
                     }
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="mb-4">
-                  <label htmlFor="max_amount" className="block text-sm font-medium text-gray-600">
+
+                <div>
+                  <label htmlFor="max_amount" className="block text-sm font-medium text-gray-700">
                     Max Amount ($)
                   </label>
                   <input
                     id="max_amount"
                     type="number"
+                    min="0"
+                    step="0.01"
                     value={searchParams.max_amount}
                     onChange={(e) =>
                       setSearchParams({ ...searchParams, max_amount: e.target.value })
                     }
-                    className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                   />
                 </div>
-                <div className="flex justify-end">
+
+                <div className="flex justify-end gap-3 mt-8">
                   <button
                     type="button"
                     onClick={() => setSearchModalIsOpen(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition duration-300 mr-2"
+                    className="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Search
                   </button>

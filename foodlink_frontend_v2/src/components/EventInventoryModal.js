@@ -8,6 +8,7 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
   const [loadingMainInventory, setLoadingMainInventory] = useState(false);
   const [formData, setFormData] = useState({ food_name: '', quantity: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [isMainInventoryItem, setIsMainInventoryItem] = useState(false);
 
   // Fetch event inventory
   const fetchEventInventory = async () => {
@@ -57,7 +58,7 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
 
   const isFoodQuantityGreaterThanInventory = (foodName, quantity) => {
     let isGreater = false;
-    eventInventory.stock.forEach((item) => {
+    eventInventory?.stock.forEach((item) => {
       if (item.food_name.toLowerCase() === foodName.toLowerCase()) {
         if (Number(quantity) > item.quantity) {
           isGreater = true;
@@ -67,12 +68,19 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
     return isGreater;
   };
 
-  // Handle adding/incrementing stock via POST route
-  const handleAddStock = async (e) => {
+  const handleAddToEvent = async (e) => {
     e.preventDefault();
+    if (!isMainInventoryItem) {
+      setNotification({
+        message: 'Can only add items from main inventory to event',
+        type: 'error',
+      });
+      return;
+    }
+
     setSubmitting(true);
     setNotification({ message: '', type: '' });
-  
+
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${event.id}/inventory`,
@@ -80,32 +88,41 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data.status === 'success') {
-        setNotification({ message: 'Inventory updated successfully.', type: 'success' });
+        setNotification({ message: 'Added to event inventory successfully.', type: 'success' });
         setFormData({ food_name: '', quantity: '' });
         fetchEventInventory();
       }
     } catch (error) {
       setNotification({
-        message: error?.response?.data?.detail || 'Failed to update event inventory.',
+        message: error?.response?.data?.detail || 'Failed to add to event inventory.',
         type: 'error',
       });
     }
     setSubmitting(false);
   };
 
-  // Handle decrementing stock via PUT route
-  const handleRemoveStock = async (e) => {
+  const handleRemoveFromEvent = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setNotification({ message: '', type: '' });
+    if (isMainInventoryItem) {
+      setNotification({
+        message: 'Can only remove items from event inventory',
+        type: 'error',
+      });
+      return;
+    }
+
     if (isFoodQuantityGreaterThanInventory(formData.food_name.trim(), formData.quantity)) {
       setNotification({
-        message: `${formData.food_name}'s quantity is greater than the stock quantity`,
+        message: `Cannot remove more than available quantity`,
         type: 'error',
       });
       setSubmitting(false);
       return;
     }
+
+    setSubmitting(true);
+    setNotification({ message: '', type: '' });
+
     try {
       const res = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/foodbank/event/${event.id}/inventory`,
@@ -113,13 +130,13 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (res.data.status === 'success') {
-        setNotification({ message: 'Inventory updated successfully.', type: 'success' });
+        setNotification({ message: 'Removed from event inventory successfully.', type: 'success' });
         setFormData({ food_name: '', quantity: '' });
         fetchEventInventory();
       }
     } catch (error) {
       setNotification({
-        message: error?.response?.data?.detail || 'Failed to update event inventory.',
+        message: error?.response?.data?.detail || 'Failed to remove from event inventory.',
         type: 'error',
       });
     }
@@ -155,6 +172,14 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
     setFormData({ ...formData, food_name: item.food_name });
   };
 
+  const handleFoodSelect = (e) => {
+    const selectedFood = e.target.value;
+    // Check if the selected food is from event inventory instead of main inventory
+    const isMainItem = !eventInventory?.stock.some((item) => item.food_name === selectedFood);
+    setIsMainInventoryItem(isMainItem);
+    setFormData({ ...formData, food_name: selectedFood });
+  };
+
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
 
@@ -170,112 +195,275 @@ export default function EventInventoryModal({ event, token, onClose, setNotifica
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-xl w-11/12 md:w-1/2 p-6 relative">
-        <h3 className="text-3xl font-bold mb-4">Manage Event Inventory</h3>
-        <button
-          className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xl p-2"
-          onClick={onClose}
-        >
-          close
-        </button>
-        <div className="lg:flex lg:flex-row lg:justify-evenly">
-          {/* Display current event inventory */}
-          {loadingInventory ? (
-            <p>Loading event inventory...</p>
-          ) : eventInventory ? (
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2 text-xl">Current Event Inventory:</h4>
-              <ul className="list-disc ml-6 text-lg">
-                {eventInventory.stock.map((item, idx) => (
-                  <li key={idx}>
-                    {item.food_name} - {item.quantity}
-                  </li>
-                ))}
-              </ul>
-              <p className="text-sm text-gray-600 mt-1">
-                Last Updated: {formatDateToLocal(eventInventory.last_updated)}
-              </p>
-            </div>
-          ) : (
-            <p>No inventory available for this event.</p>
-          )}
-
-          {/* Display main inventory for reference */}
-          {loadingMainInventory ? (
-            <p>Loading main inventory...</p>
-          ) : (
-            <>
-              {mainInventory.length > 0 && (
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2 text-xl">Main Inventory:</h4>
-                  <ul className="list-disc ml-6 text-lg">
-                    {mainInventory.map((item, idx) => (
-                      <li
-                        key={idx}
-                        className="cursor-pointer hover:underline"
-                        onClick={() => handleMainItemClick(item)}
-                      >
-                        {item.food_name} - {item.quantity}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </>
-          )}
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 transition-opacity duration-300">
+      <div className="bg-white rounded-2xl shadow-2xl w-11/12 md:w-3/4 lg:w-1/2 p-8 relative max-h-[90vh] overflow-y-auto mx-4 transform transition-all duration-300">
+        {/* Header Section */}
+        <div className="border-b pb-4 mb-6">
+          <h3 className="text-3xl font-bold text-gray-800">Manage Event Inventory</h3>
+          <button
+            className="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            onClick={onClose}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
-        {/* Form to add/increment or remove inventory */}
-        <form className="space-y-4" onSubmit={handleAddStock}>
-          <div>
-            <label className="block font-semibold mb-1 text-xl">Food Name</label>
-            <input
-              type="text"
-              value={formData.food_name}
-              onChange={(e) => setFormData({ ...formData, food_name: e.target.value })}
-              className="border p-2 w-full rounded-xl"
-              placeholder="Enter food name"
-              required
-            />
+        {/* Current Inventory Section */}
+        {loadingInventory ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
-          <div>
-            <label className="block font-semibold mb-1 text-xl">Quantity</label>
-            <input
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={formData.quantity}
-              onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-              className="border p-2 w-full rounded-xl"
-              placeholder="Enter quantity"
-              required
-            />
+        ) : eventInventory ? (
+          <div className="bg-gray-50 rounded-xl p-6 mb-6 shadow-inner">
+            <h4 className="text-xl font-semibold text-gray-800 mb-4">Current Event Inventory</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {eventInventory.stock.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-800">{item.food_name}</span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm ${
+                        item.quantity <= 10
+                          ? 'bg-red-100 text-red-800'
+                          : item.quantity <= 30
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {item.quantity} units
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-gray-500 mt-4">
+              Last Updated: {formatDateToLocal(eventInventory.last_updated)}
+            </p>
           </div>
-          <div className="flex justify-between">
+        ) : (
+          <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl">
+            No inventory available for this event.
+          </div>
+        )}
+
+        {/* Inventory Management Form */}
+        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <div className="space-y-4">
+            <div>
+              <label className="block font-medium text-gray-700 mb-2">Select Item</label>
+              <select
+                value={formData.food_name}
+                onChange={handleFoodSelect}
+                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
+                required
+              >
+                <option value="">Choose an item...</option>
+                {/* Event Items Group */}
+                {eventInventory && eventInventory.stock.length > 0 && (
+                  <optgroup label="Event Items" className="font-semibold">
+                    {eventInventory.stock.map((item, idx) => (
+                      <option key={`event-${idx}`} value={item.food_name}>
+                        {item.food_name} (Event Stock: {item.quantity})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {/* Main Inventory Group */}
+                {mainInventory.length > 0 && (
+                  <optgroup label="Main Inventory" className="font-semibold">
+                    {mainInventory.map((item, idx) => (
+                      <option key={`main-${idx}`} value={item.food_name}>
+                        {item.food_name} (Main Stock: {item.quantity})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              {formData.food_name && (
+                <p
+                  className={`mt-2 text-sm ${isMainInventoryItem ? 'text-blue-600' : 'text-gray-600'}`}
+                >
+                  {isMainInventoryItem
+                    ? 'You can transfer this item from main inventory to the event'
+                    : 'You can remove this item from event inventory'}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block font-medium text-gray-700 mb-2">Quantity</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  value={formData.quantity}
+                  onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                  className="w-full h-11 text-lg px-4 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors duration-200"
+                  placeholder="Enter amount..."
+                  required
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                  <span className="text-gray-500 text-sm">units</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <button
-              onClick={handleAddStock}
-              disabled={submitting}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full"
+              type="button"
+              onClick={handleAddToEvent}
+              disabled={submitting || !isMainInventoryItem || !formData.food_name}
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                !isMainInventoryItem || !formData.food_name
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-500 text-white hover:bg-green-600 shadow-sm hover:shadow-md'
+              }`}
+              title={
+                !formData.food_name
+                  ? 'Select an item first'
+                  : !isMainInventoryItem
+                    ? 'Select an item from main inventory'
+                    : ''
+              }
             >
-              {submitting ? 'Submitting...' : 'Add / Increment Stock'}
+              {submitting ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                'Add to Event'
+              )}
             </button>
             <button
-              onClick={handleRemoveStock}
-              disabled={submitting}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full"
+              type="button"
+              onClick={handleRemoveFromEvent}
+              disabled={submitting || isMainInventoryItem || !formData.food_name}
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                isMainInventoryItem || !formData.food_name
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-red-500 text-white hover:bg-red-600 shadow-sm hover:shadow-md'
+              }`}
+              title={
+                !formData.food_name
+                  ? 'Select an item first'
+                  : isMainInventoryItem
+                    ? 'Select an item from event inventory'
+                    : ''
+              }
             >
-              {submitting ? 'Submitting...' : 'Remove / Decrement Stock'}
+              {submitting ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Processing...
+                </span>
+              ) : (
+                'Remove from Event'
+              )}
             </button>
           </div>
         </form>
-        <div className="mt-4 flex justify-end">
+
+        {/* Transfer All Button */}
+        <div className="mt-6 pt-6 border-t">
           <button
             onClick={handleTransferBack}
-            disabled={submitting}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full"
+            disabled={submitting || !eventInventory?.stock?.length}
+            className={`w-full sm:w-auto float-right px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+              !eventInventory?.stock?.length
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-500 text-white hover:bg-blue-600 shadow-sm hover:shadow-md'
+            }`}
+            title={
+              !eventInventory?.stock?.length
+                ? 'No items in event inventory'
+                : 'Transfer all items back to main inventory'
+            }
           >
-            {submitting ? 'Processing...' : 'Transfer Back to Main Inventory'}
+            {submitting ? (
+              <span className="flex items-center justify-center">
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </span>
+            ) : (
+              'Transfer All Back to Main'
+            )}
           </button>
         </div>
       </div>

@@ -165,9 +165,9 @@ const Events = () => {
   }, [token]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-6 max-w-7xl">
       {loading ? (
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center min-h-[400px]">
           <OrbitProgress color="#000000" size="large" text="" textColor="" />
         </div>
       ) : (
@@ -179,191 +179,271 @@ const Events = () => {
               onClose={() => setNotification({ message: '', type: '' })}
             />
           )}
+
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-800 mb-6">Event Management</h1>
+            {!showForm && (
+              <button
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transform transition-transform hover:scale-105 flex items-center gap-2"
+                onClick={() => {
+                  setEditingEventId(null);
+                  setShowForm(true);
+                  setNotification({ message: '', type: '' });
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Create New Event
+              </button>
+            )}
+          </div>
+
           {showForm && (
-            <form
-              onSubmit={handleSubmit}
-              className="mt-8 max-w-3xl mx-auto border rounded-lg shadow-lg p-4"
-            >
-              <h2 className="text-2xl font-bold mb-4">
-                {editingEventId ? 'Edit Event' : 'Create New Event'}
-              </h2>
-              <div className="mb-4">
-                <label htmlFor="event_name" className="block font-bold mb-1 text-xl">
-                  Event Name
-                </label>
-                <input
-                  type="text"
-                  id="event_name"
-                  name="event_name"
-                  placeholder="Community Food Drive"
-                  value={eventData.event_name}
-                  onChange={(e) => setEventData({ ...eventData, event_name: e.target.value })}
-                  className="border p-2 w-full rounded-lg"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="description" className="block font-bold mb-1">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  name="description"
-                  placeholder="A food donation drive for the local community."
-                  value={eventData.description}
-                  onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
-                  className="border p-2 w-full rounded-lg"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label htmlFor="date" className="block font-bold mb-1">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={eventData.date}
-                    onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
-                    className="border p-2 w-full rounded-lg"
-                    required
-                  />
+            <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
+              <form onSubmit={handleSubmit}>
+                <h2 className="text-3xl font-bold mb-6 text-gray-800">
+                  {editingEventId ? 'Edit Event' : 'Create New Event'}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label
+                      htmlFor="event_name"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Event Name
+                    </label>
+                    <input
+                      type="text"
+                      id="event_name"
+                      name="event_name"
+                      placeholder="Community Food Drive"
+                      value={eventData.event_name}
+                      onChange={(e) => setEventData({ ...eventData, event_name: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      placeholder="123 Main Street, City"
+                      value={eventData.location}
+                      onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label
+                      htmlFor="description"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      placeholder="A food donation drive for the local community."
+                      value={eventData.description}
+                      onChange={(e) => setEventData({ ...eventData, description: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      value={eventData.date}
+                      onChange={(e) => setEventData({ ...eventData, date: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label
+                        htmlFor="start_time"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Start Time
+                      </label>
+                      <input
+                        type="time"
+                        id="start_time"
+                        name="start_time"
+                        value={eventData.start_time}
+                        onChange={(e) => setEventData({ ...eventData, start_time: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="end_time"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        End Time
+                      </label>
+                      <input
+                        type="time"
+                        id="end_time"
+                        name="end_time"
+                        value={eventData.end_time}
+                        onChange={(e) => setEventData({ ...eventData, end_time: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="location" className="block font-bold mb-1">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    placeholder="123 Main Street, City"
-                    value={eventData.location}
-                    onChange={(e) => setEventData({ ...eventData, location: e.target.value })}
-                    className="border p-2 w-full rounded-lg"
-                    required
-                  />
+                <div className="flex justify-end gap-4 mt-8">
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                  >
+                    {editingEventId ? 'Update Event' : 'Create Event'}
+                  </button>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label htmlFor="start_time" className="block font-bold mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    id="start_time"
-                    name="start_time"
-                    value={eventData.start_time}
-                    onChange={(e) => setEventData({ ...eventData, start_time: e.target.value })}
-                    className="border p-2 w-full rounded-lg"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="end_time" className="block font-bold mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    id="end_time"
-                    name="end_time"
-                    value={eventData.end_time}
-                    onChange={(e) => setEventData({ ...eventData, end_time: e.target.value })}
-                    className="border p-2 w-full rounded-lg"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-xl"
-                >
-                  Cancel Process
-                </button>
-                <button
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-600 text-xl text-white px-4 py-2 rounded-xl"
-                >
-                  {editingEventId ? 'Update Event' : 'Submit Event'}
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           )}
 
-          <div className="mt-12">
-            <h2 className="text-5xl font-bold mb-4 text-center">Existing Events</h2>
-            {!showForm && (
-              <div className="text-center mb-8">
-                <button
-                  className="bg-gray-500 hover:bg-gray-600 text-xl text-white px-4 py-2 rounded"
-                  onClick={() => {
-                    setEditingEventId(null);
-                    setShowForm(true);
-                    setNotification({ message: '', type: '' });
-                  }}
-                >
-                  Create New Event
-                </button>
-              </div>
-            )}
+          <div className="mt-8">
+            <h2 className="text-3xl font-bold mb-6 text-gray-800">Existing Events</h2>
             {events.length === 0 ? (
-              <p className="text-center">No events found.</p>
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <p className="text-gray-600 text-lg">No events found. Create your first event!</p>
+              </div>
             ) : (
-              <ul className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {events.map((event) => (
-                  <li
+                  <div
                     key={event.id}
-                    className="border bg-slate-50 p-5 rounded-lg flex flex-col shadow-xl"
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                   >
-                    <div className="flex justify-between items-center">
-                      <div onClick={() => handleEditEvent(event)} className="cursor-pointer">
-                        <h3 className="text-2xl font-bold">{event.event_name}</h3>
-                        <p>{event.description}</p>
-                        <p>
-                          <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
-                        </p>
-                        <p>
-                          <strong>From:</strong> {new Date(event.start_time).toLocaleTimeString()}
-                        </p>
-                        <p>
-                          <strong>To:</strong> {new Date(event.end_time).toLocaleTimeString()}
-                        </p>
-                        <p>
-                          <strong>Location:</strong> {event.location}
-                        </p>
-                        <p>
-                          <strong>Status:</strong> {event.status}
-                        </p>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-xl font-bold text-gray-800">{event.event_name}</h3>
+                        <span className="px-3 py-1 rounded-full text-sm capitalize bg-blue-100 text-blue-800">
+                          {event.status}
+                        </span>
                       </div>
-                      <div className="flex flex-col items-end">
+                      <p className="text-gray-600 mb-4">{event.description}</p>
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span>{new Date(event.date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span>
+                            {new Date(event.start_time).toLocaleTimeString()} -{' '}
+                            {new Date(event.end_time).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 text-gray-400"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <span>{event.location}</span>
+                        </div>
+                      </div>
+                      <div className="mt-6 flex gap-3">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openInventoryModal(event);
-                          }}
-                          className="bg-purple-500 hover:bg-purple-600 text-white text-xl px-3 py-1 rounded mb-2"
+                          onClick={() => handleEditEvent(event)}
+                          className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
                         >
-                          Manage Inventory
+                          Edit
                         </button>
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteEvent(event.id);
-                          }}
-                          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                          onClick={() => openInventoryModal(event)}
+                          className="flex-1 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors duration-200"
                         >
-                          Delete
+                          Inventory
+                        </button>
+                        <button
+                          onClick={() => handleDeleteEvent(event.id)}
+                          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 

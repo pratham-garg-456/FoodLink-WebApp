@@ -114,7 +114,7 @@ const NavbarFoodbank = () => {
 
   return (
     <nav
-      className={`fixed w-full flex md:mt-5 p-8 md:p-4 md:px-6 md gap-4 basis-1/10 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center md:items-start  md:${
+      className={`fixed w-full flex  p-8 md:p-0 md:px-6 md:pt-10 md gap-4 basis-1/10 bg-white text-white md:text-black z-50 transition-transform duration-300 justify-between items-center md:items-start  md:${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >

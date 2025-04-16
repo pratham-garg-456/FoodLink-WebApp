@@ -187,141 +187,341 @@ const ViewAppointments = () => {
   };
 
   return (
-    <div className="bg-white p-8 shadow-lg w-3/4">
-      <h1 className="text-2xl font-semibold text-center text-gray-800 mb-6">Manage Appointments</h1>
-
-      {/* Status Filter */}
-      <div className="mb-4">
-        <label className="mr-2">Filter by Status:</label>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="rescheduled">Rescheduled</option>
-          <option value="picked">Completed</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="scheduled">Scheduled</option>
-        </select>
-      </div>
-
-      {/* Loading / Error / Table & Cards */}
-      {loading ? (
-        <div class="flex items-center justify-center">
-          <OrbitProgress color="#000000" size="large" text="" textColor="" />
+    <div className="min-h-screen my-20 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 text-center">Appointment Management</h1>
+          <p className="mt-2 text-center text-gray-600">Manage and track all appointments</p>
         </div>
-      ) : errorMessage ? (
-        <p className="text-center text-red-500">{errorMessage}</p>
-      ) : filteredAppointments.length === 0 ? (
-        <p className="text-center text-gray-600">No appointments found for the selected status.</p>
-      ) : (
-        <>
-          {/* TABLE: visible on md+ screens */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="py-2 px-4 border-b">Name</th>
-                  <th className="py-2 px-4 border-b">Start Time</th>
-                  <th className="py-2 px-4 border-b">End Time</th>
-                  <th className="py-2 px-4 border-b">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAppointments.map((appointment) => (
-                  <tr key={appointment._id}>
-                    <td className="py-2 px-4 border-b">
-                      {individualUsernames[appointment.individual_id] || appointment.individual_id}
-                    </td>
-                    <td className="py-2 px-4 border-b">{formatDate(appointment.start_time)}</td>
-                    <td className="py-2 px-4 border-b">{formatDate(appointment.end_time)}</td>
-                    <td className="py-2 px-4 border-b">
-                      <button
-                        onClick={() => handleViewDetail(appointment)}
-                        className="text-blue-500 hover:underline"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
 
-          {/* CARD VIEW: visible on small screens */}
-          <div className="block md:hidden space-y-4">
-            {filteredAppointments.map((appointment) => (
-              <div key={appointment._id} className="border rounded p-4 shadow-sm">
-                <p>
-                  <strong>Name:</strong>{' '}
-                  {individualUsernames[appointment.individual_id] || appointment.individual_id}
-                </p>
-                <p>
-                  <strong>Start Time:</strong> {formatDate(appointment.start_time)}
-                </p>
-                <p>
-                  <strong>End Time:</strong> {formatDate(appointment.end_time)}
-                </p>
+        {/* Filter Section */}
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center space-x-4">
+              <label className="text-gray-700 font-medium">Filter Status:</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="form-select rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="scheduled">Scheduled</option>
+                <option value="rescheduled">Rescheduled</option>
+                <option value="picked">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div className="text-sm text-gray-500">
+              Showing {filteredAppointments.length} appointments
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        {loading ? (
+          <div className="flex items-center justify-center min-h-[400px] bg-white rounded-lg shadow-sm">
+            <OrbitProgress
+              color="#3B82F6"
+              size="large"
+              text="Loading appointments..."
+              textColor="#4B5563"
+            />
+          </div>
+        ) : errorMessage ? (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded min-h-[200px] flex items-center">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{errorMessage}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Table View */}
+            <div className="hidden md:block">
+              <div className="bg-white shadow-sm rounded-lg overflow-hidden min-h-[400px]">
+                {filteredAppointments.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-[400px] p-8">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <h3 className="mt-4 text-lg font-medium text-gray-900">
+                      No appointments found
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      There are no appointments with status: {statusFilter}
+                    </p>
+                  </div>
+                ) : (
+                  <table className="min-w-full w-full table-fixed divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Name
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Start Time
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          End Time
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/8 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Status
+                        </th>
+                        <th
+                          scope="col"
+                          className="w-1/8 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredAppointments.map((appointment) => (
+                        <tr key={appointment._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 truncate text-sm font-medium text-gray-900">
+                            {individualUsernames[appointment.individual_id] ||
+                              appointment.individual_id}
+                          </td>
+                          <td className="px-6 py-4 truncate text-sm text-gray-500">
+                            {formatDate(appointment.start_time)}
+                          </td>
+                          <td className="px-6 py-4 truncate text-sm text-gray-500">
+                            {formatDate(appointment.end_time)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                              ${
+                                appointment.status === 'scheduled'
+                                  ? 'bg-green-100 text-green-800'
+                                  : appointment.status === 'cancelled'
+                                    ? 'bg-red-100 text-red-800'
+                                    : appointment.status === 'picked'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                              }`}
+                            >
+                              {appointment.status.charAt(0).toUpperCase() +
+                                appointment.status.slice(1)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <button
+                              onClick={() => handleViewDetail(appointment)}
+                              className="text-blue-600 hover:text-blue-900 font-medium"
+                            >
+                              View Details
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+
+            {/* Card View for Mobile */}
+            <div className="block md:hidden">
+              {filteredAppointments.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm p-8 min-h-[300px] flex flex-col items-center justify-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <h3 className="mt-4 text-lg font-medium text-gray-900">No appointments found</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    There are no appointments with status: {statusFilter}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredAppointments.map((appointment) => (
+                    <div key={appointment._id} className="bg-white rounded-lg shadow-sm p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-medium text-gray-900">
+                            {individualUsernames[appointment.individual_id] ||
+                              appointment.individual_id}
+                          </h3>
+                          <div className="mt-2 space-y-2">
+                            <p className="text-sm text-gray-500">
+                              <span className="font-medium">Start:</span>{' '}
+                              {formatDate(appointment.start_time)}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              <span className="font-medium">End:</span>{' '}
+                              {formatDate(appointment.end_time)}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-full
+                          ${
+                            appointment.status === 'scheduled'
+                              ? 'bg-green-100 text-green-800'
+                              : appointment.status === 'cancelled'
+                                ? 'bg-red-100 text-red-800'
+                                : appointment.status === 'picked'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                        </span>
+                      </div>
+                      <div className="mt-4">
+                        <button
+                          onClick={() => handleViewDetail(appointment)}
+                          className="w-full bg-blue-50 text-blue-600 py-2 px-4 rounded-md hover:bg-blue-100 transition-colors duration-200"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Modal */}
+        {isModalOpen && selectedAppointment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Appointment Details</h2>
+              </div>
+
+              <div className="px-6 py-4 space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Description</p>
+                  <p className="mt-1 text-gray-900">
+                    {selectedAppointment.description || 'No description provided'}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Start Time</p>
+                    <p className="mt-1 text-gray-900">
+                      {formatDate(selectedAppointment.start_time)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">End Time</p>
+                    <p className="mt-1 text-gray-900">{formatDate(selectedAppointment.end_time)}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-2">Products</p>
+                  <div className="bg-gray-50 rounded-md p-3">
+                    <ul className="space-y-2">
+                      {selectedAppointment.product.map((item, index) => (
+                        <li key={index} className="flex justify-between text-sm">
+                          <span className="text-gray-900">{item.food_name}</span>
+                          <span className="text-gray-600">
+                            {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Status</p>
+                  <span
+                    className={`mt-1 px-2 py-1 text-sm font-semibold rounded-full inline-block
+                    ${
+                      selectedAppointment.status === 'scheduled'
+                        ? 'bg-green-100 text-green-800'
+                        : selectedAppointment.status === 'cancelled'
+                          ? 'bg-red-100 text-red-800'
+                          : selectedAppointment.status === 'picked'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {selectedAppointment.status.charAt(0).toUpperCase() +
+                      selectedAppointment.status.slice(1)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                {(selectedAppointment.status === 'scheduled' ||
+                  selectedAppointment.status === 'rescheduled') && (
+                  <>
+                    <button
+                      onClick={handleCancelAppointment}
+                      disabled={isCancelling}
+                      className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    >
+                      {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
+                    </button>
+                    <button
+                      onClick={handleMarkAsPicked}
+                      className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      Mark as Picked
+                    </button>
+                  </>
+                )}
                 <button
-                  onClick={() => handleViewDetail(appointment)}
-                  className="text-blue-500 hover:underline mt-2 block"
+                  onClick={closeModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
-                  View Details
+                  Close
                 </button>
               </div>
-            ))}
+            </div>
           </div>
-        </>
-      )}
-
-      {/* Modal for Appointment Details */}
-      {isModalOpen && selectedAppointment && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full sm:w-96">
-            <h2 className="text-xl font-semibold mb-4">Appointment Details</h2>
-            <p>
-              <strong>Description:</strong> {selectedAppointment.description}
-            </p>
-            <p>
-              <strong>Start Time:</strong> {formatDate(selectedAppointment.start_time)}
-            </p>
-            <p>
-              <strong>End Time:</strong> {formatDate(selectedAppointment.end_time)}
-            </p>
-            <ul className="space-y-2 mt-2">
-              {selectedAppointment.product.map((item, index) => (
-                <li key={index} className="text-sm text-gray-600">
-                  {item.food_name}: {item.quantity} {item.quantity > 1 ? 'items' : 'item'}
-                </li>
-              ))}
-            </ul>
-            <p>
-              <strong>Status:</strong> {selectedAppointment.status}
-            </p>
-            {(selectedAppointment.status === 'scheduled' ||
-              selectedAppointment.status === 'rescheduled') && (
-              <>
-                <button
-                  onClick={handleCancelAppointment}
-                  disabled={isCancelling}
-                  className="bg-red-500 text-white px-4 py-2 rounded mt-4"
-                >
-                  {isCancelling ? 'Cancelling...' : 'Cancel Appointment'}
-                </button>
-                <button
-                  onClick={handleMarkAsPicked}
-                  className="bg-green-500 text-white px-4 py-2 rounded mt-4 ml-2"
-                >
-                  Mark as Picked
-                </button>
-              </>
-            )}
-            <button
-              onClick={closeModal}
-              className="bg-gray-500 text-white px-4 py-2 rounded mt-4 ml-2"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
