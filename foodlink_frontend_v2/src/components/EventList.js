@@ -97,12 +97,13 @@ export default function EventList({ apiEndPoint }) {
           <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
           <p className="text-gray-700 text-xl mb-2">{event.description}</p>
           <p className="text-lg text-gray-600">
-            Date: {new Date(event.date).toLocaleDateString()} | From: {new Date(event.start_time).toLocaleTimeString()}{' '}
-            | To: {new Date(event.end_time).toLocaleTimeString()}
+            Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
+            {new Date(event.start_time).toLocaleTimeString()} | To:{' '}
+            {new Date(event.end_time).toLocaleTimeString()}
           </p>
           <p className="text-lg text-gray-600">Location: {event.location}</p>
           <p className="text-lg text-gray-600">Status: {event.status}</p>
-          {event.event_inventory && (
+          {event?.event_inventory.length !== 0 ? (
             <div className="mt-4">
               <h3 className="text-2xl font-semibold">Event Inventory</h3>
               <ul className="list-disc ml-5">
@@ -121,6 +122,11 @@ export default function EventList({ apiEndPoint }) {
               <p className="text-sm text-gray-500">
                 Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
               </p>
+            </div>
+          ) : (
+            <div className="mt-4">
+              <h3 className="text-2xl font-semibold">Event Inventory</h3>
+              <p className="text-red-600">No inventory available for this event.</p>
             </div>
           )}
         </div>

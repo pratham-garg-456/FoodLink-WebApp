@@ -270,14 +270,12 @@ async def retrieve_list_of_events_in_db():
             event_inventory = await EventInventory.find_one(
                 EventInventory.event_id == event["id"]
             )
-            if not event_inventory:
-                raise HTTPException(
-                    status_code=404, detail="Event inventory not found."
-                )
-
-            event_inventory = event_inventory.model_dump()
-            event_inventory["id"] = str(event_inventory["id"])
-
+            
+            if event_inventory:
+                event_inventory = event_inventory.model_dump()
+                event_inventory["id"] = str(event_inventory["id"])
+            else:
+                event_inventory = []
             event["event_inventory"] = event_inventory
             event_list.append(event)
 
