@@ -139,7 +139,7 @@ const AvailableJobs = () => {
                       ? new Date(app.applied_at).toISOString().split('T')[0]
                       : 'N/A'}
                   </td>
-                  <td className="p-2">{app.status}</td>
+                  <td className={`p-2 ${app?.status === "approved" ? `text-green-500` : `text-red-500`}`}>{app.status}</td>
                 </tr>
               );
             })}

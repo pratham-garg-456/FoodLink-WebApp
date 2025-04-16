@@ -50,7 +50,25 @@ const Events = () => {
     e.preventDefault();
     setNotification({ message: '', type: '' });
 
-    const requestBody = { ...eventData };
+    // Convert start_time and end_time to UTC
+    const convertToUTC = (timeString) => {
+      const [hours, minutes] = timeString.split(':').map(Number);
+      const localDate = new Date();
+      localDate.setHours(hours, minutes, 0, 0);
+
+      // Convert to UTC
+      const utcHours = localDate.getUTCHours();
+      const utcMinutes = localDate.getUTCMinutes();
+
+      // Format as HH:MM
+      return `${String(utcHours).padStart(2, '0')}:${String(utcMinutes).padStart(2, '0')}`;
+    };
+
+    const requestBody = {
+      ...eventData,
+      start_time: convertToUTC(eventData.start_time), // Convert start_time to UTC
+      end_time: convertToUTC(eventData.end_time), // Convert end_time to UTC
+    };
 
     try {
       if (editingEventId) {
@@ -99,7 +117,6 @@ const Events = () => {
 
   const formatTime = (isoString) => {
     const date = new Date(isoString);
-    // date.setHours(date.getHours() + 4);
     return date.toTimeString().split(' ')[0].slice(0, 5);
   };
 

@@ -55,8 +55,6 @@ export default function JobDetailPage() {
         setIsApplying(true);
 
         try {
-            // http://127.0.0.1:8000
-            // http://127.0.0.1:8000/api/v1/foodlink/volunteer/application/foodbank
             if (job.event_id) {
                 await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/volunteer/application/event`, {
                     event_id: job.event_id,
@@ -97,12 +95,12 @@ export default function JobDetailPage() {
     if (!job) return <p className="text-center mt-10">Loading job details...</p>;
 
     return (
-        <div className="max-w-3xl mx-auto p-6">
+        <div className="max-w-3xl mx-auto p-6 w-full">
             <h1 className="text-2xl font-bold">{job.title}</h1>
             <p className="text-gray-500">{job.location}</p>
             <p className="mt-4">{job.description}</p>
 
-            <div className="mt-6 p-4 border rounded">
+            <div className="mt-6 p-4 border rounded-lg">
                 <p><strong>Category:</strong> {job.category}</p>
                 <p><strong>Posted:</strong> {new Date(job.date_posted).toISOString().split('T')[0]}</p>
                 <p><strong>Deadline:</strong> {new Date(job.deadline).toISOString().split('T')[0]}</p>
@@ -110,7 +108,7 @@ export default function JobDetailPage() {
 
             <div className="mt-6 flex justify-between">
                 <button 
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition duration-200"
                     onClick={() => router.push(fromAppliedJobs ? '/dashboard/volunteer/applied-jobs' : '/dashboard/volunteer/available-jobs')}
                 >
                     Back to {fromAppliedJobs ? 'Applied Jobs' : 'Available Jobs'}
@@ -126,7 +124,7 @@ export default function JobDetailPage() {
                     </button>
                 ) : (
                     <button 
-                    className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-green-700 transition duration-200" 
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg disabled:opacity-50 hover:bg-green-700 transition duration-200" 
                         onClick={handleApply} 
                         disabled={isProcessing}
                     >
