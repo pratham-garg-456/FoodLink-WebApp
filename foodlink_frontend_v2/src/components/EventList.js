@@ -121,16 +121,17 @@ export default function EventList({ apiEndPoint }) {
                 <p className="text-gray-700 text-base mb-2">{event.description}</p>
                 <p className="text-base text-gray-600">
                   Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
-                  {formatTime(event.start_time)} | To: {formatTime(event.end_time)}
+                  {new Date(event.start_time).toLocaleTimeString()} | To:{' '}
+                  {new Date(event.end_time).toLocaleTimeString()}
                 </p>
-                <p className="text-lg text-gray-600">Location: {event.location}</p>
-                <p className="text-lg text-gray-600">Status: {event.status}</p>
+                <p className="text-base text-gray-600">Location: {event.location}</p>
+                <p className="text-base text-gray-600">Status: {event.status}</p>
                 {event?.event_inventory.length !== 0 ? (
                   <div className="mt-4">
                     <h3 className="text-2xl font-semibold">Event Inventory</h3>
                     <ul className="list-disc ml-5">
                       {event.event_inventory.stock.map((item, idx) => (
-                        <li key={idx} className="flex items-center space-x-2 text-xl">
+                        <li key={idx} className="flex items-center space-x-2 text-sm">
                           {/* Inventory icon */}
                           <span
                             className={`inline-block w-3 h-3 rounded-full ${getQuantityColor(item.quantity)}`}
@@ -150,7 +151,7 @@ export default function EventList({ apiEndPoint }) {
                 )}
               </div>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 p-2 pl-4">
               Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
             </p>
           </div>
