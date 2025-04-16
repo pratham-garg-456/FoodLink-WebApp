@@ -64,12 +64,6 @@ export default function EventList({ apiEndPoint }) {
       </div>
     );
 
-  const formatTime = (isoString) => {
-    const date = new Date(isoString);
-    date.setHours(date.getHours() + 4);
-    return date.toTimeString().split(' ')[0].slice(0, 5);
-  };
-
   const formatDateToLocal = (isoString) => {
     if (!isoString) return 'N/A';
     const utcDate = new Date(isoString + 'Z'); // Force UTC interpretation
@@ -103,8 +97,8 @@ export default function EventList({ apiEndPoint }) {
           <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
           <p className="text-gray-700 text-xl mb-2">{event.description}</p>
           <p className="text-lg text-gray-600">
-            Date: {new Date(event.date).toLocaleDateString()} | From: {formatTime(event.start_time)}{' '}
-            | To: {formatTime(event.end_time)}
+            Date: {new Date(event.date).toLocaleDateString()} | From: {new Date(event.start_time).toLocaleTimeString()}{' '}
+            | To: {new Date(event.end_time).toLocaleTimeString()}
           </p>
           <p className="text-lg text-gray-600">Location: {event.location}</p>
           <p className="text-lg text-gray-600">Status: {event.status}</p>
