@@ -318,7 +318,7 @@ export default function Inventory() {
           <div className="bg-white shadow-lg rounded-b-xl p-4">
             {foodItems.length > 0 ? (
               <div
-                className="flex flex-wrap justify-start content-start"
+                className="flex flex-wrap justify-center content-center"
                 style={{ gap: '0.5rem', margin: '-0.25rem' }}
               >
                 {[...foodItems]
@@ -436,6 +436,8 @@ export default function Inventory() {
                 const foodName = e.target.foodName.value;
                 const quantity = e.target.quantity.value;
                 handleAddStock(foodName, quantity);
+                // Reset tbe form fields
+                e.target.reset();
               }}
               className="bg-green-200 p-4 rounded-2xl shadow-xl"
             >
@@ -470,6 +472,8 @@ export default function Inventory() {
                 const foodName = e.target.foodName.value;
                 const quantity = e.target.quantity.value;
                 handleRemoveStock(foodName, quantity);
+                // Reset tbe form fields
+                e.target.reset();
               }}
               className="bg-red-200 p-4 rounded-2xl shadow-xl"
             >
