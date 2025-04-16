@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react';
 import Notification from './Notification';
 import axios from 'axios';
 import { OrbitProgress } from 'react-loading-indicators';
+
+// Sample images array
+const sampleImages = [
+  '/images/appointment-booking.jpg',
+  '/images/appointment-booking2.jpg',
+  '/images/value2.jpg',
+  '/images/appointment-booking.jpg',
+  '/images/appointment-booking2.jpg',
+];
+
 export default function EventList({ apiEndPoint }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,45 +102,61 @@ export default function EventList({ apiEndPoint }) {
           Next refresh in: <strong>{timeLeft} seconds</strong>
         </p>
       </div>
-      {events.map((event) => (
-        <div key={event.id} className="bg-indigo-50 shadow-xl rounded-xl p-6">
-          <h2 className="text-4xl font-bold mb-2">{event.event_name}</h2>
-          <p className="text-gray-700 text-xl mb-2">{event.description}</p>
-          <p className="text-lg text-gray-600">
-            Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
-            {new Date(event.start_time).toLocaleTimeString()} | To:{' '}
-            {new Date(event.end_time).toLocaleTimeString()}
-          </p>
-          <p className="text-lg text-gray-600">Location: {event.location}</p>
-          <p className="text-lg text-gray-600">Status: {event.status}</p>
-          {event?.event_inventory.length !== 0 ? (
-            <div className="mt-4">
-              <h3 className="text-2xl font-semibold">Event Inventory</h3>
-              <ul className="list-disc ml-5">
-                {event.event_inventory.stock.map((item, idx) => (
-                  <li key={idx} className="flex items-center space-x-2 text-xl">
-                    {/* Inventory icon */}
-                    <span
-                      className={`inline-block w-3 h-3 rounded-full ${getQuantityColor(item.quantity)}`}
-                    ></span>
-                    <span>
-                      {item.food_name} - Quantity: <strong>{item.quantity}</strong>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p className="text-sm text-gray-500">
-                Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
-              </p>
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {events.map((event, index) => (
+          <div
+            key={event.id}
+            className="bg-indigo-50 shadow-xl rounded-xl overflow-hidden flex flex-col justify-between"
+          >
+            {/* Event Image */}
+            <div>
+              <img
+                src={event.image_url || sampleImages[index % sampleImages.length]}
+                alt={event.event_name || 'Event Image'}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-2">{event.event_name}</h2>
+                <p className="text-gray-700 text-base mb-2">{event.description}</p>
+                <p className="text-base text-gray-600">
+                  Date: {new Date(event.date).toLocaleDateString()} | From:{' '}
+                  {new Date(event.start_time).toLocaleTimeString()} | To:{' '}
+                  {new Date(event.end_time).toLocaleTimeString()}
+                </p>
+                <p className="text-base text-gray-600">Location: {event.location}</p>
+                <p className="text-base text-gray-600">Status: {event.status}</p>
+                {event?.event_inventory.length !== 0 ? (
+                  <div className="mt-4">
+                    <h3 className="text-2xl font-semibold">Event Inventory</h3>
+                    <ul className="list-disc ml-5">
+                      {event.event_inventory.stock.map((item, idx) => (
+                        <li key={idx} className="flex items-center space-x-2 text-sm">
+                          {/* Inventory icon */}
+                          <span
+                            className={`inline-block w-3 h-3 rounded-full ${getQuantityColor(item.quantity)}`}
+                          ></span>
+                          <span>
+                            {item.food_name} - Quantity: <strong>{item.quantity}</strong>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <h3 className="text-2xl font-semibold">Event Inventory</h3>
+                    <p className="text-red-600">No inventory available for this event.</p>
+                  </div>
+                )}
+              </div>
             </div>
-          ) : (
-            <div className="mt-4">
-              <h3 className="text-2xl font-semibold">Event Inventory</h3>
-              <p className="text-red-600">No inventory available for this event.</p>
-            </div>
-          )}
-        </div>
-      ))}
+            <p className="text-sm text-gray-500 p-2 pl-4">
+              Last Updated: {formatDateToLocal(event.event_inventory.last_updated)}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

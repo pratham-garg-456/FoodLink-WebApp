@@ -106,7 +106,7 @@ const NavbarDonor = () => {
 
   return (
     <nav
-      className={`fixed w-full flex md:mt-5 p-8 md:p-4 md:px-6 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center md:items-start ${
+      className={`fixed w-full flex md:mt-5 p-8 md:p-4 md:px-6 text-white md:text-black z-50 transition-transform duration-300 justify-between items-center md:items-start bg-white ${
         isVisible ? 'md:translate-y-0' : 'md:-translate-y-full'
       }`}
     >

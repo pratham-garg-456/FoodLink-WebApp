@@ -17,7 +17,7 @@ const VolunteerDashboard = ({ userRole }) => {
       }
 
       const decodedToken = await validateToken(token);
-      setUserId(decodedToken.user.id.slice(0, 5));
+      setUserId(decodedToken.user.id);
       if (decodedToken.error) {
         console.error('Invalid token: ', decodedToken.error);
         router.push('/auth/login');
