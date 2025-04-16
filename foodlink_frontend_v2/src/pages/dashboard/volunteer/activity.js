@@ -51,12 +51,12 @@ export default function VolunteerDashboard() {
       </div>
     );
   return (
-    <div className="p-4 flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-8">
+    <div className="p-4 flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-8 my-20 w-[80vw]">
       {/* Left Side - Table */}
       <div className="lg:w-full">
-        <h2 className="text-4xl font-bold mb-4">Volunteer Activities</h2>
-        <div className="overflow-x-auto w-full border border-black">
-          <table className="w-full divide-y divide-gray-200">
+        <h2 className="text-4xl font-bold text-center mb-10">Activity Logs</h2>
+        <div className="overflow-x-auto w-full border border-black ">
+          <table className="w-full divide-y divide-gray-200 ">
             <thead className="bg-black text-white">
               <tr>
                 <th className="p-2">Date and Time</th>
@@ -73,10 +73,10 @@ export default function VolunteerDashboard() {
 
                 return (
                   <tr key={index} className="border-b hover:bg-gray-100 text-sm md:text-base">
-                    <td className="p-2">{startTime.toISOString().split('T')[0]}</td>
-                    <td className="p-2">{activity.category}</td>
-                    <td className="p-2">{activity.foodbank_name}</td>
-                    <td className="p-2">{duration} hrs</td>
+                    <td className="p-3  ">{startTime.toISOString().split('T')[0]}</td>
+                    <td className="p-3">{activity.category}</td>
+                    <td className="p-3">{activity.foodbank_name}</td>
+                    <td className="p-3 pr-20 text-end">{duration} hrs</td>
                   </tr>
                 );
               })}
@@ -86,7 +86,7 @@ export default function VolunteerDashboard() {
       </div>
 
       {/* Right Side - Total Hours Circle */}
-      <div className="lg:w-1/4 flex flex-col items-center">
+      <div className="lg:w-1/4 flex flex-col items-center justify-center">
         <div className="relative w-32 h-32 sm:w-40 sm:h-40 flex justify-center items-center border-4 border-green-700 rounded-full">
           <span className="text-lg sm:text-2xl font-bold">{totalHours.toFixed(2)} hrs</span>
         </div>

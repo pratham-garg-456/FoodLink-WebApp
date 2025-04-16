@@ -79,7 +79,7 @@ const AvailableJobs = () => {
             {currentJobs.map((job) => (
               <tr
                 key={job.id}
-                className="border hover:bg-gray-100"
+                className="border hover:bg-gray-100 hover:cursor-pointer"
                 onClick={() => {
                   localStorage.setItem('selectedJob', JSON.stringify(job));
                   localStorage.setItem('previousPage', 'available-jobs');
