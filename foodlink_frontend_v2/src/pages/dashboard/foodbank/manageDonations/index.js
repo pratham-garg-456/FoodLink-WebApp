@@ -111,73 +111,160 @@ const DonationTracker = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 w-full md:w-[70vw] flex flex-col justify-start min-h-screen md:min-h-[80vh]">
+    <div className="container mx-auto p-8 w-full md:w-[80vw] flex flex-col justify-start min-h-screen md:min-h-[80vh] ">
       {loading ? (
-        <div class="flex items-center justify-center">
-          <OrbitProgress color="#000000" size="large" text="" textColor="" />
+        <div className="flex items-center justify-center h-screen">
+          <OrbitProgress color="#3B82F6" size="large" text="" textColor="" />
         </div>
       ) : (
         <>
-          <h1 className="text-2xl font-bold mb-4 text-center">DONATIONS</h1>
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 border-b pb-4">
+              Donation Dashboard
+            </h1>
 
-          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-
-          {/* TABLE (hidden on small screens) */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border p-2">Amount ($)</th>
-                  <th className="border p-2">Status</th>
-                  <th className="border p-2">Timestamp</th>
-                </tr>
-              </thead>
-              <tbody>
-                {donations.length > 0 ? (
-                  donations.map((donation, index) => (
-                    <tr key={index} className="border">
-                      <td className="border p-2">${donation.amount.toFixed(2)}</td>
-                      <td className="border p-2">{donation.status}</td>
-                      <td className="border p-2">{formatDateToLocal(donation.created_at)}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center p-4">
-                      No donations yet
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* CARD VIEW (visible on small screens) */}
-          <div className="block md:hidden space-y-2">
-            {donations.length > 0 ? (
-              donations.map((donation, index) => (
-                <div key={index} className="border border-gray-300 p-4 shadow-sm">
-                  <p>
-                    <strong>Amount ($):</strong> ${donation.amount.toFixed(2)}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {donation.status}
-                  </p>
-                  <p>
-                    <strong>Timestamp:</strong> {formatDateToLocal(donation.created_at)}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <div className="text-center p-4 bg-gray-100 text-gray-600">No donations yet</div>
+            {errorMessage && (
+              <div
+                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6"
+                role="alert"
+              >
+                <p>{errorMessage}</p>
+              </div>
             )}
+
+            {/* TABLE (hidden on small screens) */}
+            <div className="hidden md:block overflow-x-auto bg-white rounded-lg shadow">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                      Amount ($)
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">
+                      Timestamp
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {donations.length > 0 ? (
+                    donations.map((donation, index) => (
+                      <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 text-sm text-gray-800 font-medium">
+                          ${donation.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-medium
+                            ${
+                              donation.status === 'completed'
+                                ? 'bg-green-100 text-green-800'
+                                : donation.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {donation.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {formatDateToLocal(donation.created_at)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center py-8 text-gray-500 bg-gray-50">
+                        No donations recorded yet
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* CARD VIEW (visible on small screens) */}
+            <div className="block md:hidden space-y-4">
+              {donations.length > 0 ? (
+                donations.map((donation, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-lg font-bold text-gray-800">
+                        ${donation.amount.toFixed(2)}
+                      </span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium
+                        ${
+                          donation.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
+                            : donation.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {donation.status}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Received:</span>{' '}
+                      {formatDateToLocal(donation.created_at)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center p-8 bg-gray-50 rounded-lg text-gray-500">
+                  No donations recorded yet
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Chart Section */}
-          <div className="mt-6">
-            <h2 className="text-xl font-bold mb-4">Donations Over the Last Few Months</h2>
-            <div className="w-full h-64">
-              <Bar data={chartData} />
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-4">
+              Monthly Donation Trends
+            </h2>
+            <div className="w-full h-80">
+              <Bar
+                data={{
+                  ...chartData,
+                  datasets: [
+                    {
+                      ...chartData.datasets[0],
+                      backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                      borderColor: 'rgb(59, 130, 246)',
+                      borderWidth: 2,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false,
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                      },
+                    },
+                    x: {
+                      grid: {
+                        display: false,
+                      },
+                    },
+                  },
+                }}
+              />
             </div>
           </div>
 
@@ -185,7 +272,7 @@ const DonationTracker = () => {
           <div className="flex justify-center mt-4">
             <button
               onClick={() => router.push('/dashboard/foodbank/manageDonations/viewDonations')}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 font-medium"
             >
               Manage Donations
             </button>
