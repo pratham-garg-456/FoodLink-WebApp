@@ -79,7 +79,7 @@ The frontend is built using Next.js and is located in the foodlink_frontend_v2 d
 ### Public Server Deployment
 1. Deploy the backend to a service like Render, AWS, or Heroku.
 2. Deploy the frontend to a service like Vercel or Netlify.
-3. Set environment variables for both frontend and backend as required.
+3. Set environment variables for both the frontend and backend as required.
 
 ### Test Account Credentials
 - **Admin**:
