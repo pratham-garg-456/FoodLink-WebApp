@@ -47,7 +47,7 @@ export default function Profile() {
         return;
       }
       const decodedToken = await validateToken(token);
-      console.log(decodedToken);
+      
       if (decodedToken.error) {
         console.error('Invalid token: ', decodedToken.error);
         router.push('/auth/login');
@@ -179,7 +179,6 @@ export default function Profile() {
       window.dispatchEvent(new Event('storage'));
       window.location.reload();
 
-      console.log(profileData);
       setIsEditing(false);
       alert('Profile updated successfully!');
     } catch (error) {

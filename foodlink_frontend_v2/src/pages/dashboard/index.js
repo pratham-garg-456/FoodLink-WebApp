@@ -18,21 +18,21 @@ const Dashboard = () => {
 
     try {
       const decodedToken = jwtDecode(token);
-      console.log('Decoded token:', decodedToken);
+      
       setUserRole(decodedToken.role);
       if (userRole == 'foodbank') {
         router.push('/dashboard/foodbank');
       }
       if (userRole == 'individual') {
-        console.log('Individual dashboard');
+        
         router.push('/dashboard/individual');
       }
       if (userRole == 'volunteer') {
-        console.log('volunteer dashboard');
+        
         router.push('/dashboard/volunteer');
       }
       if (userRole == 'donor') {
-        console.log('donor dashboard');
+       
         router.push('/dashboard/donor');
       }
     } catch (error) {
