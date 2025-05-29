@@ -25,7 +25,7 @@ const RegisterPage = () => {
     }
 
     try {
-      console.log('Payload being sent:', { name, role, email, password, confirmPassword });
+      
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/register`,
@@ -37,11 +37,11 @@ const RegisterPage = () => {
           confirm_password: confirmPassword,
         }
       );
-      console.log('Response received:', response.data);
+      
       setSuccessMessage('Registration successful!');
       setShowModal(true); // Show the modal for success
     } catch (error) {
-      console.error('Registration failed:', error);
+      
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {

@@ -46,7 +46,7 @@ const LoginPage = () => {
       }
     }
     try {
-      console.log('I am here');
+      
       const token = localStorage.getItem('accessToken');
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/foodlink/auth/profile`,
@@ -56,7 +56,7 @@ const LoginPage = () => {
           },
         }
       );
-      console.log('details after login', response.data);
+      
       if (response.data.status === 'success') {
         localStorage.setItem('name', response.data.user.name);
         localStorage.setItem('email', response.data.user.email);
